@@ -1,5 +1,26 @@
 ## Roadmap
 
+
+Incominciare oauth: 
+
+https://itch.io/docs/api/oauth
+
+
+registrato app: 
+
+Client ID: e73c97e940189c0a6baac772262f5545
+
+Login Url: https://itch.io/user/oauth?client_id=e73c97e940189c0a6baac772262f5545&scope=profile%3Ame&response_type=token&redirect_uri=itchio_app%3A%2F%2Foauth-callback
+
+itchio_test
+
+
+Authorization callback URL : itchio_app://oauth-callback
+
+
+
+
+
 **Starting the Project:**
 
 1. **Setup Development Environment:**
