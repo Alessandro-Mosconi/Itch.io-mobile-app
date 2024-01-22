@@ -32,9 +32,8 @@
 
                 <!-- Handle the custom URL scheme -->
                 <data
-                    android:scheme="https"
-                    android:host="itch.io"
-                    android:pathPrefix="/user/itchio_app://oauth-callback" />
+                    android:scheme="itchio-app"
+                    android:host="oauth-callback" />
             </intent-filter>
 
             <intent-filter>
