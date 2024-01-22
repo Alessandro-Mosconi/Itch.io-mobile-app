@@ -10,7 +10,7 @@ registrato app:
 
 Client ID: e73c97e940189c0a6baac772262f5545
 
-Login Url: https://itch.io/user/oauth?client_id=e73c97e940189c0a6baac772262f5545&scope=profile%3Ame&response_type=token&redirect_uri=itchio_app%3A%2F%2Foauth-callback
+Login Url: [https://itch.io/user/oauth?client_id=e73c97e940189c0a6baac772262f5545&scope=profile%3Ame&response_type=token&redirect_uri=itchio_app%3A%2F%2Foauth-callback](https://itch.io/user/oauth?client_id=8277d34bebbf51289c9a9d2e77cea871&scope=profile%3Ame&response_type=token&redirect_uri=itchio-app%3A%2F%2Foauth-callback)
 
 itchio_test
 
