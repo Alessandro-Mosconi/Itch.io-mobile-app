@@ -1,5 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uni_links/uni_links.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
@@ -51,6 +52,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> initUniLinks() async {
+
+    final prefs = await SharedPreferences.getInstance();
+
     // Handle the initial link
     try {
       final initialLink = await getInitialLink();
