@@ -2,6 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:uni_links/uni_links.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
+import 'package:flutter/services.dart' show PlatformException;
+import 'package:logger/logger.dart';
+
+var logger = Logger(
+  printer: PrettyPrinter(),
+);
 
 void main() {
   runApp(const MyApp());
@@ -26,16 +32,13 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
-
   final String title;
-
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 1;
-
   StreamSubscription? _sub;
 
   @override
@@ -45,15 +48,38 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> initUniLinks() async {
-    _sub = linkStream.listen((String? link) {
-      // Check if the incoming link is the OAuth callback
-      if (link != null && link.startsWith('itchio_app://oauth-callback')) {
-        // Extract the authorization code or token from the link
-        // Continue with OAuth process
-      }
-    }, onError: (err) {
-      // Handle exception
-    });
+  // Handle the initial link
+  try {
+    final initialLink = await getInitialLink();
+    if (initialLink != null) { // Check if the initial link is not null
+      handleLink(initialLink);
+    }
+  } on PlatformException {
+    // Handle exception, e.g., log the error
+    logger.e('Failed to get initial link.');
+  }
+
+  // Subscribe to the link stream
+  _sub = linkStream.listen((String? link) {
+    if (link != null) { // Only handle non-null links
+      handleLink(link);
+    }
+  }, onError: (err) {
+    // Handle exception, e.g., log the error
+    logger.e('Failed to subscribe to link stream: $err');
+  });
+}
+
+  void handleLink(String link) {
+    if (link.startsWith('itchio_app://oauth-callback')) {
+      _incrementCounter();
+      // Extract and process the token or authorization code from the link
+      // Continue with OAuth process
+    }
+    else {
+    logger.e('Invalid link received: $link');
+    }
+  
   }
 
   @override
@@ -62,14 +88,6 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 
-  Future<void> initUniLinks() async {
-    // Deep link handling
-    _sub = linkStream.listen((String? link) {
-      // Extract authorization code and proceed with OAuth
-    }, onError: (err) {
-      // Handle exception
-    });
-  }
 
   void _incrementCounter() {
     setState(() {
@@ -84,13 +102,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
   void _startOAuth() async {
-  const String authUrl = 'https://itch.io/user/oauth?client_id=e73c97e940189c0a6baac772262f5545&scope=profile%3Ame&response_type=token&redirect_uri=itchio_app%3A%2F%2Foauth-callback';
-
-  if (await canLaunch(authUrl)) {
-    await launch(authUrl);
-  } else {
-    // Handle the error if the URL can't be launched
-  }
+    final Uri url = Uri.parse('https://itch.io/user/oauth?client_id=e73c97e940189c0a6baac772262f5545&scope=profile%3Ame&response_type=token&redirect_uri=itchio_app%3A%2F%2Foauth-callback');
+    logger.e('ciao');
+    if (!await launchUrl(url)) {
+      throw Exception('Could not launch $url');
+    }
   }
 
   @override
@@ -121,8 +137,8 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _startOAuth,  //_incrementCounter,
-        tooltip: "auth Test",   // 'Increment',
+        onPressed: _startOAuth,  
+        tooltip: "auth Test", 
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
