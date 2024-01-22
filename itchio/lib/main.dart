@@ -44,23 +44,25 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 1;
   StreamSubscription? _sub;
-
+  late SharedPreferences prefs;
   @override
   void initState() {
     super.initState();
+    initSharedPreferences();
     initUniLinks();
   }
 
+  Future<void> initSharedPreferences() async {
+     prefs = await SharedPreferences.getInstance();
+  }
+
   Future<void> initUniLinks() async {
-
-    final prefs = await SharedPreferences.getInstance();
-
     // Handle the initial link
     try {
       final initialLink = await getInitialLink();
       if (initialLink != null) {
         // Check if the initial link is not null
-        handleLink(initialLink);
+        handleLink(initialLink!);
       }
     } on PlatformException {
       // Handle exception, e.g., log the error
@@ -80,13 +82,38 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void handleLink(String link) {
-    if (link.startsWith('itchio_app://oauth-callback')) {
+    if (link.startsWith('https://itch.io/user/itchio_app://oauth-callback')) {
       _incrementCounter();
+
       // Extract and process the token or authorization code from the link
       // Continue with OAuth process
+      Uri uri = Uri.parse(link);
+      Map<String, String> fragmentParameters = Uri.splitQueryString(uri.fragment);
+      String? accessToken = fragmentParameters['access_token'];
+
+
+      if (accessToken != null) {
+        logger.e('token: $accessToken');
+        handleAccessToken(accessToken);
+      } else {
+        logger.e('No access token found in the URL.');
+      }
     } else {
       logger.e('Invalid link received: $link');
     }
+  }
+
+  void handleAccessToken(String accessToken) {
+    saveAccessTokenToSharedPreferences(accessToken);
+  }
+
+  void saveAccessTokenToSharedPreferences(String accessToken) async {
+    await prefs.setString('access_token', accessToken);
+  }
+
+  Future<String> getAccessToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString("access_token") ?? "No access token found";
   }
 
   @override
@@ -148,7 +175,7 @@ class _MyHomePageState extends State<MyHomePage> {
       'assets/images/image3.jpg',
       'assets/images/image4.jpg'
     ];
-    List<String> gridItems = [
+    List<String> gridItems = [];/*
       'assets/images/grid_image1.jpg',
       'assets/images/grid_image2.jpg',
       'assets/images/grid_image3.jpg',
@@ -156,7 +183,7 @@ class _MyHomePageState extends State<MyHomePage> {
       'assets/images/grid_image5.jpg',
       'assets/images/grid_image6.jpg',
       // Altri percorsi delle immagini della griglia secondo necessità
-    ];
+    ];*/
 
     return Scaffold(
       appBar: AppBar(
@@ -187,7 +214,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             ListTile(
-              title: Text('Opzione 1'),
+              title: Text("Opzione 1"),
               onTap: () {
                 // Gestisci l'azione quando viene selezionata Opzione 1
               },
@@ -202,8 +229,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      body:
-      Column(
+      body: Column(
         children: [
           CarouselSlider(
             items: items.map((item) {
@@ -242,6 +268,23 @@ class _MyHomePageState extends State<MyHomePage> {
               scrollDirection: Axis.horizontal,
             ),
           ),
+          FutureBuilder<String>(
+            future: getAccessToken(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                // While the Future is still running, show a loading indicator or placeholder.
+                return CircularProgressIndicator();
+              } else if (snapshot.hasError) {
+                // If there was an error, display an error message.
+                return Text("Error: ${snapshot.error}");
+              } else {
+                // If the Future is complete, display the result.
+                return Center(
+                  child: Text(snapshot.data ?? "No access token found"),
+                );
+              }
+            },
+          ),
           Expanded(
               child: Padding(
                 padding: EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
@@ -269,13 +312,10 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-    floatingActionButton: FloatingActionButton(
-    onPressed: _startOAuth,
-    tooltip: "auth Test",
-    child: const Icon(Icons.
-    add
-    )
-    ,
+      floatingActionButton: FloatingActionButton(
+        onPressed: _startOAuth,
+        tooltip: "auth Test",
+        child: const Icon(Icons.add),
     )
     ,
     );
