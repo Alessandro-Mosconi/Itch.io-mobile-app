@@ -82,7 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void handleLink(String link) {
-    if (link.startsWith('https://itch.io/user/itchio_app://oauth-callback')) {
+    if (link.startsWith('itchio-app://oauth-callback')) {
       _incrementCounter();
 
       // Extract and process the token or authorization code from the link
