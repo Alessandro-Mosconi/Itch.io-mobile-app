@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
 import 'oauth.dart';
+import 'profilePage.dart';
+
 
 class HomePage extends StatefulWidget {
   final String title;
@@ -82,9 +84,12 @@ class _HomePageState extends State<HomePage> {
               },
             ),
             ListTile(
-              title: Text('Opzione 2'),
+              title: Text('Profile page'),
               onTap: () {
-                // Gestisci l'azione quando viene selezionata Opzione 2
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProfilePage(accessToken: 'your_access_token_here')),
+                );
               },
             ),
             // Aggiungi altre voci del menu secondo necessità
