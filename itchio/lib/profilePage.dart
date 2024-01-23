@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'oauth.dart';
 import 'package:http/http.dart' as http;
+import 'package:logger/logger.dart';
 
 class ProfilePage extends StatefulWidget {
+
   final String accessToken;
   const ProfilePage({Key? key, required this.accessToken}) : super(key: key);
 
@@ -13,28 +15,38 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   late Future<ProfileData> profileData;
+  final Logger logger = Logger(
+    printer: PrettyPrinter(),
+  );
+  final OAuthService _oAuthService = OAuthService();
 
   @override
   void initState() {
     super.initState();
+    _oAuthService.init();
     profileData = fetchProfileData();
   }
 
+  @override
+  void dispose() {
+    _oAuthService.dispose();
+    super.dispose();
+  }
+
   Future<ProfileData> fetchProfileData() async {
+
     // Retrieve the access token from SharedPreferences
-    String accessToken = await oAuthService.getAccessToken();
+    String accessToken = await _oAuthService.getAccessToken();
 
     final response = await http.get(
-      Uri.parse('https://itch.io/api/1/KEY/me'), // endpoint
-      headers: {
-        'Authorization': 'Bearer $accessToken',
-      },
+      Uri.parse('https://itch.io/api/1/$accessToken/me')
     );
 
     if (response.statusCode == 200) {
+
       var data = json.decode(response.body);
-      _username = data['user']['username'];
-      _coverUrl = data['user']['cover_url'];
+      var _username = data['user']['username'];
+      var _coverUrl = data['user']['cover_url'];
       // Use _username and _coverUrl as needed
       return ProfileData(
         profileName: _username,

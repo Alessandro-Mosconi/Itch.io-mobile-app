@@ -55,7 +55,7 @@ class OAuthService {
 
 
       if (accessToken != null) {
-        logger.e('token: $accessToken');
+        logger.i('token: $accessToken');
         handleAccessToken(accessToken);
       } else {
         logger.e('No access token found in the URL.');
@@ -73,7 +73,6 @@ class OAuthService {
       throw Exception('Could not launch $url');
     }
   }
-
 
   void handleAccessToken(String accessToken) {
     saveAccessTokenToSharedPreferences(accessToken);
