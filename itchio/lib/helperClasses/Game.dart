@@ -36,32 +36,13 @@ class Game {
   int? downloads_count;
   String? has_demo;
   User? user;
+  String? still_cover_url;
 
   // Not in the interface, since this is a constructor.
   GameFromJson(String jsonGame){
     var data = json.decode(jsonGame);
 
-    views_count = data['views_count'];
-    url = data['url'];
-    id = data['id'];
-    short_text = data['short_text'];
-    min_price = data['min_price'];
-    type = data['type'];
-    p_windows = data['p_windows'];
-    p_linux = data['p_linux'];
-    p_osx = data['p_osx'];
-    p_android = data['p_android'];
-    title = data['title'];
-    published_at = data['published_at'];
-    can_be_bought = data['can_be_bought'];
-    classification = data['classification'];
-    created_at = data['created_at'];
-    in_press_system = data['in_press_system'];
-    cover_url = data['cover_url'];
-    purchases_count = data['purchases_count'];
-    published = data['published'];
-    downloads_count = data['downloads_count'];
-    user = User(data['user']);
+    Game(data);
   }
 
   Game(Map<String, dynamic> data){
@@ -85,6 +66,7 @@ class Game {
     purchases_count = data['purchases_count'];
     published = data['published'];
     downloads_count = data['downloads_count'];
+    still_cover_url = data['still_cover_url'];
     user = User(data['user']);
   }
 
