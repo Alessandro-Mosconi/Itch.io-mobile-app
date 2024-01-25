@@ -1,24 +1,26 @@
+## Endpoints OAUTH discovered so far:
+
+- Profile:
+
+   https://itch.io/api/1/me/me
+  
+- Search any game: 
+
+   https://itch.io/api/1/me/search/games?query=gambetto
+   
+   and any user (maybe doesn't work?): 
+   
+   https://itch.io/api/1/me/search/users?query=kenney 
+   
+   source: https://github.com/itchio/itch.io/issues/289
+
+- Purchases: 
+
+   https://itch.io/api/1/me/my-owned-keys from https://github.com/leafo/itchio-app-old/issues/6
+
+
+
 ## Roadmap
-
-
-Incominciare oauth: 
-
-https://itch.io/docs/api/oauth
-
-
-registrato app: 
-
-Client ID: e73c97e940189c0a6baac772262f5545
-
-Login Url: [https://itch.io/user/oauth?client_id=e73c97e940189c0a6baac772262f5545&scope=profile%3Ame&response_type=token&redirect_uri=itchio_app%3A%2F%2Foauth-callback](https://itch.io/user/oauth?client_id=8277d34bebbf51289c9a9d2e77cea871&scope=profile%3Ame&response_type=token&redirect_uri=itchio-app%3A%2F%2Foauth-callback)
-
-itchio_test
-
-Authorization callback URL : itchio_app://oauth-callback
-
-
-
-
 
 **Starting the Project:**
 
