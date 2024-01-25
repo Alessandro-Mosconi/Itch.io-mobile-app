@@ -14,7 +14,6 @@ Login Url: [https://itch.io/user/oauth?client_id=e73c97e940189c0a6baac772262f554
 
 itchio_test
 
-
 Authorization callback URL : itchio_app://oauth-callback
 
 
@@ -23,17 +22,7 @@ Authorization callback URL : itchio_app://oauth-callback
 
 **Starting the Project:**
 
-1. **Setup Development Environment:**
-   - [ ] Install Flutter SDK and Dart.
-   - [ ] Choose an IDE (preferably Android Studio or VS Code for Flutter support).
-   - [ ] Install essential plugins for Flutter and Dart in your IDE.
-
-2. **Initialize a Flutter Project:**
-   - [ ] Create a new Flutter project using the command line or through your IDE.
-   - [ ] Initialize a Git repository for version control.
-   - [ ] Create a repository on GitHub or similar platforms for remote backup and collaboration.
-
-3. **Plan the UI/UX:**
+**Plan the UI/UX:**
    - [ ] Use tools like Figma or Adobe XD for designing the initial UI mockups and wireframes.
    - [ ] Conduct a basic usability study to validate the UI/UX design.
    - [ ] Prepare a design system or style guide to maintain consistency in UI elements.
