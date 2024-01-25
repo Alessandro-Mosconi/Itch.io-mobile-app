@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:itchio/purchasedGamesPage.dart';
 
 import 'myGamesPage.dart';
 import 'oauth.dart';
@@ -84,6 +85,15 @@ class _HomePageState extends State<HomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => MyGamesPage(accessToken: 'your_access_token_here')),
+                );
+              },
+            ),
+            ListTile(
+              title: Text("Lista chiavi acquistate"),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => PurchasedGamesPage(accessToken: 'your_access_token_here')),
                 );
               },
             ),
