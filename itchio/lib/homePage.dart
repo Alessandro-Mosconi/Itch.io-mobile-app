@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
+import 'myGamesPage.dart';
 import 'oauth.dart';
 import 'profilePage.dart';
 
@@ -78,9 +79,12 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             ListTile(
-              title: Text("Opzione 1"),
+              title: Text("Lista giochi sviluppati"),
               onTap: () {
-                // Gestisci l'azione quando viene selezionata Opzione 1
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MyGamesPage(accessToken: 'your_access_token_here')),
+                );
               },
             ),
             ListTile(
