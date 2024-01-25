@@ -19,10 +19,18 @@
    https://itch.io/api/1/me/my-owned-keys from https://github.com/leafo/itchio-app-old/issues/6
 
 
+## Features
+
+
+### Notifications
+
+- Get a notification any time a new Itch.io game goes on sale
+- Get a weekly digest of free games available on Itch.io
+- Anytime there is a new free game on Itch.io 
+
+
 
 ## Roadmap
-
-**Starting the Project:**
 
 **Plan the UI/UX:**
    - [ ] Use tools like Figma or Adobe XD for designing the initial UI mockups and wireframes.
