@@ -36,7 +36,6 @@ class _PurchasedGamesPageState extends State<PurchasedGamesPage> {
     );
 
     if (response.statusCode == 200) {
-      logger.i(response.body);
       List<PurchaseGame> gameList = (json.decode(response.body)["owned_keys"]  as List<dynamic>).map((gameMap) => PurchaseGame(gameMap)).toList();
       return gameList;
     } else {
