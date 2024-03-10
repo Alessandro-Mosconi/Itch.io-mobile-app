@@ -76,6 +76,66 @@
     - [ ] Continuously monitor user feedback and app performance to guide future development phases.
 
 
+## Pages and interfaces
+
+### Home Screen
+
+- Featured Games: Curated list of popular, trending, or recommended games.
+- New Releases: Showcase newly released games on Itch.io.
+- Upcoming Jams: A section highlighting upcoming or in-progress game jams. ?? si puó fare??
+- Personalized Recommendations: Games suggested based on user browsing history and preferences.
+- Quick Search Bar: Highly visible and easily accessible for users.
+
+
+### Game Page
+
+Detailed Game Information: Title, screenshots, videos, description, developer info, system requirements, price (if applicable).
+User Reviews and Ratings: Allow players to share feedback.
+
+
+### Browse Page
+
+Advanced Filters: Search by genre, price (including free), tags, platform, features (multiplayer, controller support, etc.).
+Sorting Options: Sort by release date, popularity, ratings, etc.
+Visual Card Display: Attractive thumbnail-based presentation of games.
+
+
+### Jams Page ?? si puó fare??
+
+Active Jams: List ongoing jams with deadlines.
+Past Jams: Archive of completed jams with results and submissions.
+Jam Details: Include theme, rules, submission guidelines, and a timeline.
+Register for Jams: Users should be able to enroll in active jams.
+Developer Resources Page:
+
+### Tools and Assets  ?? si puó fare??
+
+Forums and Community: Direct links to discussion boards for help and collaboration.
+Documentation: Access to Itch.io's official guides and API docs.
+News and Updates: Latest announcements from Itch.io related to developers.
+User-Focused Pages
+
+### Profile Page
+
+User Information: Username, profile picture (if applicable).
+Owned Games: Showcase purchased or downloaded games.
+Game Lists: Allow users to create custom lists (favorites, wishlists, etc.).
+Game Development Projects: A section for developers to list their games in progress.
+
+
+### Settings page 
+
+- Notifications settings 
+   - New Releases of Followed Games: Update users about titles they are interested in.
+   - Jam Updates: Reminders about deadlines, start dates, etc.
+   - Sales and Discounts: Promotions for games on a user's wishlist.
+   - Community Activity: Notifications on comments, likes, or follows (if you implement social features).
+- App settings
+   - theme (light, dark, adapt to the system)
+   - custom view (like compact view, detailed view etc)
+   - choosing accent color or color theme
+   
+
 ## Itch.io API documentation CHATGPT resume
 
 In summary, your approach should involve setting up OAuth for user authentication, understanding and utilizing the server-side and JavaScript APIs for specific functionalities, and ensuring all interactions are secure. Given your proficiency in software engineering and your choice of Flutter for app development, integrating these aspects of the Itch.io API will significantly enhance your app’s capabilities and user experience.
