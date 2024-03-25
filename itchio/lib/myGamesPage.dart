@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'dart:convert';
 import 'helperClasses/Game.dart';
-import 'oauth.dart';
+import 'oauth_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'customIcons/custom_icon_icons.dart';
 
 class MyGamesPage extends StatefulWidget {
-
   final String accessToken;
+
   const MyGamesPage({Key? key, required this.accessToken}) : super(key: key);
 
   @override
@@ -21,7 +20,7 @@ class _MyGamesPageState extends State<MyGamesPage> {
   final Logger logger = Logger(
     printer: PrettyPrinter(),
   );
-  final OAuthService _oAuthService = OAuthService();
+
 
   @override
   void initState() {
@@ -30,7 +29,7 @@ class _MyGamesPageState extends State<MyGamesPage> {
   }
 
   Future<List<Game>> fetchGameListData() async {
-    String accessToken = await _oAuthService.getAccessToken();
+    String accessToken = widget.accessToken;
 
     final response = await http.get(
       Uri.parse('https://itch.io/api/1/$accessToken/my-games')
