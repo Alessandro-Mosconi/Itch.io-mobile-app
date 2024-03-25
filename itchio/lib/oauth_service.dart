@@ -3,18 +3,22 @@ import 'package:uni_links/uni_links.dart';
 import 'dart:async';
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:logger/logger.dart';
-
+import 'package:flutter/foundation.dart'; //needed for ChangeNotifier
 import 'package:url_launcher/url_launcher.dart';
 
 
 
-class OAuthService {
+class OAuthService extends ChangeNotifier {
   final Logger logger = Logger(
     printer: PrettyPrinter(),
   );
 
   late SharedPreferences prefs;
   StreamSubscription? _sub;
+  String? _accessToken; // Added to store the access token
+
+  // Getter for access token to be used by widgets
+  String? get accessToken => _accessToken;
 
   Future<void> init() async {
     await initSharedPreferences();
@@ -23,6 +27,7 @@ class OAuthService {
 
   Future<void> initSharedPreferences() async {
     prefs = await SharedPreferences.getInstance();
+    _accessToken = prefs.getString("access_token"); // Load the access token at initialization
   }
 
   Future<void> initUniLinks() async {
@@ -46,13 +51,9 @@ class OAuthService {
 
   void handleLink(String link) {
     if (link.startsWith('itchio-app://oauth-callback')) {
-
-      // Extract and process the token or authorization code from the link
-      // Continue with OAuth process
       Uri uri = Uri.parse(link);
       Map<String, String> fragmentParameters = Uri.splitQueryString(uri.fragment);
       String? accessToken = fragmentParameters['access_token'];
-
 
       if (accessToken != null) {
         logger.i('token: $accessToken');
@@ -66,16 +67,16 @@ class OAuthService {
   }
 
   void startOAuth() async {
-    final Uri url = Uri.parse(
-        'https://itch.io/user/oauth?client_id=8277d34bebbf51289c9a9d2e77cea871&scope=profile&response_type=token&redirect_uri=itchio-app%3A%2F%2Foauth-callback');
-    logger.e('ciao');
+    final Uri url = Uri.parse('https://itch.io/user/oauth?client_id=your_client_id&scope=profile&response_type=token&redirect_uri=itchio-app%3A%2F%2Foauth-callback');
     if (!await launchUrl(url)) {
       throw Exception('Could not launch $url');
     }
   }
 
   void handleAccessToken(String accessToken) {
+    _accessToken = accessToken; // Update the access token
     saveAccessTokenToSharedPreferences(accessToken);
+    notifyListeners(); // Notify listeners about the change
   }
 
   void saveAccessTokenToSharedPreferences(String accessToken) async {
@@ -83,14 +84,19 @@ class OAuthService {
   }
 
   Future<String> getAccessToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString("access_token") ?? "No access token found";
+    return _accessToken ?? "No access token found";
+  }
+
+  void logout() {
+    _accessToken = null; // Clear the access token
+    prefs.remove('access_token'); // Remove the token from shared preferences
+    notifyListeners(); // Notify listeners about the change
   }
 
   void dispose() {
     _sub?.cancel();
+    super.dispose(); // Call dispose on ChangeNotifier to clean up any listeners
   }
-
 }
 
 
