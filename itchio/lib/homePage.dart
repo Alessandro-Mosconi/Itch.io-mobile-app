@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:itchio/purchasedGamesPage.dart';
+import 'package:provider/provider.dart';
 
 import 'myGamesPage.dart';
-import 'oauth.dart';
+import 'oauth_service.dart';
 import 'profilePage.dart';
 
 
@@ -16,25 +17,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  
-  final OAuthService _oAuthService = OAuthService();
 
-
-  @override
-  void initState() {
-    super.initState();
-    _oAuthService.init();
-  }
-
-  @override
-  void dispose() {
-    _oAuthService.dispose();
-    super.dispose();
-  }
-
-  
   @override
   Widget build(BuildContext context) {
+
+    final OAuthService oAuthService = Provider.of<OAuthService>(context);
+
     List<String> items = [
       'assets/images/image1.jpg',
       'assets/images/image2.jpg',
@@ -81,10 +69,13 @@ class _HomePageState extends State<HomePage> {
             ),
             ListTile(
               title: Text("Lista giochi sviluppati"),
-              onTap: () {
+              onTap: () async { // Make onTap async
+                final accessToken = await oAuthService.getAccessToken();
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => MyGamesPage(accessToken: 'your_access_token_here')),
+                  MaterialPageRoute(
+                    builder: (context) => MyGamesPage(accessToken: accessToken),
+                  ),
                 );
               },
             ),
@@ -151,7 +142,7 @@ class _HomePageState extends State<HomePage> {
           ),
 
           FutureBuilder<String>(
-            future: _oAuthService.getAccessToken(),
+            future: oAuthService.getAccessToken(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 // While the Future is still running, show a loading indicator or placeholder.
@@ -195,7 +186,7 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _oAuthService.startOAuth,
+        onPressed: oAuthService.startOAuth,
         tooltip: "auth Test",
         child: const Icon(Icons.add),
     )
