@@ -1,3 +1,7 @@
+
+[notes](notes.md)
+
+
 ## Endpoints OAUTH discovered so far:
 
 - Profile:
