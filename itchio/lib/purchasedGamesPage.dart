@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'helperClasses/Game.dart';
 import 'helperClasses/PurchaseGame.dart';
-import 'oauth.dart';
+import 'oauth_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 
@@ -20,7 +20,6 @@ class _PurchasedGamesPageState extends State<PurchasedGamesPage> {
   final Logger logger = Logger(
     printer: PrettyPrinter(),
   );
-  final OAuthService _oAuthService = OAuthService();
 
   @override
   void initState() {
@@ -29,7 +28,7 @@ class _PurchasedGamesPageState extends State<PurchasedGamesPage> {
   }
 
   Future<List<PurchaseGame>> fetchGameListData() async {
-    String accessToken = await _oAuthService.getAccessToken();
+    String accessToken = widget.accessToken;
 
     final response = await http.get(
       Uri.parse('https://itch.io/api/1/$accessToken/my-owned-keys')

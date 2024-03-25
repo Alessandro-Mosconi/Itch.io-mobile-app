@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'oauth.dart';
+import 'oauth_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 
 class ProfilePage extends StatefulWidget {
-
   final String accessToken;
   const ProfilePage({Key? key, required this.accessToken}) : super(key: key);
 
@@ -18,25 +17,22 @@ class _ProfilePageState extends State<ProfilePage> {
   final Logger logger = Logger(
     printer: PrettyPrinter(),
   );
-  final OAuthService _oAuthService = OAuthService();
 
   @override
   void initState() {
     super.initState();
-    _oAuthService.init();
     profileData = fetchProfileData();
   }
 
   @override
   void dispose() {
-    _oAuthService.dispose();
     super.dispose();
   }
 
   Future<ProfileData> fetchProfileData() async {
 
     // Retrieve the access token from SharedPreferences
-    String accessToken = await _oAuthService.getAccessToken();
+    String accessToken = widget.accessToken;
 
     final response = await http.get(
       Uri.parse('https://itch.io/api/1/$accessToken/me')

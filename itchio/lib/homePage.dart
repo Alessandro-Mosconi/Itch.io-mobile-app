@@ -68,7 +68,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             ListTile(
-              title: Text("Lista giochi sviluppati"),
+              title: Text("Developed Games"),
               onTap: () async { // Make onTap async
                 final accessToken = await oAuthService.getAccessToken();
                 Navigator.push(
@@ -79,25 +79,29 @@ class _HomePageState extends State<HomePage> {
                 );
               },
             ),
+            // Assuming you already have access to your 'oAuthService' instance
+
             ListTile(
-              title: Text("Lista chiavi acquistate"),
-              onTap: () {
+              title: Text("Purchased Games Page"),
+              onTap: () async {
+                final accessToken = await oAuthService.getAccessToken();
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => PurchasedGamesPage(accessToken: 'your_access_token_here')),
+                  MaterialPageRoute(builder: (context) => PurchasedGamesPage(accessToken: accessToken)),
                 );
               },
             ),
+
             ListTile(
               title: Text('Profile page'),
-              onTap: () {
+              onTap: () async {
+                final accessToken = await oAuthService.getAccessToken();
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ProfilePage(accessToken: 'your_access_token_here')),
+                  MaterialPageRoute(builder: (context) => ProfilePage(accessToken: accessToken)),
                 );
               },
             ),
-            // Aggiungi altre voci del menu secondo necessità
           ],
         ),
       ),
