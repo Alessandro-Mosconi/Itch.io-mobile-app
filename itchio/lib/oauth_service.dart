@@ -67,7 +67,9 @@ class OAuthService extends ChangeNotifier {
   }
 
   void startOAuth() async {
-    final Uri url = Uri.parse('https://itch.io/user/oauth?client_id=your_client_id&scope=profile&response_type=token&redirect_uri=itchio-app%3A%2F%2Foauth-callback');
+    final Uri url = Uri.parse('https://itch.io/user/oauth?client_id=8277d34bebbf51289c9a9d2e77cea871&scope=profile&response_type=token&redirect_uri=itchio-app%3A%2F%2Foauth-callback');
+
+    logger.i(url);
     if (!await launchUrl(url)) {
       throw Exception('Could not launch $url');
     }

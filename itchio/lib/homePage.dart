@@ -144,7 +144,6 @@ class _HomePageState extends State<HomePage> {
               scrollDirection: Axis.horizontal,
             ),
           ),
-
           FutureBuilder<String>(
             future: oAuthService.getAccessToken(),
             builder: (context, snapshot) {
