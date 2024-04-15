@@ -18,6 +18,9 @@ class User {
   int? id;
   String? displayName;
   String? coverUrl;
+  bool? isDeveloper;
+  bool? isGamer;
+
 
   // Not in the interface, since this is a constructor.
   UserFromJson(String jsonUser){
@@ -29,6 +32,8 @@ class User {
     id = data['id'];
     displayName = data['display_name'];
     coverUrl = data['cover_url'];
+    isGamer = data['gamer'];
+    isDeveloper = data['developer'];
   }
 
   User(Map<String, dynamic> data){
@@ -38,6 +43,8 @@ class User {
     id = data['id'];
     displayName = data['display_name'];
     coverUrl = data['cover_url'];
+    isGamer = data['gamer'];
+    isDeveloper = data['developer'];
   }
 
 }

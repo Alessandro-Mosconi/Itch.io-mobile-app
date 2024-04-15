@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'helperClasses/User.dart';
 import 'oauth_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
@@ -13,7 +14,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  late Future<ProfileData> profileData;
+  late Future<User> user;
   final Logger logger = Logger(
     printer: PrettyPrinter(),
   );
@@ -21,7 +22,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    profileData = fetchProfileData();
+    user = fetchUser();
   }
 
   @override
@@ -29,7 +30,7 @@ class _ProfilePageState extends State<ProfilePage> {
     super.dispose();
   }
 
-  Future<ProfileData> fetchProfileData() async {
+  Future<User> fetchUser() async {
 
     // Retrieve the access token from SharedPreferences
     String accessToken = widget.accessToken;
@@ -40,14 +41,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
     if (response.statusCode == 200) {
 
-      var data = json.decode(response.body);
-      var _username = data['user']['username'];
-      var _coverUrl = data['user']['cover_url'];
+      User user = User(json.decode(response.body)["user"]);
+
       // Use _username and _coverUrl as needed
-      return ProfileData(
-        profileName: _username,
-        profilePictureUrl: _coverUrl,
-      );
+      return user;
     } else {
     throw Exception('Failed to load profile data');
     }
@@ -59,20 +56,92 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar: AppBar(
         title: Text('Profile Page'),
       ),
-      body: FutureBuilder<ProfileData>(
-        future: profileData,
+      body: FutureBuilder<User>(
+        future: user,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return CircularProgressIndicator();
           } else if (snapshot.hasError) {
             return Text("Error: ${snapshot.error}");
           } else if (snapshot.hasData) {
-            return Column(
-              children: <Widget>[
-                Image.network(snapshot.data!.profilePictureUrl),
-                Text(snapshot.data!.profileName),
-              ],
+            return SingleChildScrollView(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(height: 20),
+                  Text(
+                    snapshot.data!.displayName ?? "",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        image: NetworkImage(snapshot.data!.coverUrl ?? ""),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    "@" + (snapshot.data!.username ?? ""),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    snapshot.data!.url ?? "",
+                    style: TextStyle(
+                      color: Colors.blue,
+                      fontSize: 16,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      if (snapshot.data!.isDeveloper ?? false)
+                        Container(
+                          padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                          margin: EdgeInsets.only(right: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.green,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Text(
+                            "Sviluppatore",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      if (snapshot.data!.isGamer ?? false)
+                        Container(
+                          padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                          margin: EdgeInsets.only(right: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.blue,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Text(
+                            "Gamer",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
             );
+
           } else {
             return Text("No profile data found");
           }
@@ -82,16 +151,3 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 
-class ProfileData {
-  final String profileName;
-  final String profilePictureUrl;
-
-  ProfileData({required this.profileName, required this.profilePictureUrl});
-
-  factory ProfileData.fromJson(Map<String, dynamic> json) {
-    return ProfileData(
-      profileName: json['username'] ?? 'No username', // Use actual JSON field
-      profilePictureUrl: json['cover_url'] ?? '', // Use actual JSON field
-    );
-  }
-}
