@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "535290439087",
+    "project_id": "itchioclientapp",
+    "storage_bucket": "itchioclientapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:535290439087:android:6b800260cedd5d3b5dbb5a",
+        "android_client_info": {
+          "package_name": "com.example.itchio"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKsJ6lwNtMxrgGKhdy3SyjQY1Gur6iBeM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -24,3 +24,18 @@ If you need to react to changes in the access token (for example, updating the U
 ```
 firebase emulators:start
 ```
+
+Firebase functions can be triggered by HTTP requests or scheduled to run at specific time:
+
+  - HTTP reqs:
+    - 
+    - 
+  - scheduled: 
+    - 
+    - 
+
+
+
+Firebase Cloud Messaging (FCM)
+
+stuff like firebase console -> select the projet -> project settings -> your apps ->  setup for flutter is necessary! 
