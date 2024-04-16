@@ -1,11 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'homePage.dart';
-import 'oauth_service.dart'; // Import your OAuth service file
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'oauth_service.dart';
 
-void main() {
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print("Handling a background message: ${message.messageId}");
+}
+
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  await FirebaseMessaging.instance.requestPermission();
+  await FirebaseMessaging.instance.subscribeToTopic('allUsers');
+
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    // Handle the message when the app is in the foreground
+    print("Message received in foreground: ${message.messageId}");
+  });
+
   runApp(ProviderApp());
 }
+
+
 
 class ProviderApp extends StatefulWidget {
   @override
