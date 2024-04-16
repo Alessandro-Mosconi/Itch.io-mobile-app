@@ -17,3 +17,10 @@ ElevatedButton(
 
 If you need to react to changes in the access token (for example, updating the UI upon successful login), you might consider extending `OAuthService` with `ChangeNotifier` and calling `notifyListeners()` when the access token changes. Then, use a `Consumer<OAuthService>` widget to rebuild parts of your UI in response to these changes.
 
+
+
+## Firebase stuff 
+
+```
+firebase emulators:start
+```
