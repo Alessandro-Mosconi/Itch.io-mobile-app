@@ -1,8 +1,12 @@
 const functions = require('firebase-functions');
+const admin = require('firebase-admin'); //added for FCM
 const fetch = require('node-fetch');
+
 const RSSParser = require('rss-parser');
 
-exports.fetchRSSFeed = functions.https.onRequest(async (request, response) => {
+admin.initializeApp();
+
+exports.fetchRSSFeedAndNotify = functions.https.onRequest(async (request, response) => {
     const rssParser = new RSSParser();
     const rssUrl = 'https://itch.io/games/free.xml';
 
@@ -11,19 +15,28 @@ exports.fetchRSSFeed = functions.https.onRequest(async (request, response) => {
         const xml = await res.text();
         const feed = await rssParser.parseString(xml);
 
-        // Log the whole feed to the Firebase Functions log for debugging
         console.log('Fetched RSS Feed:', JSON.stringify(feed, null, 2));
 
-        // Optionally, if you want to inspect specific parts:
-        console.log('Feed Title:', feed.title);
-        feed.items.forEach(item => {
-            console.log('News Title:', item.title); // Example of how to log titles of items in the feed
-        });
+        if (feed.items.length > 0) {
+            const latestItem = feed.items[0]; // Assuming the first item is the latest
+            console.log('Latest News Title:', latestItem.title);
 
-        // Respond with the entire feed JSON or part of it
+            // Prepare and send a notification about the latest item
+            const message = {
+                notification: {
+                    title: 'New Game Alert!',
+                    body: `${latestItem.title} is now available on itch.io!`
+                },
+                topic: 'new-games'
+            };
+
+            await admin.messaging().send(message);
+            console.log('Notification sent for:', latestItem.title);
+        }
+
         response.json(feed);
     } catch (error) {
-        console.error("Error fetching RSS feed:", error);
-        response.status(500).send('Error fetching RSS feed');
+        console.error("Error fetching RSS feed or sending notification:", error);
+        response.status(500).send('Failed to fetch RSS feed or send notification');
     }
 });

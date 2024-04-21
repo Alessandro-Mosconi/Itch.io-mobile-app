@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "firebase-admin": "^12.1.0",
     "firebase-functions": "^4.9.0",
     "firebase-tools": "^13.1.0",
     "rss-parser": "^3.13.0"
