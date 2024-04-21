@@ -7,27 +7,50 @@ import 'firebase_options.dart';
 import 'oauth_service.dart';
 
 
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print("Handling a background message: ${message.messageId}");
-}
-
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Request notification permissions
+  await requestPermissions();
+
+  // Set up background message handler
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  await FirebaseMessaging.instance.requestPermission();
-  await FirebaseMessaging.instance.subscribeToTopic('allUsers');
 
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    // Handle the message when the app is in the foreground
-    print("Message received in foreground: ${message.messageId}");
-  });
+  //just for testing notification
+  printFCMToken();
 
-  runApp(ProviderApp());
+  // Set up foreground notification listeners TODO
+  //setupForegroundNotificationListeners();
+
+  runApp(ProviderApp()); // Your root widget
 }
+
+//only for testing
+void printFCMToken() async {
+  String? token = await FirebaseMessaging.instance.getToken();
+  print("Device Token: $token");
+}
+
+// Background message handler
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print("Handling a background message: ${message.messageId}");
+}
+
+// Change the function signature to return a Future
+Future<void> requestPermissions() async {
+  NotificationSettings settings = await FirebaseMessaging.instance.requestPermission(
+    alert: true,
+    badge: true,
+    sound: true,
+    provisional: false,
+  );
+  print('User granted permission: ${settings.authorizationStatus == AuthorizationStatus.authorized}');
+}
+
 
 
 
