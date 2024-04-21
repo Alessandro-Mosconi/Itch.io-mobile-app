@@ -19,19 +19,12 @@ void main() async {
   // Set up background message handler
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  //just for testing notification
-  printFCMToken();
-
   // Set up foreground notification listeners TODO
   //setupForegroundNotificationListeners();
 
-  runApp(ProviderApp()); // Your root widget
-}
+  FirebaseMessaging.instance.subscribeToTopic('new-games');
 
-//only for testing
-void printFCMToken() async {
-  String? token = await FirebaseMessaging.instance.getToken();
-  print("Device Token: $token");
+  runApp(ProviderApp()); // Your root widget
 }
 
 // Background message handler
