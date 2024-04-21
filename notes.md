@@ -39,3 +39,33 @@ Firebase functions can be triggered by HTTP requests or scheduled to run at spec
 Firebase Cloud Messaging (FCM)
 
 stuff like firebase console -> select the projet -> project settings -> your apps ->  setup for flutter is necessary! 
+
+
+Remember to update always the dependencies in `package.json` and always `npm install`  
+
+```xml
+"dependencies": {
+    "firebase-admin": "^10.0.0",
+    "firebase-functions": "^3.15.0",
+    "node-fetch": "^2.6.1",
+    "rss-parser": "^3.12.0" 
+  },
+```
+
+the dependencies! 
+
+
+To deploy a function:
+
+```bash
+firebase deploy --only functions
+``` 
+
+but always test locally: 
+
+```bash
+firebase deploy --only functions
+```
+
+
+
