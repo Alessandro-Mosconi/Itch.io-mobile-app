@@ -1,40 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'homePage.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+import 'homePage.dart';
 import 'firebase_options.dart';
 import 'oauth_service.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
-  // Request notification permissions
-  await requestPermissions();
-
-  // Set up background message handler
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await requestNotificationPermissions();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-  // Set up foreground notification listeners TODO
-  //setupForegroundNotificationListeners();
-
   FirebaseMessaging.instance.subscribeToTopic('new-games');
-
-  runApp(ProviderApp()); // Your root widget
+  runApp(ProviderApp());
 }
 
-// Background message handler
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-  print("Handling a background message: ${message.messageId}");
-}
-
-// Change the function signature to return a Future
-Future<void> requestPermissions() async {
+Future<void> requestNotificationPermissions() async {
   NotificationSettings settings = await FirebaseMessaging.instance.requestPermission(
     alert: true,
     badge: true,
@@ -44,8 +27,9 @@ Future<void> requestPermissions() async {
   print('User granted permission: ${settings.authorizationStatus == AuthorizationStatus.authorized}');
 }
 
-
-
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print("Handling a background message: ${message.messageId}");
+}
 
 class ProviderApp extends StatefulWidget {
   @override
@@ -87,7 +71,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const HomePage(title: 'Itch.io refactor'),
+      home: const HomePage(title: 'Itch.io'),
     );
   }
 }
