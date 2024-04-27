@@ -36,7 +36,7 @@ dependencies:
   url_launcher: ^6.2.3
   logger: ^2.0.2+1
   carousel_slider: ^4.0.0
-  flutter_svg: ^0.22.0
+  flutter_svg: ^2.0.10
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -46,7 +46,7 @@ dependencies:
   http: ^1.2.0
   firebase_messaging: ^14.8.2
   firebase_core: ^2.30.0
-  flutter_local_notifications: ^8.2.0
+  flutter_local_notifications: ^17.1.0
 
 dev_dependencies:
   flutter_test:

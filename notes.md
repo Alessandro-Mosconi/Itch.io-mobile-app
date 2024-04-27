@@ -21,9 +21,6 @@ If you need to react to changes in the access token (for example, updating the U
 
 ## Firebase stuff 
 
-```
-firebase emulators:start
-```
 
 Firebase functions can be triggered by HTTP requests or scheduled to run at specific time:
 
@@ -64,7 +61,7 @@ firebase deploy --only functions
 but always test locally: 
 
 ```bash
-firebase deploy --only functions
+firebase emulators:start
 ```
 
 
