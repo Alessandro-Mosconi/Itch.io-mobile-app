@@ -189,6 +189,130 @@ https://itch.io/docs/api/overview
 By segmenting the API functionalities, you can focus on integrating each part effectively based on your app's needs. Each section requires a tailored approach to ensure seamless integration and optimal user experience. Keep in mind the best practices in security, user authorization, and data handling while working with these APIs.
 
 
+### XML pages
+In any order (it redirect in case):
+- https://itch.io/devlogs + 
+   - **Sort by**
+      - '' -> New and popular
+      - most-recent
+      - most-popular
+   - **Project type**
+      - games
+      - game-assets
+      - physical-games
+      - tools
+      - comics
+      - books
+   - **Post type**
+      - major-update
+      - postmortems
+      - game-design
+      - tech-discussion
+      - tutorials
+      - post_type-announcement
+      - culture
+      - marketing
+   - **Misc**
+      - from-following
+      
+- https://itch.io/games/ + 
+   - **Platform**
+      - platform-web
+      - platform-windows
+      - platform-osx
+      - platform-linux
+      - platform-android
+      - platform-ios
+   - **Price**
+      - free
+      - store
+      - 5-dollars-or-less
+      - 15-dollars-or-less
+   - **When**
+      - last-day
+      - last-7-days
+      - last-30-days
+   - **Genre** - different genre filters can be concatenated
+      - genre-action
+      - genre-adventure
+      - tag-card-game
+      - tag-survival
+      - tag-educational
+      - tag-fighting
+      - tag-interactive-fiction
+      - genre-platformer
+      - genre-puzzle
+      - tag-racing
+      - tag-rhythm
+      - genre-rpg
+      - genre-shooter
+      - genre-simulation
+      - genre-strategy
+      - genre-other
+      - genre-visual-novel
+      - tag-survival
+   - **Input**
+      - input-keyboard
+      - input-mouse
+      - input-x360
+      - input-gamepad
+      - input-joystick
+      - input-touchscreen
+      - input-voice
+      - oculus-rift
+      - leap-motion
+      - input-wiimote
+      - input-kinect
+      - input-neurosky-mindwave
+      - input-accelerometer
+      - osvr
+      - input-phone
+      - input-dance-pad
+      - input-htc-vive
+      - input-daydream-vr
+      - input-cardboard-vr
+      - input-playstation
+      - input-midi-controller
+      - input-joy-con
+      - input-magic-leap
+      - input-oculus-quest
+      - input-oculus-go
+      - input-windows-mixed-reality
+      - input-valve-index
+   - **Avg session length**
+      - duration-seconds
+      - duration-minutes
+      - duration-half-hour
+      - duration-hour
+      - duration-hours
+      - duration-days
+   - **Multiplayer**
+      - local-multiplayer
+      - multiplayer-server
+      - multiplayer-adhoc
+   - **Accessabilty**
+      - accessibility-colorblind
+      - accessibility-subtitles
+      - accessibility-configurable-controls
+      - accessibility-highcontrast
+      - accessibility-tutorial
+      - accessibility-one-button
+      - accessibility-blind
+      - accessibility-textless
+   - **Type**
+      - html5
+      - downloadable
+      - flash
+   - **Misc**
+      - steam-key
+      - in-jam
+      - exclude-jam
+      - has-demo
+      - featured
+   
+
+
+
 ### **Setting Up OAuth Applications**
 For actions that require user authentication or actions on behalf of a user, you need to set up an OAuth application on Itch.io. This involves registering your application in the user settings, obtaining a client ID, and defining the required scopes and redirect URIs.
 
