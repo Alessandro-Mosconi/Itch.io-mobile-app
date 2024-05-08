@@ -147,3 +147,126 @@ exports.item_list = functions.https.onRequest(async (request, response) => {
     // Restituisci l'oggetto JSON come risposta
     response.json(result);
 });
+
+
+exports.search = functions.https.onRequest(async (request, response) => {
+    const cheerio = require('cheerio');
+    const searchUrl = 'https://itch.io/search?q=';
+
+    // Verifica che il metodo della richiesta sia POST
+    if (request.method !== "GET") {
+        response.status(400).send('Please send a GET request');
+        return;
+    }
+
+    // Verifica che il corpo della richiesta contenga una stringa
+    if (!request.body) {
+        response.status(400).send('Please provide a the request body');
+        return;
+    }
+    if (request.body.search && typeof request.body.search !== 'string') {
+        response.status(400).send('Please provide a correct search filed type in request body');
+        return;
+    }
+
+    // Esegui le elaborazioni sulla stringa di input
+    const search = encodeURIComponent(request.body.search || '');
+
+    const filteredUrl = searchUrl + search
+    console.log(filteredUrl)
+
+    let gamesData = [];
+    let usersData = [];
+    
+    try {
+        // Recupera il contenuto della pagina HTML dall'URL usando fetch
+        const response = await fetch(filteredUrl);
+
+        // Verifica se la richiesta ha avuto successo
+        if (!response.ok) {
+            throw new Error('Errore durante il recupero del contenuto HTML');
+        }
+
+        // Ottieni il testo HTML dalla risposta
+        const html = await response.text();
+
+        // Analizza l'HTML utilizzando Cheerio
+        const $ = cheerio.load(html);
+
+        // Seleziona il div con classe "game_grid_widget"
+        const gameGrid = $('.game_grid_widget');
+
+        // Verifica se il div esiste
+        if (gameGrid.length > 0) {
+            // Array per memorizzare i dati dei giochi
+            gamesData = [];
+
+            // Itera su ogni sottodiv
+            gameGrid.find('.game_cell').each(function() {
+                // Estrai i dati necessari per ogni gioco
+                const link = $(this).find('.game_title a').attr('href');
+                const img = $(this).find('.game_thumb img').attr('data-lazy_src');
+                const title = $(this).find('.game_title a').text();
+                const text = $(this).find('.game_text').text();
+                const author = $(this).find('.game_author a').text();
+
+                // Creazione dell'oggetto JSON per il gioco corrente
+                const gameData = {
+                    link: link,
+                    imageurl: img,
+                    title: title,
+                    description: text,
+                    author: author
+                };
+
+                // Aggiungi l'oggetto JSON all'array
+                gamesData.push(gameData);
+            });
+
+        } else {
+            gamesData = [];
+        }
+
+
+        // Seleziona il div con classe "user_results_cells"
+        const userResultsCells = $('.user_results_cells');
+
+        // Verifica se il div esiste
+        if (userResultsCells.length > 0) {
+            // Itera su ogni sottodiv dei risultati utente
+            userResultsCells.find('.user_result_cell').each(function() {
+                // Estrai i dati necessari per ogni risultato utente
+                const userLink = $(this).find('.avatar_container').attr('href');
+                const userImg = $(this).find('.result_avatar').css('background-image').replace(/url\(['"]?(.*?)['"]?\)/i, '$1');
+                const userName = $(this).find('.user_name a').text();
+                const numberOfProjects = $(this).find('.user_sub').text().trim().split(' ')[0];
+
+                // Creazione dell'oggetto JSON per il risultato utente corrente
+                const userData = {
+                    link: userLink,
+                    img: userImg,
+                    name: userName,
+                    number_of_projects: numberOfProjects
+                };
+
+                // Aggiungi l'oggetto JSON all'array
+                usersData.push(userData);
+            });
+        } else {
+            usersData = [];
+        }
+
+    } catch (error) {
+        response.status(400).send('Errore nella connessione con itch.io o url non corretto: "' + filteredUrl + '"\n' + error);
+    }
+   
+    // Crea un oggetto JSON con i risultati
+    const result = {
+        url: filteredUrl,
+        games: gamesData,
+        users: usersData
+    };
+
+    // Restituisci l'oggetto JSON come risposta
+    response.json(result);
+});

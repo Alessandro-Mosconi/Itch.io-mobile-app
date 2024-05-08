@@ -309,6 +309,12 @@ In any order (it redirect in case):
       - exclude-jam
       - has-demo
       - featured
+   - **Sort by**
+      - '' -> Popular
+      - new-and-popular
+      - top-sellers
+      - top-rated
+      - newest
    
 
 
