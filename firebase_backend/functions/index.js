@@ -103,36 +103,38 @@ exports.item_list = functions.https.onRequest(async (request, response) => {
     }
 
     // Correzione dei vari parametri di ogni gioco
-    for(const game of items){
-        const altRegex = /alt="(.*?)"/;
-        // Espressione regolare per estrarre il valore dell'attributo src
-        const srcRegex = /src="(.*?)"/;
+    if(type === 'games'){
+        for(const game of items){
+            const altRegex = /alt="(.*?)"/;
+            // Espressione regolare per estrarre il valore dell'attributo src
+            const srcRegex = /src="(.*?)"/;
 
-        // Estrarre il testo tra le doppie virgolette per l'attributo alt
-        const altMatch = altRegex.exec(game.description);
-        const alt = altMatch ? altMatch[1] : '';
+            // Estrarre il testo tra le doppie virgolette per l'attributo alt
+            const altMatch = altRegex.exec(game.description);
+            const alt = altMatch ? altMatch[1] : '';
 
-        // Estrarre il valore dell'attributo src
-        const srcMatch = srcRegex.exec(game.description);
-        const img = srcMatch ? srcMatch[1] : '';
+            // Estrarre il valore dell'attributo src
+            const srcMatch = srcRegex.exec(game.description);
+            const img = srcMatch ? srcMatch[1] : '';
 
-        // Rimuovere il tag img dalla descrizione
-        const cleanDescription = game.description.replace(/<img.*?>/, '').trim();
-        
-        game.alt = alt;
-        game.img = img;
-        game.oldDescription = game.description;
-        game.description = cleanDescription;
+            // Rimuovere il tag img dalla descrizione
+            const cleanDescription = game.description.replace(/<img.*?>/, '').trim();
+            
+            game.alt = alt;
+            game.img = img;
+            game.oldDescription = game.description;
+            game.description = cleanDescription;
 
-        const [titleText, filtersText] = game.title.split(" [");
+            const [titleText, filtersText] = game.title.split(" [");
 
-        const filters = filtersText.replace(/\]/g, '').split(' ').filter(filter => filter !== '');
+            const filters = filtersText.replace(/\]/g, '').split(' ').filter(filter => filter !== '');
 
-        game.title = titleText;
-        game.filters = filters;
+            game.title = titleText;
+            game.filters = filters;
 
-        game.platforms = Object.keys(game.platforms).filter(key => game.platforms[key] === "yes");
+            game.platforms = Object.keys(game.platforms).filter(key => game.platforms[key] === "yes");
 
+        }
     }
 
     // Crea un oggetto JSON con i risultati
