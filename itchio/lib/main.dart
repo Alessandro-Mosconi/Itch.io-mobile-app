@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'bottomBar.dart';
+import 'bottom_bar.dart';
 import 'firebase_options.dart';
 import 'oauth_service.dart';
 
@@ -108,10 +108,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Itch.io',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.black),
         useMaterial3: true,
       ),
-      home: const bottomBar(title: 'Itch.io'),
+      home: const bottomBar(),
     );
   }
 }

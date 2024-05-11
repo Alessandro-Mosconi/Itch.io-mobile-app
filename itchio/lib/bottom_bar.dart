@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'profile_page.dart';
 import 'oauth_service.dart';  // Ensure you have this if you're using OAuthService
+import 'package:flutter_svg/flutter_svg.dart';
 
 class bottomBar extends StatefulWidget {
-  final String title;
-
-  const bottomBar({Key? key, required this.title}) : super(key: key);
+  const bottomBar({Key? key}) : super(key: key);
 
   @override
   _bottomBarState createState() => _bottomBarState();
@@ -42,7 +41,11 @@ class _bottomBarState extends State<bottomBar> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        backgroundColor: Colors.white,
+        title: SvgPicture.asset(
+          'assets/logo-black-new.svg',
+          height: 30, ed
+        ),
       ),
       body: _pageOptions[_selectedIndex],  // Body changes based on the selected tab
       bottomNavigationBar: BottomNavigationBar(
