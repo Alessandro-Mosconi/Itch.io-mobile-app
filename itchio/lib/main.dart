@@ -3,40 +3,47 @@ import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-
-import 'homePage.dart';
+import 'bottomBar.dart';
 import 'firebase_options.dart';
 import 'oauth_service.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await requestNotificationPermissions();
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    showNotification(message);
-  });
-
   await setupNotifications();
-
-  FirebaseMessaging.instance.subscribeToTopic('new-games');
+  await subscribeToTopic();
   runApp(ProviderApp());
 }
 
 Future<void> setupNotifications() async {
-  const AndroidInitializationSettings initializationSettingsAndroid =
-  AndroidInitializationSettings('@mipmap/itch');
+  await requestNotificationPermissions();
+  await initializeLocalNotifications();
+  setupFirebaseMessagingListeners();
+}
 
-
-  final InitializationSettings initializationSettings = InitializationSettings(
-    android: initializationSettingsAndroid,
+Future<void> requestNotificationPermissions() async {
+  NotificationSettings settings = await FirebaseMessaging.instance.requestPermission(
+    alert: true,
+    badge: true,
+    sound: true,
+    provisional: false,
   );
+  print('User granted permission: ${settings.authorizationStatus == AuthorizationStatus.authorized}');
+}
 
+Future<void> initializeLocalNotifications() async {
+  const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/itch');
+  final InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+}
+
+void setupFirebaseMessagingListeners() {
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    showNotification(message);
+  });
 }
 
 void showNotification(RemoteMessage message) async {
@@ -48,10 +55,7 @@ void showNotification(RemoteMessage message) async {
       priority: Priority.high,
       showWhen: false
   );
-
-
   const NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
-
   await flutterLocalNotificationsPlugin.show(
       0,
       message.notification?.title,
@@ -59,15 +63,8 @@ void showNotification(RemoteMessage message) async {
       platformChannelSpecifics);
 }
 
-
-Future<void> requestNotificationPermissions() async {
-  NotificationSettings settings = await FirebaseMessaging.instance.requestPermission(
-    alert: true,
-    badge: true,
-    sound: true,
-    provisional: false,
-  );
-  print('User granted permission: ${settings.authorizationStatus == AuthorizationStatus.authorized}');
+Future<void> subscribeToTopic() async {
+  await FirebaseMessaging.instance.subscribeToTopic('new-games');
 }
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -109,14 +106,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Itch.io refactor',
+      title: 'Itch.io',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const HomePage(title: 'Itch.io'),
+      home: const bottomBar(title: 'Itch.io'),
     );
   }
 }
-
-

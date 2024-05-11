@@ -8,7 +8,7 @@ import 'package:logger/logger.dart';
 
 class PurchasedGamesPage extends StatefulWidget {
 
-  final String accessToken;
+  final String? accessToken;
   const PurchasedGamesPage({Key? key, required this.accessToken}) : super(key: key);
 
   @override
@@ -28,7 +28,7 @@ class _PurchasedGamesPageState extends State<PurchasedGamesPage> {
   }
 
   Future<List<PurchaseGame>> fetchGameListData() async {
-    String accessToken = widget.accessToken;
+    String? accessToken = widget.accessToken;
 
     final response = await http.get(
       Uri.parse('https://itch.io/api/1/$accessToken/my-owned-keys')
