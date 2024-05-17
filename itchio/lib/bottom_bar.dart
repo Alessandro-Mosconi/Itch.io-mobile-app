@@ -44,7 +44,7 @@ class _bottomBarState extends State<bottomBar> {
         backgroundColor: Colors.white,
         title: SvgPicture.asset(
           'assets/logo-black-new.svg',
-          height: 30, ed
+          height: 30,
         ),
       ),
       body: _pageOptions[_selectedIndex],  // Body changes based on the selected tab

@@ -8,7 +8,6 @@ import 'package:logger/logger.dart';
 import 'developed_games_page.dart';
 import 'purchased_games_page.dart';
 
-
 class ProfilePage extends StatefulWidget {
   ProfilePage({Key? key}) : super(key: key);
 
@@ -23,35 +22,65 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    user = fetchUser();
+    fetchUser();
   }
 
-  Future<User> fetchUser() async {
-    String? accessToken = Provider.of<OAuthService>(context, listen: false).accessToken;
-    final response = await http.get(Uri.parse('https://itch.io/api/1/$accessToken/me'));
+  Future<void> fetchUser() async {
+    try {
+      String? accessToken = Provider.of<OAuthService>(context, listen: false).accessToken;
+      if (accessToken == null) {
+        setState(() {
+          user = Future.error('No access token found');
+        });
+        return;
+      }
 
-    if (response.statusCode == 200) {
-      User user = User(json.decode(response.body)["user"]);
-      return user;
-    } else {
-      throw Exception('Failed to load profile data');
+      final response = await http.get(Uri.parse('https://itch.io/api/1/$accessToken/me'));
+
+      if (response.statusCode == 200) {
+        User fetchedUser = User(json.decode(response.body)["user"]);
+        setState(() {
+          user = Future.value(fetchedUser);
+        });
+      } else {
+        throw Exception('Failed to load profile data');
+      }
+    } catch (e) {
+      setState(() {
+        user = Future.error(e.toString());
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder<User>(
-        future: user,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
-          } else if (snapshot.hasData) {
-            return buildUserProfile(snapshot.data!);
+      body: Consumer<OAuthService>(
+        builder: (context, authService, child) {
+          if (authService.accessToken == null) {
+            return Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  authService.startOAuth();
+                },
+                child: Text('Authenticate'),
+              ),
+            );
           } else {
-            return Center(child: Text("No profile data found"));
+            return FutureBuilder<User>(
+              future: user,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text("Error: ${snapshot.error}"));
+                } else if (snapshot.hasData) {
+                  return buildUserProfile(snapshot.data!);
+                } else {
+                  return Center(child: Text("No profile data found"));
+                }
+              },
+            );
           }
         },
       ),
@@ -111,6 +140,16 @@ class _ProfilePageState extends State<ProfilePage> {
             },
             child: Text('Purchased Games'),
           ),
+          SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () {
+              authService.logout();
+              setState(() {
+                fetchUser();
+              });
+            },
+            child: Text('Logout'),
+          ),
         ],
       ),
     );
@@ -144,5 +183,4 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
-
 }
