@@ -16,7 +16,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  late Future<User> user;
+  Future<User>? user;
   final Logger logger = Logger(printer: PrettyPrinter());
 
   @override
