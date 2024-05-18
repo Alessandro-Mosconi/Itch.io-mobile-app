@@ -43,7 +43,7 @@ class _DevelopedGamesPageState extends State<DevelopedGamesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Games Page'),
+        title: Text('Developed Games'),
       ),
       body: FutureBuilder<List<Game>>(
         future: gameList,

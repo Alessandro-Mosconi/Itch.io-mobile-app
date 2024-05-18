@@ -151,7 +151,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 MaterialPageRoute(builder: (context) => DevelopedGamesPage(accessToken: accessToken)),
               );
             },
-            child: Text('My Games'),
+            child: Text('Developed Games'),
           ),
           SizedBox(height: 10),
           ElevatedButton(
