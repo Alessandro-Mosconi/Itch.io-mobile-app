@@ -70,16 +70,14 @@ class _ProfilePageState extends State<ProfilePage> {
             return FutureBuilder<User>(
               future: user,
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
+                if (snapshot.hasError) {
                   return Center(child: Text("Error: ${snapshot.error}"));
                 } else if (snapshot.hasData) {
                   return buildUserProfile(snapshot.data!);
                 } else {
-                  return Center(child: Text("No profile data found"));
-                }
-              },
+                  return Center(child: CircularProgressIndicator());
+                 }
+            },
             );
           }
         },
