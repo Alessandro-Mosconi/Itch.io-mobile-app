@@ -16,10 +16,7 @@ class DevelopedGamesPage extends StatefulWidget {
 
 class _DevelopedGamesPageState extends State<DevelopedGamesPage> {
   late Future<List<Game>> gameList;
-  final Logger logger = Logger(
-    printer: PrettyPrinter(),
-  );
-
+  final Logger logger = Logger(printer: PrettyPrinter());
 
   @override
   void initState() {
@@ -31,14 +28,14 @@ class _DevelopedGamesPageState extends State<DevelopedGamesPage> {
     String? accessToken = widget.accessToken;
 
     final response = await http.get(
-      Uri.parse('https://itch.io/api/1/$accessToken/my-games')
+        Uri.parse('https://itch.io/api/1/$accessToken/my-games')
     );
 
     if (response.statusCode == 200) {
-      List<Game> gameList = (json.decode(response.body)["games"]  as List<dynamic>).map((gameMap) => Game(gameMap)).toList();
+      List<Game> gameList = (json.decode(response.body)["games"] as List<dynamic>).map((gameMap) => Game(gameMap)).toList();
       return gameList;
     } else {
-    throw Exception('Failed to load profile data');
+      throw Exception('Failed to load profile data');
     }
   }
 
@@ -54,150 +51,122 @@ class _DevelopedGamesPageState extends State<DevelopedGamesPage> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Text("Error: ${snapshot.error}");
+            return Center(child: Text("Error: ${snapshot.error}"));
           } else if (snapshot.hasData) {
             List<Game> games = snapshot.data!;
-
-            return Column(
-              children: <Widget>[
-                for (Game game in games)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      // Margine a tutto il contenuto
-                      Container(
-                        margin: EdgeInsets.all(8),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            // Immagine del gioco con BoxFit.contain
-                            Image.network(
-                              game.cover_url ?? "URL_default",
-                              width: 50,
-                              height: 50,
-                              fit: BoxFit.contain,
-                            ),
-                            SizedBox(width: 8),
-                            // Titolo e descrizione del gioco con prezzo
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                // Row per visualizzare il titolo e il prezzo accanto
-                                Row(
-                                  children: [
-                                    Text(game.title ?? "Default Title", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                                    SizedBox(width: 8),
-                                    game.min_price == 0
-                                        ? Text("Free", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green))
-                                        : Text("${(game.min_price! / 100).toStringAsFixed(2)} €", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                                  ],
-                                ),
-                                SizedBox(height: 8),
-                                Text(game.short_text ?? "No description", style: TextStyle(fontSize: 14)),
-                                SizedBox(height: 8),
-                                // Row per le icone degli OS
-                                Row(
-                                  children: [
-                                    if (game.p_windows ?? false) Icon(CustomIcon.windows, size: 16, color: Colors.grey),
-                                    if (game.p_osx ?? false) Icon(Icons.apple, size: 24, color: Colors.grey),
-                                    if (game.p_linux ?? false) Icon(CustomIcon.linux, size: 16, color: Colors.grey),
-                                    if (game.p_android ?? false) Icon(Icons.android, size: 24, color: Colors.grey),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 8), // Spazio aggiunto tra l'immagine e il testo
-                      // Numeri in tre colonne con margine e colore
-                      Container(
-                        margin: EdgeInsets.symmetric(horizontal: 8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: <Widget>[
-                            // Views
-                            Container(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  // Circonferenza vuota attorno al numero "Views"
-                                  Container(
-                                    width: 80, // Larghezza aumentata
-                                    height: 80, // Altezza aumentata
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(color: Colors.red, width: 2),
-                                    ),
-                                    child: Center(
-                                      child: Text("${game.views_count}", style: TextStyle(fontSize: 30, color: Colors.red, fontWeight: FontWeight.bold)),
-                                    ),
-                                  ),
-                                  SizedBox(height: 8),
-                                  Text("Views", style: TextStyle(fontSize: 14)),
-                                ],
-                              ),
-                            ),
-                            // Downloads
-                            Container(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  // Circonferenza vuota attorno al numero "Downloads"
-                                  Container(
-                                    width: 80, // Larghezza aumentata
-                                    height: 80, // Altezza aumentata
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(color: Colors.green, width: 2),
-                                    ),
-                                    child: Center(
-                                      child: Text("${game.downloads_count}", style: TextStyle(fontSize: 30, color: Colors.green, fontWeight: FontWeight.bold)),
-                                    ),
-                                  ),
-                                  SizedBox(height: 8),
-                                  Text("Downloads", style: TextStyle(fontSize: 14)),
-                                ],
-                              ),
-                            ),
-                            // Purchases
-                            Container(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  // Circonferenza vuota attorno al numero "Purchases"
-                                  Container(
-                                    width: 80, // Larghezza aumentata
-                                    height: 80, // Altezza aumentata
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(color: Colors.blue, width: 2),
-                                    ),
-                                    child: Center(
-                                      child: Text("${game.purchases_count}", style: TextStyle(fontSize: 30, color: Colors.blue, fontWeight: FontWeight.bold)),
-                                    ),
-                                  ),
-                                  SizedBox(height: 8),
-                                  // Testo "Purchases" senza prezzo
-                                  Text("Purchases", style: TextStyle(fontSize: 14)),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                    ],
-                  ),
-              ],
+            return ListView.builder(
+              itemCount: games.length,
+              itemBuilder: (context, index) {
+                Game game = games[index];
+                return GameTile(game: game);
+              },
             );
-
-
           } else {
-            return Text("No profile data found");
+            return Center(child: Text("No profile data found"));
           }
         },
       ),
+    );
+  }
+}
+
+class GameTile extends StatelessWidget {
+  final Game game;
+
+  const GameTile({Key? key, required this.game}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.all(8),
+      child: Padding(
+        padding: EdgeInsets.all(8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Image.network(
+                  game.cover_url ?? "URL_default",
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.contain,
+                ),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            game.title ?? "Default Title",
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          game.min_price == 0
+                              ? Text(
+                            "Free",
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green),
+                          )
+                              : Text(
+                            "${(game.min_price! / 100).toStringAsFixed(2)} €",
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8),
+                      Text(game.short_text ?? "No description", style: TextStyle(fontSize: 14)),
+                      SizedBox(height: 8),
+                      Row(
+                        children: [
+                          if (game.p_windows ?? false) Icon(CustomIcon.windows, size: 16, color: Colors.grey),
+                          if (game.p_osx ?? false) Icon(Icons.apple, size: 24, color: Colors.grey),
+                          if (game.p_linux ?? false) Icon(CustomIcon.linux, size: 16, color: Colors.grey),
+                          if (game.p_android ?? false) Icon(Icons.android, size: 24, color: Colors.grey),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: <Widget>[
+                _buildStatColumn("Views", game.views_count ?? 0, Colors.red),
+                _buildStatColumn("Downloads", game.downloads_count ?? 0, Colors.green),
+                _buildStatColumn("Purchases", game.purchases_count ?? 0, Colors.blue),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatColumn(String label, int count, Color color) {
+    return Column(
+      children: [
+        Container(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: color, width: 2),
+          ),
+          child: Center(
+            child: Text(
+              "$count",
+              style: TextStyle(fontSize: 18, color: color, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ),
+        SizedBox(height: 8),
+        Text(label, style: TextStyle(fontSize: 14)),
+      ],
     );
   }
 }
