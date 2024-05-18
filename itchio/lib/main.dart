@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -17,6 +18,14 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await setupNotifications();
   await subscribeToTopic();
+
+  // Set the status bar icon color to black
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent, // Make the status bar transparent
+    statusBarIconBrightness: Brightness.dark, // Set the status bar icon color to black
+    statusBarBrightness: Brightness.light, // For iOS
+  ));
+
   runApp(ProviderApp());
 }
 
@@ -111,8 +120,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Itch.io',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.black),
         useMaterial3: true,
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.white,
+          systemOverlayStyle: SystemUiOverlayStyle.dark, // Ensure this is set correctly
+        ),
       ),
       home: MyHomePage(),
     );
