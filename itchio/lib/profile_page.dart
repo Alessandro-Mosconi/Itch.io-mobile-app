@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:logger/logger.dart';
 import 'developed_games_page.dart';
 import 'purchased_games_page.dart';
+import 'settings_page.dart';  // Import the SettingsPage
 
 class ProfilePage extends StatefulWidget {
   ProfilePage({Key? key}) : super(key: key);
@@ -55,32 +56,56 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Consumer<OAuthService>(
-        builder: (context, authService, child) {
-          if (authService.accessToken == null) {
-            return Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  authService.startOAuth();
-                },
-                child: Text('Authenticate'),
-              ),
-            );
-          } else {
-            return FutureBuilder<User>(
-              future: user,
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Center(child: Text("Error: ${snapshot.error}"));
-                } else if (snapshot.hasData) {
-                  return buildUserProfile(snapshot.data!);
-                } else {
-                  return Center(child: CircularProgressIndicator());
-                 }
+      body: Stack(
+        children: [
+          Consumer<OAuthService>(
+            builder: (context, authService, child) {
+              if (authService.accessToken == null) {
+                return Center(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      authService.startOAuth();
+                    },
+                    child: Text('Authenticate'),
+                  ),
+                );
+              } else {
+                return FutureBuilder<User>(
+                  future: user,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Center(child: Text("Error: ${snapshot.error}"));
+                    } else if (snapshot.hasData) {
+                      return buildUserProfile(snapshot.data!);
+                    } else {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                  },
+                );
+              }
             },
-            );
-          }
-        },
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              actions: [
+                IconButton(
+                  icon: Icon(Icons.settings),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SettingsPage()),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -94,7 +119,7 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          SizedBox(height: 20),
+          SizedBox(height: 100),  // Adjust height to place content below AppBar
           Text(
             user.displayName ?? "",
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
@@ -137,16 +162,6 @@ class _ProfilePageState extends State<ProfilePage> {
               );
             },
             child: Text('Purchased Games'),
-          ),
-          SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              authService.logout();
-              setState(() {
-                fetchUser();
-              });
-            },
-            child: Text('Logout'),
           ),
         ],
       ),
