@@ -10,6 +10,8 @@ import 'home_page.dart';
 import 'search_page.dart';
 import 'bookmarks_page.dart';
 import 'profile_page.dart';
+import 'auth_page.dart'; // Import the AuthPage
+import 'settings_page.dart'; // Import the SettingsPage
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
@@ -126,8 +128,21 @@ class MyApp extends StatelessWidget {
           systemOverlayStyle: SystemUiOverlayStyle.dark, // Ensure this is set correctly
         ),
       ),
-      home: MyHomePage(),
+      home: AuthOrHomePage(),
     );
+  }
+}
+
+class AuthOrHomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final authService = Provider.of<OAuthService>(context);
+
+    if (authService.accessToken == null) {
+      return AuthPage();
+    } else {
+      return MyHomePage();
+    }
   }
 }
 
