@@ -66,3 +66,30 @@ firebase emulators:start
 
 
 
+```mermaid
+graph LR
+    A[main.dart] -->|Entry Point| B[MyApp]
+    B --> C[ProviderApp]
+    C --> D[OAuthService Initialization]
+    C --> E[ChangeNotifierProvider]
+    E --> F[MaterialApp]
+    F --> G[MyHomePage]
+
+    subgraph Pages
+        G --> H[HomePage]
+        G --> I[SearchPage]
+        G --> J[BookmarksPage]
+        G --> K[ProfilePage]
+    end
+
+    subgraph Firebase and Notifications
+        A --> L[Firebase Initialization]
+        A --> M[Notification Setup]
+        M --> N[Request Permissions]
+        M --> O[Initialize Local Notifications]
+        M --> P[Setup Firebase Messaging Listeners]
+        P --> Q[Handle Background Messages]
+        P --> R[Show Notifications]
+    end
+```
+
