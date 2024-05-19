@@ -179,14 +179,6 @@ class GameTile extends StatelessWidget {
               ],
             ),
             SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: <Widget>[
-                _buildStatColumn("Views", game.views_count ?? 0, Colors.red), // Default views count
-                _buildStatColumn("Downloads", game.downloads_count ?? 0, Colors.green), // Default downloads count
-                _buildStatColumn("Purchases", game.purchases_count ?? 0, Colors.blue), // Default purchases count
-              ],
-            ),
           ],
         ),
       ),
