@@ -49,6 +49,63 @@ class _SearchPageState extends State<SearchPage> {
     });
   }
 
+  void _showFilterPopup() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Filter'),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildFilterRow('Category', ['Action', 'Adventure', 'Puzzle']),
+                _buildFilterRow('Price', ['Free', 'Paid']),
+                _buildFilterRow('Platform', ['Windows', 'MacOS', 'Linux', 'Android']),
+                // Add more filter rows as needed
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildFilterRow(String title, List<String> options) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          SizedBox(height: 8),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: options.map((option) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: Chip(
+                    label: Text(option),
+                    onDeleted: () {}, // Optionally, you can handle chip removal here
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,16 +114,31 @@ class _SearchPageState extends State<SearchPage> {
         children: [
           Padding(
             padding: EdgeInsets.all(8.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search for games or users...',
-                suffixIcon: IconButton(
-                  icon: Icon(Icons.search),
-                  onPressed: _performSearch,
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Search for games or users...',
+                      suffixIcon: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.search),
+                            onPressed: _performSearch,
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.filter_list),
+                            onPressed: _showFilterPopup,
+                          ),
+                        ],
+                      ),
+                    ),
+                    onSubmitted: (value) => _performSearch(),
+                  ),
                 ),
-              ),
-              onSubmitted: (value) => _performSearch(),
+              ],
             ),
           ),
           if (!_searchPerformed)
@@ -209,7 +281,6 @@ class GameTile extends StatelessWidget {
   }
 }
 
-
 class UserTile extends StatelessWidget {
   final User user;
 
@@ -218,7 +289,7 @@ class UserTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.all(8),
+    margin: EdgeInsets.all(8),
       child: Padding(
         padding: EdgeInsets.all(8),
         child: Row(
@@ -243,4 +314,3 @@ class UserTile extends StatelessWidget {
     );
   }
 }
-
