@@ -21,19 +21,32 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
 
   final TextEditingController _searchController = TextEditingController();
   late Future<Map<String, dynamic>> searchResults;
+  late Future<Map<String, dynamic>> tabFilteredResults;
   bool _searchPerformed = false;
+
+  String currentTab = "games";
 
   int _filterCount = 0;
   Map<String, Set<String>> _selectedFilters = {};
 
   late TabController _tabController;
-  List<String> _tabs = ['Games', 'Users'];
+  List<String> _tabs = ['games', 'misc'];
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: _tabs.length, vsync: this);
     searchResults = Future.value({"games": [], "users": []});
+    tabFilteredResults = Future.value({"items": [], "title": ""});
+    /*
+        const result = {
+        parsed_url: filteredUrl,
+        title: title,
+        item_type: type,
+        items_size: items.length,
+        items: items
+    };
+     */
   }
 
   Future<Map<String, dynamic>> fetchSearchResults(String query) async {
@@ -55,10 +68,35 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     }
   }
 
+  Future<Map<String, dynamic>> fetchTabResults(String currentTab, Map<String, Set<String>> _selectedFilters) async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://us-central1-itchioclientapp.cloudfunctions.net/item_list?type=$currentTab'),
+      );
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        print('Failed to load search results, status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        throw Exception('Failed to load search results');
+      }
+    } catch (error) {
+      print('Error fetching search results: $error');
+      throw Exception('Failed to load search results');
+    }
+  }
+
   void _performSearch() {
     setState(() {
       _searchPerformed = true;
       searchResults = fetchSearchResults(_searchController.text);
+    });
+  }
+  void _changeTab() {
+    setState(() {
+      _searchPerformed = true;
+      tabFilteredResults = fetchTabResults(currentTab, _selectedFilters);
     });
   }
 
@@ -146,25 +184,32 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
                             icon: Icon(Icons.search),
                             onPressed: _performSearch,
                           ),
-
-                          IconButton(
-                            icon: _filterCount > 0
-                                ? badges.Badge(
-                              showBadge: true,
-                              badgeContent: Text(
-                                '$_filterCount',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              badgeStyle: badges.BadgeStyle(),
-                              badgeAnimation: badges.BadgeAnimation.slide(),
-                              child: Icon(Icons.filter_list),
-                            )
-                                : Icon(Icons.filter_list),
-                            onPressed: () => {
-                              _showFilterPopup(_selectedFilters),
-                            },
-                          ),
-
+                          if(_searchController.text == "")
+                            IconButton(
+                              icon: _filterCount > 0
+                                  ? badges.Badge(
+                                showBadge: true,
+                                badgeContent: Text(
+                                  '$_filterCount',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                badgeStyle: badges.BadgeStyle(),
+                                badgeAnimation: badges.BadgeAnimation.slide(),
+                                child: Icon(Icons.filter_list),
+                              )
+                                  : Icon(Icons.filter_list),
+                              onPressed: () => {
+                                _showFilterPopup(_selectedFilters),
+                              },
+                            ),
+                          if(_searchController.text != "")
+                            IconButton(
+                              icon: Icon(Icons.close),
+                              onPressed: () => {
+                                _searchController.text = "",
+                                _performSearch()
+                              },
+                            ),
                         ],
                       ),
                     ),
@@ -174,22 +219,23 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
               ],
             ),
           ),
-          if (!_searchPerformed)
-            Center(child: Text('Enter a search query to begin')),
-          if (_searchPerformed)
+          if (_searchController.text == "")
+            ..._buildTabsPage(),
+          if (_searchPerformed && _searchController.text != "")
             Expanded(
-              child: _buildSearchPage("ciao")
+              child: _buildSearchPage(),
             ),
         ],
       ),
     );
   }
 
-  Widget _buildSearchPage(String tab) {
+  Widget _buildSearchPage() {
     return FutureBuilder<Map<String, dynamic>>(
       future: searchResults,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
+            _searchPerformed = true;
           return Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           print('FutureBuilder Error: ${snapshot.error}');
@@ -228,6 +274,55 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
         }
       },
     );
+  }
+  Widget _buildTabPage() {
+    return FutureBuilder<Map<String, dynamic>>(
+      future: tabFilteredResults,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          print('FutureBuilder Error: ${snapshot.error}');
+          return Center(child: Text("Error: ${snapshot.error}"));
+        } else if (snapshot.hasData) {
+          var data = snapshot.data!;
+          List<Game> items = (data['items'] as List)
+              .map((game) => Game(game))
+              .toList();
+          String title = (data['title'] as String);
+
+          return ListView(
+            children: [
+              if (items.isNotEmpty) ...[
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(title, style: TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold)),
+                ),
+                ...items.map((game) => GameTile(game: game)).toList(),
+              ]
+            ],
+          );
+        } else {
+          return Center(child: Text("No results found"));
+        }
+      },
+    );
+  }
+  List<Widget> _buildTabsPage() {
+    return [
+      TabBar(
+        controller: _tabController,
+        tabs: _tabs.map((tab) => Tab(text: tab)).toList(),
+      ),
+    Expanded(
+      child: TabBarView(
+          controller: _tabController,
+          children: _tabs.map((tab) {
+          return _buildTabPage();
+        }).toList(),
+      ),
+    )];
   }
 }
 
