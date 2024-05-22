@@ -8,7 +8,7 @@ import 'firebase_options.dart';
 import 'oauth_service.dart';
 import 'home_page.dart';
 import 'search_page.dart';
-import 'bookmarks_page.dart';
+import 'favorite_page.dart';
 import 'profile_page.dart';
 import 'auth_page.dart'; // Import the AuthPage
 import 'settings_page.dart'; // Import the SettingsPage
@@ -171,7 +171,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final List<Widget> _widgetOptions = <Widget>[
     HomePage(),
     SearchPage(),
-    BookmarksPage(),
+    FavoritePage(),
     ProfilePage(),
   ];
 
@@ -198,8 +198,8 @@ class _MyHomePageState extends State<MyHomePage> {
             label: 'Search',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.bookmark),
-            label: 'Bookmarks',
+            icon: Icon(Icons.favorite),
+            label: 'Favorites',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
