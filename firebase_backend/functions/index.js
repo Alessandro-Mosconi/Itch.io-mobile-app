@@ -46,8 +46,8 @@ exports.item_list = functions.https.onRequest(async (request, response) => {
     const rssUrl = 'https://itch.io/';
 
     // Verifica che il metodo della richiesta sia POST
-    if (request.method !== "GET") {
-        response.status(400).send('Please send a GET request');
+    if (request.method !== "POST") {
+        response.status(400).send('Please send a POST request');
         return;
     }
 

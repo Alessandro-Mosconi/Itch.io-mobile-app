@@ -33,11 +33,28 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   List<String> _tabs = ['games', 'misc'];
 
   @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+  @override
   void initState() {
     super.initState();
     _tabController = TabController(length: _tabs.length, vsync: this);
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) {
+        setState(() {
+          currentTab = _tabs[_tabController.index];
+          _changeTab();
+        });
+      }
+    });
+
     searchResults = Future.value({"games": [], "users": []});
     tabFilteredResults = Future.value({"items": [], "title": ""});
+
+    _changeTab();
+
     /*
         const result = {
         parsed_url: filteredUrl,
@@ -69,11 +86,23 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   }
 
   Future<Map<String, dynamic>> fetchTabResults(String currentTab, Map<String, Set<String>> _selectedFilters) async {
+    final Map<String, dynamic> data = {
+      'type': currentTab,
+    };
+
+    final String jsonData = json.encode(data);
+
     try {
-      final response = await http.get(
-        Uri.parse('https://us-central1-itchioclientapp.cloudfunctions.net/item_list?type=$currentTab'),
+      final response = await http.post(
+        Uri.parse('https://us-central1-itchioclientapp.cloudfunctions.net/item_list'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonData,
       );
 
+
+      logger.i(json.decode(response.body));
       if (response.statusCode == 200) {
         return json.decode(response.body);
       } else {
@@ -116,7 +145,6 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
                   options: ['Action', 'Adventure', 'Puzzle'],
                   selectedFilters: newSelectedFilters,
                   onFiltersChanged: (filters) {
-                    logger.i(filters);
                     newSelectedFilters = filters;
                   },
                 ),
@@ -319,8 +347,8 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
       child: TabBarView(
           controller: _tabController,
           children: _tabs.map((tab) {
-          return _buildTabPage();
-        }).toList(),
+            return _buildTabPage();
+          }).toList(),
       ),
     )];
   }
