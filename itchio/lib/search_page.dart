@@ -54,16 +54,6 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     tabFilteredResults = Future.value({"items": [], "title": ""});
 
     _changeTab();
-
-    /*
-        const result = {
-        parsed_url: filteredUrl,
-        title: title,
-        item_type: type,
-        items_size: items.length,
-        items: items
-    };
-     */
   }
 
   Future<Map<String, dynamic>> fetchSearchResults(String query) async {
@@ -86,7 +76,17 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   }
 
   Future<Map<String, dynamic>> fetchTabResults(String currentTab, Map<String, Set<String>> _selectedFilters) async {
+    StringBuffer concatenatedFilters = StringBuffer();
+
+    _selectedFilters.forEach((key, value) {
+      value.forEach((filter) {
+        concatenatedFilters.write(filter);
+      });
+    });
+
+
     final Map<String, dynamic> data = {
+      'filters': concatenatedFilters.toString(),
       'type': currentTab,
     };
 
@@ -101,8 +101,6 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
         body: jsonData,
       );
 
-
-      logger.i(json.decode(response.body));
       if (response.statusCode == 200) {
         return json.decode(response.body);
       } else {
@@ -142,7 +140,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
               children: [
                 FilterRowWidget(
                   label: 'Category',
-                  options: ['Action', 'Adventure', 'Puzzle'],
+                  options: ['/genre-action', 'genre-adventure'],
                   selectedFilters: newSelectedFilters,
                   onFiltersChanged: (filters) {
                     newSelectedFilters = filters;
@@ -150,7 +148,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
                 ),
                 FilterRowWidget(
                   label: 'Price',
-                  options: ['Free', 'Paid'],
+                  options: ['/free', '/5-dollars-or-less'],
                   selectedFilters: newSelectedFilters,
                   onFiltersChanged: (filters) {
                     newSelectedFilters = filters;
@@ -158,7 +156,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
                 ),
                 FilterRowWidget(
                   label: 'Platform',
-                  options: ['Windows', 'MacOS', 'Linux', 'Android'],
+                  options: ['/platform_windows', '/platform_osx', '/platform_linux', '/platform_android'],
                   selectedFilters: newSelectedFilters,
                   onFiltersChanged: (filters) {
                     newSelectedFilters = filters;
@@ -171,6 +169,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
             TextButton(
               child: Text('Confirm'),
               onPressed: () {
+                _changeTab();
                 setState(() {
                   _selectedFilters = newSelectedFilters;
                   _filterCount = _selectedFilters.values.fold(0, (prev, elem) => prev + elem.length);
