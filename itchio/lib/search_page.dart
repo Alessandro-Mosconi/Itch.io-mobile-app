@@ -13,7 +13,7 @@ class SearchPage extends StatefulWidget {
   _SearchPageState createState() => _SearchPageState();
 }
 
-class _SearchPageState extends State<SearchPage> {
+class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateMixin {
 
   final Logger logger = Logger(
     printer: PrettyPrinter(),
@@ -26,10 +26,13 @@ class _SearchPageState extends State<SearchPage> {
   int _filterCount = 0;
   Map<String, Set<String>> _selectedFilters = {};
 
+  late TabController _tabController;
+  List<String> _tabs = ['Games', 'Users'];
+
   @override
   void initState() {
     super.initState();
-    // Initialize with an empty Future
+    _tabController = TabController(length: _tabs.length, vsync: this);
     searchResults = Future.value({"games": [], "users": []});
   }
 
@@ -175,48 +178,59 @@ class _SearchPageState extends State<SearchPage> {
             Center(child: Text('Enter a search query to begin')),
           if (_searchPerformed)
             Expanded(
-              child: FutureBuilder<Map<String, dynamic>>(
-                future: searchResults,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    print('FutureBuilder Error: ${snapshot.error}');
-                    return Center(child: Text("Error: ${snapshot.error}"));
-                  } else if (snapshot.hasData) {
-                    var data = snapshot.data!;
-                    List<Game> games = (data['games'] as List).map((game) => Game(game)).toList();
-                    List<User> users = (data['users'] as List).map((user) => User(user)).toList();
-
-                    return ListView(
-                      children: [
-                        if (games.isNotEmpty) ...[
-                          Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Text('Games', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                          ),
-                          ...games.map((game) => GameTile(game: game)).toList(),
-                        ],
-                        if (users.isNotEmpty) ...[
-                          Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Text('Users', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                          ),
-                          ...users.map((user) => UserTile(user: user)).toList(),
-                        ],
-                      ],
-                    );
-                  } else {
-                    return Center(child: Text("No results found"));
-                  }
-                },
-              ),
+              child: _buildSearchPage("ciao")
             ),
         ],
       ),
     );
   }
+
+  Widget _buildSearchPage(String tab) {
+    return FutureBuilder<Map<String, dynamic>>(
+      future: searchResults,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          print('FutureBuilder Error: ${snapshot.error}');
+          return Center(child: Text("Error: ${snapshot.error}"));
+        } else if (snapshot.hasData) {
+          var data = snapshot.data!;
+          List<Game> games = (data['games'] as List)
+              .map((game) => Game(game))
+              .toList();
+          List<User> users = (data['users'] as List)
+              .map((user) => User(user))
+              .toList();
+
+          return ListView(
+            children: [
+              if (games.isNotEmpty) ...[
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text('Games', style: TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold)),
+                ),
+                ...games.map((game) => GameTile(game: game)).toList(),
+              ],
+              if (users.isNotEmpty) ...[
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text('Users', style: TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold)),
+                ),
+                ...users.map((user) => UserTile(user: user)).toList(),
+              ],
+            ],
+          );
+        } else {
+          return Center(child: Text("No results found"));
+        }
+      },
+    );
+  }
 }
+
 
 class GameTile extends StatelessWidget {
   final Game game;
@@ -249,9 +263,11 @@ class GameTile extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            game.title ?? "Default Title", // Default title
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          Flexible( // Aggiunto Flexible qui
+                            child: Text(
+                              game.title ?? "Default Title",
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
                           ),
                           game.min_price == 0
                               ? Text(
@@ -286,6 +302,7 @@ class GameTile extends StatelessWidget {
       ),
     );
   }
+
 
   Widget _buildStatColumn(String label, int count, Color color) {
     return Column(
