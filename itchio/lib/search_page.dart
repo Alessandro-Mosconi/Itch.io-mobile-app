@@ -64,9 +64,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   }
 
   Future<Map<String, dynamic>> fetchTabResults(String currentTab, Map<String, Set<String>> filters) async {
-    final concatenatedFilters = filters.entries
-        .expand((entry) => entry.value)
-        .join(',');
+    final concatenatedFilters = filters.entries.expand((entry) => entry.value).join(',');
 
     final response = await http.post(
       Uri.parse('https://us-central1-itchioclientapp.cloudfunctions.net/item_list'),
@@ -144,7 +142,6 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
           TextButton(
             child: Text('Close'),
             onPressed: () {
-              setState(() => _showSearchBar = true);
               Navigator.of(context).pop();
             },
           ),
@@ -169,6 +166,73 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     );
   }
 
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Search for games or users...',
+                suffixIcon: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.search),
+                      onPressed: _performSearch,
+                    ),
+                    IconButton(
+                      icon: badges.Badge(
+                        showBadge: _filterCount > 0,
+                        badgeContent: Text('$_filterCount', style: TextStyle(color: Colors.white)),
+                        badgeStyle: badges.BadgeStyle(),
+                        badgeAnimation: badges.BadgeAnimation.slide(),
+                        child: Icon(Icons.filter_list),
+                      ),
+                      onPressed: () => _showFilterPopup(_selectedFilters),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.bookmark),
+                      onPressed: _saveSearch,
+                    ),
+                  ],
+                ),
+              ),
+              onSubmitted: (value) => _performSearch(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchActions() {
+    return Padding(
+      padding: EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          IconButton(
+            icon: badges.Badge(
+              showBadge: _filterCount > 0,
+              badgeContent: Text('$_filterCount', style: TextStyle(color: Colors.white)),
+              badgeStyle: badges.BadgeStyle(),
+              badgeAnimation: badges.BadgeAnimation.slide(),
+              child: Icon(Icons.filter_list),
+            ),
+            onPressed: () => _showFilterPopup(_selectedFilters),
+          ),
+          IconButton(
+            icon: Icon(Icons.bookmark),
+            onPressed: _saveSearch,
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -176,45 +240,9 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
       body: Column(
         children: [
           if (_showSearchBar)
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        hintText: 'Search for games or users...',
-                        suffixIcon: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: Icon(Icons.search),
-                              onPressed: _performSearch,
-                            ),
-                            IconButton(
-                              icon: badges.Badge(
-                                showBadge: _filterCount > 0,
-                                badgeContent: Text('$_filterCount', style: TextStyle(color: Colors.white)),
-                                badgeStyle: badges.BadgeStyle(),
-                                badgeAnimation: badges.BadgeAnimation.slide(),
-                                child: Icon(Icons.filter_list),
-                              ),
-                              onPressed: () => _showFilterPopup(_selectedFilters),
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.bookmark),
-                              onPressed: _saveSearch,
-                            ),
-                          ],
-                        ),
-                      ),
-                      onSubmitted: (value) => _performSearch(),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            _buildSearchBar()
+          else
+            _buildSearchActions(),
           if (_searchController.text.isEmpty)
             ..._buildTabsPage(),
           if (_searchPerformed && _searchController.text.isNotEmpty)
@@ -259,32 +287,32 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
 
   Widget _buildTabPage() {
     return FutureBuilder<Map<String, dynamic>>(
-        future: tabFilteredResults,
-        builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return Center(child: CircularProgressIndicator());
-      } else if (snapshot.hasError) {
-        logger.e('FutureBuilder Error: ${snapshot.error}');
-        return Center(child: Text("Error: ${snapshot.error}"));
-      } else if (snapshot.hasData) {
-        final data = snapshot.data!;
-        final items = (data['items'] as List).map((game) => Game(game)).toList();
-        final title = data['title'] as String;
+      future: tabFilteredResults,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          logger.e('FutureBuilder Error: ${snapshot.error}');
+          return Center(child: Text("Error: ${snapshot.error}"));
+        } else if (snapshot.hasData) {
+          final data = snapshot.data!;
+          final items = (data['items'] as List).map((game) => Game(game)).toList();
+          final title = data['title'] as String;
 
-        return ListView(
-          children: [
-            if (items.isNotEmpty)
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              ),
-            ...items.map((game) => GameTile(game: game)).toList(),
-          ],
-        );
-      } else {
-        return Center(child: Text("No results found"));
-      }
-        },
+          return ListView(
+            children: [
+              if (items.isNotEmpty)
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                ),
+              ...items.map((game) => GameTile(game: game)).toList(),
+            ],
+          );
+        } else {
+          return Center(child: Text("No results found"));
+        }
+      },
     );
   }
 
@@ -356,3 +384,4 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
     );
   }
 }
+
