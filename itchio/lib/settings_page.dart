@@ -13,29 +13,29 @@ class SettingsPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('Settings'),
       ),
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ElevatedButton(
-              onPressed: () {
-                authService.logout();
-                Navigator.pop(context);  // Close the settings page
-              },
-              child: Text('Logout'),
+            ListTile(
+              leading: Icon(themeNotifier.isDarkMode ? Icons.nightlight_round : Icons.wb_sunny),
+              title: Text('Dark Mode'),
+              trailing: Switch(
+                value: themeNotifier.isDarkMode,
+                onChanged: (value) {
+                  themeNotifier.toggleTheme();
+                },
+              ),
             ),
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('Dark Mode'),
-                Switch(
-                  value: themeNotifier.isDarkMode,
-                  onChanged: (value) {
-                    themeNotifier.toggleTheme();
-                  },
-                ),
-              ],
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Logout'),
+              onTap: () {
+                authService.logout();
+                Navigator.pop(context); // Close the settings page
+              },
             ),
           ],
         ),
