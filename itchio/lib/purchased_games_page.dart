@@ -5,6 +5,7 @@ import 'helperClasses/PurchaseGame.dart';
 import 'oauth_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
+import 'game_tile.dart'; // Import the external GameTile widget
 
 class PurchasedGamesPage extends StatefulWidget {
   final String? accessToken;
@@ -26,14 +27,14 @@ class _PurchasedGamesPageState extends State<PurchasedGamesPage> {
   }
 
   Future<List<PurchaseGame>> fetchGameListData() async {
-    String? accessToken = widget.accessToken;
-
     final response = await http.get(
-        Uri.parse('https://itch.io/api/1/$accessToken/my-owned-keys')
+      Uri.parse('https://itch.io/api/1/${widget.accessToken}/my-owned-keys'),
     );
 
     if (response.statusCode == 200) {
-      List<PurchaseGame> gameList = (json.decode(response.body)["owned_keys"] as List<dynamic>).map((gameMap) => PurchaseGame(gameMap)).toList();
+      List<PurchaseGame> gameList = (json.decode(response.body)["owned_keys"] as List<dynamic>)
+          .map((gameMap) => PurchaseGame(gameMap))
+          .toList();
       return gameList;
     } else {
       throw Exception('Failed to load profile data');
@@ -59,69 +60,15 @@ class _PurchasedGamesPageState extends State<PurchasedGamesPage> {
               itemCount: games.length,
               itemBuilder: (context, index) {
                 PurchaseGame purchasedGame = games[index];
-                return PurchaseGameTile(purchasedGame: purchasedGame);
+                return purchasedGame.game != null
+                    ? GameTile(game: purchasedGame.game!)
+                    : SizedBox.shrink();
               },
             );
           } else {
             return Center(child: Text("No profile data found"));
           }
         },
-      ),
-    );
-  }
-}
-
-class PurchaseGameTile extends StatelessWidget {
-  final PurchaseGame purchasedGame;
-
-  const PurchaseGameTile({Key? key, required this.purchasedGame}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    Game? game = purchasedGame.game;
-    if (game == null) {
-      return SizedBox.shrink();
-    }
-
-    return Card(
-      margin: EdgeInsets.all(8),
-      child: Padding(
-        padding: EdgeInsets.all(8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Image.network(
-                  game.cover_url ?? "URL_default",
-                  width: 50,
-                  height: 50,
-                  fit: BoxFit.contain,
-                ),
-                SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        game.title ?? "Default Title",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 8),
-                      Text(game.short_text ?? "No description", style: TextStyle(fontSize: 14)),
-                      SizedBox(height: 8),
-                      Text(
-                        "${(game.min_price! / 100).toStringAsFixed(2)} €" ?? "No description",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
       ),
     );
   }
