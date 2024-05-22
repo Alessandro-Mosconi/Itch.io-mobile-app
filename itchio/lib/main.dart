@@ -12,6 +12,8 @@ import 'bookmarks_page.dart';
 import 'profile_page.dart';
 import 'auth_page.dart'; // Import the AuthPage
 import 'settings_page.dart'; // Import the SettingsPage
+import 'theme_notifier.dart'; // Import the ThemeNotifier
+import 'custom_app_bar.dart'; // Import the CustomAppBar
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
@@ -20,13 +22,6 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await setupNotifications();
   await subscribeToTopic();
-
-  // Set the status bar icon color to black
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent, // Make the status bar transparent
-    statusBarIconBrightness: Brightness.dark, // Set the status bar icon color to black
-    statusBarBrightness: Brightness.light, // For iOS
-  ));
 
   runApp(ProviderApp());
 }
@@ -101,8 +96,15 @@ class _ProviderAppState extends State<ProviderApp> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<OAuthService>(
-      create: (_) => _oauthService,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<OAuthService>(
+          create: (_) => _oauthService,
+        ),
+        ChangeNotifierProvider<ThemeNotifier>(
+          create: (_) => ThemeNotifier(),
+        ),
+      ],
       child: const MyApp(),
     );
   }
@@ -119,15 +121,27 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeNotifier = Provider.of<ThemeNotifier>(context);
+
     return MaterialApp(
       title: 'Itch.io',
       theme: ThemeData(
-        useMaterial3: true,
-        appBarTheme: AppBarTheme(
-          backgroundColor: Colors.white,
-          systemOverlayStyle: SystemUiOverlayStyle.dark, // Ensure this is set correctly
+        brightness: Brightness.light,
+        colorScheme: ColorScheme.light(
+          primary: Colors.black, // Customize the primary color
+          onPrimary: Colors.white,
+          secondary: Colors.grey, // Customize the secondary color
         ),
       ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        colorScheme: ColorScheme.dark(
+          primary: Colors.white, // Customize the primary color
+          onPrimary: Colors.black,
+          secondary: Colors.grey, // Customize the secondary color
+        ),
+      ),
+      themeMode: themeNotifier.currentTheme,
       home: AuthOrHomePage(),
     );
   }
@@ -169,6 +183,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       body: _widgetOptions.elementAt(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
@@ -191,8 +207,8 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
+        selectedItemColor: colorScheme.primary,
+        unselectedItemColor: colorScheme.secondary,
         onTap: _onItemTapped,
       ),
     );
