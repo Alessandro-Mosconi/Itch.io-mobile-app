@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:logger/logger.dart';
 import 'custom_app_bar.dart';
 import 'customIcons/custom_icon_icons.dart';
 import 'helperClasses/Game.dart';
 import 'helperClasses/User.dart';
+import 'package:badges/badges.dart' as badges;
 
 class SearchPage extends StatefulWidget {
   @override
@@ -12,9 +14,17 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+
+  final Logger logger = Logger(
+    printer: PrettyPrinter(),
+  );
+
   final TextEditingController _searchController = TextEditingController();
   late Future<Map<String, dynamic>> searchResults;
   bool _searchPerformed = false;
+
+  int _filterCount = 0;
+  Map<String, Set<String>> _selectedFilters = {};
 
   @override
   void initState() {
@@ -49,7 +59,8 @@ class _SearchPageState extends State<SearchPage> {
     });
   }
 
-  void _showFilterPopup() {
+  void _showFilterPopup(Map<String, Set<String>> existingFilters) {
+    Map<String, Set<String>> newSelectedFilters = Map.from(existingFilters);
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -59,14 +70,45 @@ class _SearchPageState extends State<SearchPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildFilterRow('Category', ['Action', 'Adventure', 'Puzzle']),
-                _buildFilterRow('Price', ['Free', 'Paid']),
-                _buildFilterRow('Platform', ['Windows', 'MacOS', 'Linux', 'Android']),
-                // Add more filter rows as needed
+                FilterRowWidget(
+                  label: 'Category',
+                  options: ['Action', 'Adventure', 'Puzzle'],
+                  selectedFilters: newSelectedFilters,
+                  onFiltersChanged: (filters) {
+                    logger.i(filters);
+                    newSelectedFilters = filters;
+                  },
+                ),
+                FilterRowWidget(
+                  label: 'Price',
+                  options: ['Free', 'Paid'],
+                  selectedFilters: newSelectedFilters,
+                  onFiltersChanged: (filters) {
+                    newSelectedFilters = filters;
+                  },
+                ),
+                FilterRowWidget(
+                  label: 'Platform',
+                  options: ['Windows', 'MacOS', 'Linux', 'Android'],
+                  selectedFilters: newSelectedFilters,
+                  onFiltersChanged: (filters) {
+                    newSelectedFilters = filters;
+                  },
+                ),
               ],
             ),
           ),
           actions: <Widget>[
+            TextButton(
+              child: Text('Confirm'),
+              onPressed: () {
+                setState(() {
+                  _selectedFilters = newSelectedFilters;
+                  _filterCount = _selectedFilters.values.fold(0, (prev, elem) => prev + elem.length);
+                });
+                Navigator.of(context).pop();
+              },
+            ),
             TextButton(
               child: Text('Close'),
               onPressed: () {
@@ -76,33 +118,6 @@ class _SearchPageState extends State<SearchPage> {
           ],
         );
       },
-    );
-  }
-
-  Widget _buildFilterRow(String title, List<String> options) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          SizedBox(height: 8),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: options.map((option) {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: Chip(
-                    label: Text(option),
-                    onDeleted: () {}, // Optionally, you can handle chip removal here
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -128,10 +143,25 @@ class _SearchPageState extends State<SearchPage> {
                             icon: Icon(Icons.search),
                             onPressed: _performSearch,
                           ),
+
                           IconButton(
-                            icon: Icon(Icons.filter_list),
-                            onPressed: _showFilterPopup,
+                            icon: _filterCount > 0
+                                ? badges.Badge(
+                              showBadge: true,
+                              badgeContent: Text(
+                                '$_filterCount',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              badgeStyle: badges.BadgeStyle(),
+                              badgeAnimation: badges.BadgeAnimation.slide(),
+                              child: Icon(Icons.filter_list),
+                            )
+                                : Icon(Icons.filter_list),
+                            onPressed: () => {
+                              _showFilterPopup(_selectedFilters),
+                            },
                           ),
+
                         ],
                       ),
                     ),
@@ -311,6 +341,59 @@ class UserTile extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+
+class FilterRowWidget extends StatefulWidget {
+  final String label;
+  final List<String> options;
+  final Map<String, Set<String>> selectedFilters;
+  final void Function(Map<String, Set<String>>) onFiltersChanged;
+
+  FilterRowWidget({required this.label, required this.options, required this.selectedFilters, required this.onFiltersChanged});
+
+  @override
+  _FilterRowWidgetState createState() => _FilterRowWidgetState();
+}
+
+class _FilterRowWidgetState extends State<FilterRowWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(widget.label),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: widget.options.map((option) {
+              bool isSelected = widget.selectedFilters.entries.any((entry) => entry.value.contains(option));
+              return Padding(
+                padding: EdgeInsets.only(right: 8.0),
+                child: FilterChip(
+                  label: Text(option),
+                  selected: isSelected,
+                  onSelected: (selected) {
+                    setState(() {
+                      if (selected) {
+                        widget.selectedFilters[widget.label] ??= Set();
+                        widget.selectedFilters[widget.label]!.add(option);
+                      } else {
+                        widget.selectedFilters[widget.label]?.remove(option);
+                      }
+                    });
+                  },
+                  selectedColor: isSelected ? Colors.blue : null,
+                  backgroundColor: isSelected ? Colors.blue.withOpacity(0.1) : null,
+                  labelStyle: TextStyle(color: isSelected ? Colors.white : null),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
     );
   }
 }
