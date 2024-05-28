@@ -30,6 +30,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   Map<String, Set<String>> _selectedFilters = {};
   late TabController _tabController;
   late List<Map<String, String>> _tabs = [];
+  bool _showSaveButton = true;
 
   @override
   void initState() {
@@ -169,8 +170,8 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
 
   void _performSearch() {
     setState(() {
-      _filterCount = 0;
-      _selectedFilters = {};
+      //_filterCount = 0;
+      //_selectedFilters = {};
       _searchPerformed = true;
       searchResults = fetchSearchResults(_searchController.text);
     });
@@ -269,28 +270,61 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
                 suffixIcon: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    IconButton(
-                      icon: Icon(Icons.search),
-                      onPressed: _performSearch,
-                    ),
-                    IconButton(
-                      icon: badges.Badge(
-                        showBadge: _filterCount > 0,
-                        badgeContent: Text('$_filterCount', style: TextStyle(color: Colors.white)),
-                        badgeStyle: badges.BadgeStyle(),
-                        badgeAnimation: badges.BadgeAnimation.slide(),
-                        child: Icon(Icons.filter_list),
+
+                    Visibility(
+                      visible: _showSaveButton, // initially hide the save button
+                      child: IconButton(
+                        icon: Icon(Icons.search),
+                        onPressed: (){
+                          _performSearch();
+                          setState(() {
+                            _showSaveButton = false;
+                          });
+                        },
                       ),
-                      onPressed: () => _showFilterPopup(_selectedFilters),
                     ),
-                    IconButton(
-                      icon: Icon(Icons.bookmark),
-                      onPressed: _saveSearch,
+                    Visibility(
+                      visible: !_showSaveButton, // initially hide the save button
+                      child: IconButton(
+                        icon: Icon(Icons.close),
+                        onPressed: (){
+                          _searchController.text = '';
+                          _performSearch();
+                          setState(() {
+                            _showSaveButton = true;
+                          });
+                        },
+                      ),
+                    ),
+                    Visibility(
+                      visible: _showSaveButton, // initially hide the save button
+                      child: IconButton(
+                        icon: badges.Badge(
+                          showBadge: _filterCount > 0,
+                          badgeContent: Text('$_filterCount', style: TextStyle(color: Colors.white)),
+                          badgeStyle: badges.BadgeStyle(),
+                          badgeAnimation: badges.BadgeAnimation.slide(),
+                          child: Icon(Icons.filter_list),
+                        ),
+                        onPressed: () => _showFilterPopup(_selectedFilters),
+                      ),
+                    ),
+                    Visibility(
+                      visible: _showSaveButton, // initially hide the save button
+                      child: IconButton(
+                        icon: Icon(Icons.bookmark),
+                        onPressed: _saveSearch,
+                      ),
                     ),
                   ],
                 ),
               ),
-              onSubmitted: (value) => _performSearch(),
+              onSubmitted:  (value) {
+                _performSearch();
+                setState(() {
+                  _showSaveButton = false;
+                });
+              },
             ),
           ),
         ],
