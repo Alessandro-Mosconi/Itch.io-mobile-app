@@ -58,9 +58,12 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
       logger.e('Failed to load search results, status code: ${response.statusCode}');
       throw Exception('Failed to load search results');
     }
+
   }
 
   Future<Map<String, dynamic>> fetchTabResults(Map<String, String> currentTab, Map<String, Set<String>> filters) async {
+    _searchController.text = '';
+
     var concatenatedFilters = '';
 
     if(filters.entries.isNotEmpty && filters.entries.every((e) => e.value.isNotEmpty)){
@@ -166,6 +169,8 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
 
   void _performSearch() {
     setState(() {
+      _filterCount = 0;
+      _selectedFilters = {};
       _searchPerformed = true;
       searchResults = fetchSearchResults(_searchController.text);
     });
@@ -324,10 +329,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
       appBar: CustomAppBar(),
       body: Column(
         children: [
-          if (_showSearchBar)
-            _buildSearchBar()
-          else
-            _buildSearchActions(),
+          _buildSearchBar(),
           if (_searchController.text.isEmpty)
             ..._buildTabsPage(),
           if (_searchPerformed && _searchController.text.isNotEmpty)
