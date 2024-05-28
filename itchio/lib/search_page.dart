@@ -1,3 +1,6 @@
+import 'dart:ffi';
+
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -6,8 +9,9 @@ import 'custom_app_bar.dart';
 import 'customIcons/custom_icon_icons.dart';
 import 'helperClasses/Game.dart';
 import 'helperClasses/User.dart';
-import 'game_tile.dart'; // Import the external GameTile widget
+import 'game_tile.dart';
 import 'package:badges/badges.dart' as badges;
+import 'package:firebase_database/firebase_database.dart';
 
 class SearchPage extends StatefulWidget {
   @override
@@ -21,24 +25,17 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   late Future<Map<String, dynamic>> tabFilteredResults;
   bool _searchPerformed = false;
   bool _showSearchBar = true;
-  String currentTab = "games";
+  Map<String, String> currentTab = {};
   int _filterCount = 0;
   Map<String, Set<String>> _selectedFilters = {};
   late TabController _tabController;
-  final List<String> _tabs = ['games', 'misc'];
+  late List<Map<String, String>> _tabs = [];
 
   @override
   void initState() {
+    fetchFilters();
+    fetchTabs();
     super.initState();
-    _tabController = TabController(length: _tabs.length, vsync: this)
-      ..addListener(() {
-        if (_tabController.indexIsChanging) {
-          setState(() {
-            currentTab = _tabs[_tabController.index];
-            _changeTab();
-          });
-        }
-      });
     searchResults = Future.value({"games": [], "users": []});
     tabFilteredResults = Future.value({"items": [], "title": ""});
     _changeTab();
@@ -63,20 +60,107 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     }
   }
 
-  Future<Map<String, dynamic>> fetchTabResults(String currentTab, Map<String, Set<String>> filters) async {
-    final concatenatedFilters = filters.entries.expand((entry) => entry.value).join(',');
+  Future<Map<String, dynamic>> fetchTabResults(Map<String, String> currentTab, Map<String, Set<String>> filters) async {
+    var concatenatedFilters = '';
 
+    if(filters.entries.isNotEmpty && filters.entries.every((e) => e.value.isNotEmpty)){
+      concatenatedFilters = '/${filters.entries.expand((entry) => entry.value).join('/')}';
+    }
+
+    final currentTabName = (currentTab['name'] ?? 'games');
     final response = await http.post(
       Uri.parse('https://us-central1-itchioclientapp.cloudfunctions.net/item_list'),
       headers: {'Content-Type': 'application/json'},
-      body: json.encode({'filters': concatenatedFilters, 'type': currentTab}),
+      body: json.encode({'filters': concatenatedFilters, 'type': currentTabName}),
     );
 
     if (response.statusCode == 200) {
       return json.decode(response.body);
     } else {
+      logger.e('Type: $currentTabName, Filters: $concatenatedFilters');
       logger.e('Failed to load tab results, status code: ${response.statusCode}');
       throw Exception('Failed to load tab results');
+    }
+  }
+
+  Future<void> fetchTabs() async {
+    final firebaseApp = Firebase.app();
+    final dbInstance = FirebaseDatabase.instanceFor(app: firebaseApp, databaseURL: 'https://itchioclientapp-default-rtdb.europe-west1.firebasedatabase.app');
+
+    final DatabaseReference dbRef = dbInstance.ref('/items/item_types');
+    final snapshot = await dbRef.get();
+    if (snapshot.exists) {
+      final dynamic data = snapshot.value;
+      if (data is List<dynamic>) {
+        setState(() {
+          _tabs = data.map((item) {
+            if (item is Map<Object?, Object?>) {
+              final Map<String, String> convertedMap = {};
+              item.forEach((key, value) {
+                if (key != null && value != null) {
+                  convertedMap[key.toString()] = value.toString();
+                }
+              });
+              return convertedMap;
+            } else {
+              return <String, String>{};
+            }
+          }).toList();
+
+          _tabController = TabController(length: _tabs.length, vsync: this)
+            ..addListener(() {
+              if (_tabController.indexIsChanging) {
+                setState(() {
+                  currentTab = _tabs[_tabController.index];
+                  _changeTab();
+                });
+              }
+            });
+        });
+      } else {
+        logger.i('Unexpected data type: ${data.runtimeType}');
+      }
+    } else {
+      logger.i('No data available.');
+    }
+  }
+
+  Future<Map<String, List<Map<String, String>>>> fetchFilters() async {
+    final firebaseApp = Firebase.app();
+    final dbInstance = FirebaseDatabase.instanceFor(app: firebaseApp, databaseURL: 'https://itchioclientapp-default-rtdb.europe-west1.firebasedatabase.app');
+
+    final DatabaseReference dbRef = dbInstance.ref('/items/filters');
+    final snapshot = await dbRef.get();
+    if (snapshot.exists) {
+      final dynamic data = snapshot.value;
+      Map<String, List<Map<String, String>>> resultMap = {};
+
+      data.forEach((key, value) {
+        if (key is String) {
+          if (value is List) {
+            List<Map<String, String>> listValue = [];
+            for (var item in value) {
+              if (item is Map) {
+                Map<String, String> stringMap = {};
+
+                item.forEach((key, value) {
+                  if (key is String && value is String) {
+                    stringMap[key] = value;
+                  }
+                });
+
+                listValue.add(stringMap);
+              }
+            }
+
+            resultMap[key] = listValue;
+          }
+        }
+      });
+      return resultMap;
+    } else {
+      logger.i('No data available.');
+      return {};
     }
   }
 
@@ -94,8 +178,10 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     });
   }
 
-  void _showFilterPopup(Map<String, Set<String>> existingFilters) {
+  Future<void> _showFilterPopup(Map<String, Set<String>> existingFilters) async {
     Map<String, Set<String>> newSelectedFilters = Map.from(existingFilters);
+
+    List<Widget> filterRows = await _buildFilterRows(newSelectedFilters);
 
     showDialog(
       context: context,
@@ -104,26 +190,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              FilterRowWidget(
-                label: 'Category',
-                options: ['/genre-action', 'genre-adventure'],
-                selectedFilters: newSelectedFilters,
-                onFiltersChanged: (filters) => newSelectedFilters = filters,
-              ),
-              FilterRowWidget(
-                label: 'Price',
-                options: ['/free', '/5-dollars-or-less'],
-                selectedFilters: newSelectedFilters,
-                onFiltersChanged: (filters) => newSelectedFilters = filters,
-              ),
-              FilterRowWidget(
-                label: 'Platform',
-                options: ['/platform_windows', '/platform_osx', '/platform_linux', '/platform_android'],
-                selectedFilters: newSelectedFilters,
-                onFiltersChanged: (filters) => newSelectedFilters = filters,
-              ),
-            ],
+            children: filterRows
           ),
         ),
         actions: <Widget>[
@@ -148,6 +215,24 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
         ],
       ),
     );
+  }
+
+  Future<List<Widget>> _buildFilterRows(Map<String, Set<String>> selectedFilters) async {
+    List<Widget> filterRows = [];
+    Map<String, List<Map<String, String>>> filtersData = (await fetchFilters()) as Map<String, List<Map<String, String>>>;
+
+    filtersData.forEach((label, options) {
+      filterRows.add(
+        FilterRowWidget(
+          label: label,
+          options: options.toList(),
+          selectedFilters: selectedFilters,
+          onFiltersChanged: (filters) => selectedFilters = filters,
+        ),
+      );
+    });
+
+    return filterRows;
   }
 
   void _saveSearch() {
@@ -317,24 +402,35 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   }
 
   List<Widget> _buildTabsPage() {
-    return [
-      TabBar(
-        controller: _tabController,
-        tabs: _tabs.map((tab) => Tab(text: tab)).toList(),
-      ),
-      Expanded(
-        child: TabBarView(
-          controller: _tabController,
-          children: _tabs.map((tab) => _buildTabPage()).toList(),
+    if (_tabs.isEmpty) {
+      return [
+        const Center(child: CircularProgressIndicator()),
+      ];
+    } else {
+      return [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: TabBar(
+            isScrollable: true,
+            controller: _tabController,
+            tabs: _tabs.map((tab) => Tab(text: tab['label'])).toList(),
+          ),
         ),
-      ),
-    ];
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: _tabs.map((tab) => _buildTabPage()).toList(),
+          ),
+        ),
+      ];
+    }
   }
+
 }
 
 class FilterRowWidget extends StatefulWidget {
   final String label;
-  final List<String> options;
+  final List<Map<String, String>> options;
   final Map<String, Set<String>> selectedFilters;
   final void Function(Map<String, Set<String>>) onFiltersChanged;
 
@@ -355,19 +451,19 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
           scrollDirection: Axis.horizontal,
           child: Row(
             children: widget.options.map((option) {
-              final isSelected = widget.selectedFilters.entries.any((entry) => entry.value.contains(option));
+              final isSelected = widget.selectedFilters.entries.any((entry) => entry.value.contains(option['name']));
               return Padding(
                 padding: EdgeInsets.only(right: 8.0),
                 child: FilterChip(
-                  label: Text(option),
+                  label: Text(option['label']!),
                   selected: isSelected,
                   onSelected: (selected) {
                     setState(() {
                       if (selected) {
                         widget.selectedFilters[widget.label] ??= Set();
-                        widget.selectedFilters[widget.label]!.add(option);
+                        widget.selectedFilters[widget.label]!.add(option['name']!);
                       } else {
-                        widget.selectedFilters[widget.label]?.remove(option);
+                        widget.selectedFilters[widget.label]?.remove(option['name']);
                       }
                       widget.onFiltersChanged(widget.selectedFilters);
                     });
