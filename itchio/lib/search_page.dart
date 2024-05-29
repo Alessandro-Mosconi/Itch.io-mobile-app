@@ -1,5 +1,6 @@
 import 'dart:ffi';
 
+import 'package:crypto/crypto.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -177,18 +178,23 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     final firebaseApp = Firebase.app();
     final dbInstance = FirebaseDatabase.instanceFor(app: firebaseApp, databaseURL: 'https://itchioclientapp-default-rtdb.europe-west1.firebasedatabase.app');
 
-    final DatabaseReference dbRef = dbInstance.ref('/user_search/${token!}');
-    DatabaseReference newSearchSaved = dbRef.push();
-    var concatenatedFilters = '';
 
+    var concatenatedFilters = '';
+    var tab = currentTab['name'] ?? 'games';
     if(_selectedFilters.entries.isNotEmpty && _selectedFilters.entries.every((e) => e.value.isNotEmpty)){
       concatenatedFilters = '/${_selectedFilters.entries.expand((entry) => entry.value).join('/')}';
     }
 
-    newSearchSaved.set({
-      "filters" : concatenatedFilters,
-      "type": currentTab['name'] ?? 'games'
-    });
+    String key = sha256.convert(utf8.encode(tab + concatenatedFilters)).toString();
+
+    final DatabaseReference dbRef = dbInstance.ref('/user_search/${token!}/$key');
+    await dbRef.update(
+        {
+          "filters" : concatenatedFilters,
+          "type": currentTab['name'] ?? 'games'
+        }
+    );
+
   }
 
   void _performSearch() {
