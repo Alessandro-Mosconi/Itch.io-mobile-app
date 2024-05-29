@@ -7,6 +7,7 @@ class Game {
   int? id;
   String? short_text;
   int? min_price;
+  double? price;
   String? type;
   bool? p_windows;
   bool? p_linux;
@@ -28,11 +29,12 @@ class Game {
   String? description;
   String? imageurl;
   String? author;
+  String? currency;
 
   // Constructor for Game class to handle JSON data
   Game(Map<String, dynamic> data) {
     views_count = data['views_count'];
-    url = data['url'];
+    url = data['url']??data['link'];
     id = data['id'];
     short_text = data['short_text'];
     min_price = data['min_price'];
@@ -56,13 +58,15 @@ class Game {
     description = data['description'];
     imageurl = data['imageurl'];
     author = data['author'];
+    currency = data['currency'];
+
+    price = double.parse(data['price'] == null? "0.0" : data['price'].replaceAll('\$', '').trim());
   }
 
-  // Additional constructor to handle JSON string
   Game.fromJson(String jsonGame) {
     var data = json.decode(jsonGame);
     views_count = data['views_count'];
-    url = data['url'];
+    url = data['url']??data['link'];
     id = data['id'];
     short_text = data['short_text'];
     min_price = data['min_price'];
@@ -86,6 +90,37 @@ class Game {
     description = data['description'];
     imageurl = data['imageurl'];
     author = data['author'];
+    currency = data['currency'];
+
+    price = double.parse(data['price'].replaceAll('\$', '').trim());
+  }
+
+  String getCurrencySymbol() {
+    const currencySymbols = {
+      'USD': '\$',
+      'EUR': '€',
+      'GBP': '£',
+      'JPY': '¥',
+      'AUD': 'A\$',
+      'CAD': 'C\$',
+      'CHF': 'CHF',
+      'CNY': '¥',
+      'SEK': 'kr',
+      'NZD': 'NZ\$',
+    };
+
+    return currencySymbols[currency] ?? '';
+  }
+
+  String getFormatPriceWithCurrency() {
+
+    double finalPrice = price ?? 0.00;
+    if (finalPrice == 0.0) {
+      return 'Free';
+    }
+    String currencySymbol = getCurrencySymbol();
+
+    return '${finalPrice.toStringAsFixed(2)}$currencySymbol';
   }
 }
 
