@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'custom_app_bar.dart';
 import 'customIcons/custom_icon_icons.dart';
 import 'helperClasses/Game.dart';
@@ -168,6 +169,28 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     }
   }
 
+  Future<void> uploadSavedSearchToDb() async {
+
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString("access_token");
+
+    final firebaseApp = Firebase.app();
+    final dbInstance = FirebaseDatabase.instanceFor(app: firebaseApp, databaseURL: 'https://itchioclientapp-default-rtdb.europe-west1.firebasedatabase.app');
+
+    final DatabaseReference dbRef = dbInstance.ref('/user_search/${token!}');
+    DatabaseReference newSearchSaved = dbRef.push();
+    var concatenatedFilters = '';
+
+    if(_selectedFilters.entries.isNotEmpty && _selectedFilters.entries.every((e) => e.value.isNotEmpty)){
+      concatenatedFilters = '/${_selectedFilters.entries.expand((entry) => entry.value).join('/')}';
+    }
+
+    newSearchSaved.set({
+      "filters" : concatenatedFilters,
+      "type": currentTab['name'] ?? 'games'
+    });
+  }
+
   void _performSearch() {
     setState(() {
       //_filterCount = 0;
@@ -246,11 +269,19 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Bookmark'),
-        content: Text('Search saved in the home'),
+        content: Text('You are going to save this research in bookmark section'),
         actions: <Widget>[
           TextButton(
-            child: Text('OK'),
-            onPressed: () => Navigator.of(context).pop(),
+              child: Text('Confirm'),
+              onPressed: () =>
+              {
+                uploadSavedSearchToDb(),
+                Navigator.of(context).pop()
+              }
+          ),
+          TextButton(
+              child: Text('Undo'),
+              onPressed: () => Navigator.of(context).pop()
           ),
         ],
       ),
@@ -272,7 +303,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
                   children: [
 
                     Visibility(
-                      visible: _showSaveButton, // initially hide the save button
+                      visible: _showSaveButton,
                       child: IconButton(
                         icon: Icon(Icons.search),
                         onPressed: (){
@@ -284,7 +315,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
                       ),
                     ),
                     Visibility(
-                      visible: !_showSaveButton, // initially hide the save button
+                      visible: !_showSaveButton,
                       child: IconButton(
                         icon: Icon(Icons.close),
                         onPressed: (){
@@ -297,7 +328,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
                       ),
                     ),
                     Visibility(
-                      visible: _showSaveButton, // initially hide the save button
+                      visible: _showSaveButton,
                       child: IconButton(
                         icon: badges.Badge(
                           showBadge: _filterCount > 0,
@@ -310,7 +341,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
                       ),
                     ),
                     Visibility(
-                      visible: _showSaveButton, // initially hide the save button
+                      visible: _showSaveButton,
                       child: IconButton(
                         icon: Icon(Icons.bookmark),
                         onPressed: _saveSearch,

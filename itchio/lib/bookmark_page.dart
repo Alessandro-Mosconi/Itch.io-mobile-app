@@ -25,14 +25,14 @@ class _BookmarkPageState extends State<BookmarkPage> {
     final firebaseApp = Firebase.app();
     final dbInstance = FirebaseDatabase.instanceFor(app: firebaseApp, databaseURL: 'https://itchioclientapp-default-rtdb.europe-west1.firebasedatabase.app');
 
-    final DatabaseReference dbRef = dbInstance.ref('/user_search/' + token!);
+    final DatabaseReference dbRef = dbInstance.ref('/user_search/${token!}');
     final snapshot = await dbRef.get();
     if (snapshot.exists) {
       final dynamic rawData = snapshot.value;
       final List<Map<String, String>> dataList = [];
 
-      if (rawData is List<dynamic>) {
-        for (final item in rawData) {
+      if (rawData is Map<Object?, Object?>) {
+        for (final item in rawData.values) {
           if (item is Map<Object?, Object?>) {
             final Map<String, String> search = {
               'filters': item['filters'].toString(),
@@ -43,7 +43,6 @@ class _BookmarkPageState extends State<BookmarkPage> {
         }
       }
 
-      logger.i(dataList);
       return dataList;
     }
     return [];
