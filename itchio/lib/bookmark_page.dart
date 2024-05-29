@@ -1,12 +1,17 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'custom_app_bar.dart';
 import 'package:http/http.dart' as http;
+
+import 'helperClasses/Game.dart';
 
 class BookmarkPage extends StatefulWidget {
   @override
@@ -14,12 +19,18 @@ class BookmarkPage extends StatefulWidget {
 }
 
 class _BookmarkPageState extends State<BookmarkPage> {
-
   late SharedPreferences prefs;
   final Logger logger = Logger(printer: PrettyPrinter());
   late List<Map<String, String>> data = [];
+  late List<bool> _isExpandedList = [];
 
-  Future<List<Map<String, String>>> fetchFavorites() async {
+  @override
+  void initState() {
+    super.initState();
+    fetchFavorites();
+  }
+
+  Future<void> fetchFavorites() async {
     prefs = await SharedPreferences.getInstance();
     final token = prefs.getString("access_token");
     final firebaseApp = Firebase.app();
@@ -43,9 +54,35 @@ class _BookmarkPageState extends State<BookmarkPage> {
         }
       }
 
-      return dataList;
+      setState(() {
+        data = dataList;
+        _isExpandedList = List<bool>.filled(dataList.length, false);
+      });
     }
-    return [];
+  }
+
+  Future<Map<String, dynamic>> fetchresearchResult(String type, String filters) async {
+    String? result = prefs.getString('research_${type}_$filters');
+
+    if (result != null) {
+      return json.decode(result);
+    } else {
+      final response = await http.post(
+        Uri.parse('https://us-central1-itchioclientapp.cloudfunctions.net/item_list'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'filters': filters, 'type': type}),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        prefs.setString('research_${type}_$filters', response.body);
+        return responseData;
+      } else {
+        logger.e('Type: $type, Filters: $filters');
+        logger.e('Failed to load tab results, status code: ${response.statusCode}');
+        throw Exception('Failed to load tab results');
+      }
+    }
   }
 
 
@@ -55,53 +92,88 @@ class _BookmarkPageState extends State<BookmarkPage> {
       appBar: AppBar(
         title: Text('Ricerche Salvate'),
       ),
-      body: Column(
+      body: ListView(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              'Le tue ricerche salvate',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          Expanded(
-            child: FutureBuilder<List<Map<String, String>>>(
-              future: fetchFavorites(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Errore: ${snapshot.error}'));
-                } else {
-                  final data = snapshot.data!;
-                  return ListView.builder(
-                    itemCount: data.length,
-                    itemBuilder: (context, index) {
-                      final search = data[index];
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Card(
-                          elevation: 4,
-                          child: ListTile(
-                            title: Text(
-                              search['type']!,
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            subtitle: Text(search['filters']!),
-                            onTap: () {
-                              // Azioni quando l'utente tocca una ricerca salvata
+          ExpansionPanelList(
+            expansionCallback: (int index, bool isExpanded) {
+              setState(() {
+                _isExpandedList[index] = isExpanded;
+              });
+            },
+            children: data.map<ExpansionPanel>((search) {
+              final index = data.indexOf(search);
+              return ExpansionPanel(
+                headerBuilder: (context, isExpanded) {
+                  return ListTile(
+                    title: Text(
+                      search['type']!,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(search['filters']!),
+                  );
+                },
+                body: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.search),
+                          onPressed: () {
+                            // Azione per aprire la ricerca
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete),
+                          onPressed: () {
+                            // Azione per eliminare la ricerca
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.notifications),
+                          onPressed: () {
+                            // Azione per attivare/disattivare notifiche
+                          },
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 200, // Altezza fissa per il carosello di immagini
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        children: [
+                          FutureBuilder<Map<String, dynamic>>(
+                            future: fetchresearchResult(search['type']!, search['filters']!),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return Text('Game loading...');
+                              } else if (snapshot.hasError) {
+                                return Text('Error: ${snapshot.error}');
+                              } else {
+                                final List<Game> images = (snapshot.data?['items'] as List).map((game) => Game(game)).toList();
+                                return Row(
+                                  children: images.map<Widget>((game) {
+                                    return Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Image.network(
+                                        game.imageurl ?? '',
+                                        width: 150, // Imposta la larghezza desiderata per le immagini
+                                      ),
+                                    );
+                                  }).toList(),
+                                );
+                              }
                             },
                           ),
-                        ),
-                      );
-                    },
-                  );
-                }
-              },
-            ),
+                        ],
+                      ),
+
+                    ),
+                  ],
+                ),
+                isExpanded: _isExpandedList[index],
+              );
+            }).toList(),
           ),
         ],
       ),
