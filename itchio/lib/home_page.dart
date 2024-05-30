@@ -143,6 +143,8 @@ Future<void> changeNotifyField(String type, String filters, bool notify) async {
   }).toList();
   prefs.setString("saved_searches", json.encode(results));
 }
+
+
 class CarouselCard extends StatefulWidget {
   final String title;
   final String subtitle;
@@ -159,7 +161,6 @@ class CarouselCard extends StatefulWidget {
   @override
   _CarouselCardState createState() => _CarouselCardState();
 }
-
 class _CarouselCardState extends State<CarouselCard> {
   bool isNotificationEnabled = false;
   final Logger logger = Logger();
@@ -184,89 +185,168 @@ class _CarouselCardState extends State<CarouselCard> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.all(15),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        kebabToCapitalized(widget.title),
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        widget.subtitle,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey[600],
-                        ),
-                        softWrap: true,
-                        overflow: TextOverflow.visible,
-                      ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(
-                    isNotificationEnabled ? Icons.notifications_active : Icons.notification_add_outlined,
-                    color: isNotificationEnabled ? Colors.amber : Colors.grey,
-                  ),
-                  onPressed: () => _toggleNotification(widget.title, widget.subtitle),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(
-            height: 200,  // Increased height for larger images
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: widget.items.length,
-              itemBuilder: (context, index) {
-                Game game = widget.items[index];
-                return Container(
-                  width: 160,  // Increased width
-                  margin: EdgeInsets.symmetric(horizontal: 8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.network(
-                          game.imageurl ?? '',
-                          fit: BoxFit.cover,
-                          width: 160,
-                          height: 140,  // Increased height
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        game.title ?? '',
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
+      child: Dismissible(
+        key: Key(widget.title), // Unique key for the Dismissible widget
+        direction: DismissDirection.horizontal, // Allow both left and right swipes
+        confirmDismiss: (direction) async {
+          if (direction == DismissDirection.endToStart) {
+            // Swipe from right to left (delete action)
+            return await showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text("Conferma eliminazione"),
+                  content: Text("Sei sicuro di voler eliminare questa ricerca salvata?"),
+                  actions: <Widget>[
+                    MaterialButton(
+                      onPressed: () => Navigator.of(context).pop(false), // Annulla
+                      child: Text("Annulla"),
+                    ),
+                    MaterialButton(
+                      onPressed: () => Navigator.of(context).pop(true), // Conferma
+                      child: Text("Conferma"),
+                    ),
+                  ],
                 );
               },
-            ),
+            );
+          } else {
+            // Swipe from left to right (search action)
+            return await showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text("Conferma ricerca"),
+                  content: Text("Sei sicuro di voler effettuare questa ricerca?"),
+                  actions: <Widget>[
+                    MaterialButton(
+                      onPressed: () => Navigator.of(context).pop(false), // Annulla
+                      child: Text("Annulla"),
+                    ),
+                    MaterialButton(
+                      onPressed: () => Navigator.of(context).pop(true), // Conferma
+                      child: Text("Conferma"),
+                    ),
+                  ],
+                );
+              },
+            );
+          }
+        },
+        onDismissed: (direction) {
+          // Code to handle dismiss actions (not needed for swipe confirmation)
+          if (direction == DismissDirection.endToStart) {
+            // Perform delete action here
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Ricerca eliminata"),
+              ),
+            );
+          }
+        },
+        background: Container(
+          alignment: Alignment.centerLeft,
+          padding: EdgeInsets.only(left: 20.0),
+          color: Colors.blue,
+          child: Icon(
+            Icons.search,
+            color: Colors.white,
           ),
-        ],
+        ),
+        secondaryBackground: Container(
+          alignment: Alignment.centerRight,
+          padding: EdgeInsets.only(right: 20.0),
+          color: Colors.red,
+          child: Icon(
+            Icons.delete,
+            color: Colors.white,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.all(15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          kebabToCapitalized(widget.title),
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          widget.subtitle,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[600],
+                          ),
+                          softWrap: true,
+                          overflow: TextOverflow.visible,
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      isNotificationEnabled ? Icons.notifications_active : Icons.notification_add_outlined,
+                      color: isNotificationEnabled ? Colors.amber : Colors.grey,
+                    ),
+                    onPressed: () => _toggleNotification(widget.title, widget.subtitle),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 200,  // Increased height for larger images
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: widget.items.length,
+                itemBuilder: (context, index) {
+                  Game game = widget.items[index];
+                  return Container(
+                    width: 160,  // Increased width
+                    margin: EdgeInsets.symmetric(horizontal: 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.network(
+                            game.imageurl ?? '',
+                            fit: BoxFit.cover,
+                            width: 160,
+                            height: 140,  // Increased height
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          game.title ?? '',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
+
