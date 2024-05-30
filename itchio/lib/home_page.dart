@@ -26,8 +26,6 @@ Future<List<SavedSearch>> fetchSavedSearch() async {
   if(prefs.getString("saved_searches") != null && checkTimestamp(prefs.getInt("saved_searches_timestamp"))){
 
     String body = prefs.getString("saved_searches")!;
-
-
     List<dynamic>? results = json.decode(body);
 
     List<SavedSearch> savedSearches = results?.map((r) => SavedSearch(r)).toList() ?? [];
@@ -161,6 +159,7 @@ class CarouselCard extends StatefulWidget {
   @override
   _CarouselCardState createState() => _CarouselCardState();
 }
+
 class _CarouselCardState extends State<CarouselCard> {
   bool isNotificationEnabled = false;
   final Logger logger = Logger();
@@ -178,6 +177,31 @@ class _CarouselCardState extends State<CarouselCard> {
     });
   }
 
+
+  Future<void> deleteSavedSearch(String type, String filters) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString("access_token");
+
+    final firebaseApp = Firebase.app();
+    final dbInstance = FirebaseDatabase.instanceFor(app: firebaseApp, databaseURL: 'https://itchioclientapp-default-rtdb.europe-west1.firebasedatabase.app');
+
+    String typeDefault = type ?? 'games';
+
+    String key = sha256.convert(utf8.encode(typeDefault + filters)).toString();
+
+    final DatabaseReference dbRef = dbInstance.ref('/user_search/${token!}/$key');
+    await dbRef.remove();
+
+    String body = prefs.getString("saved_searches")!;
+    List<dynamic> results = json.decode(body) ?? [];
+
+    results.removeWhere((r) {
+      return r['type'] == type && r['filters']==filters;
+    });
+
+    prefs.setString("saved_searches", json.encode(results));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -190,21 +214,24 @@ class _CarouselCardState extends State<CarouselCard> {
         direction: DismissDirection.horizontal, // Allow both left and right swipes
         confirmDismiss: (direction) async {
           if (direction == DismissDirection.endToStart) {
-            // Swipe from right to left (delete action)
             return await showDialog(
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
-                  title: Text("Conferma eliminazione"),
-                  content: Text("Sei sicuro di voler eliminare questa ricerca salvata?"),
+                  title: Text("Confirm Deletion"),
+                  content: Text("Are you sure you want to delete this saved search?"),
                   actions: <Widget>[
                     MaterialButton(
-                      onPressed: () => Navigator.of(context).pop(false), // Annulla
-                      child: Text("Annulla"),
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: Text("Cancel"),
                     ),
                     MaterialButton(
-                      onPressed: () => Navigator.of(context).pop(true), // Conferma
-                      child: Text("Conferma"),
+                      onPressed: () =>
+                          {
+                            deleteSavedSearch(widget.title, widget.subtitle),
+                            Navigator.of(context).pop(true),
+                          },
+                      child: Text("Confirm"),
                     ),
                   ],
                 );
@@ -216,16 +243,16 @@ class _CarouselCardState extends State<CarouselCard> {
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
-                  title: Text("Conferma ricerca"),
-                  content: Text("Sei sicuro di voler effettuare questa ricerca?"),
+                  title: Text("Confirm Search"),
+                  content: Text("Are you sure you want to perform this search?"),
                   actions: <Widget>[
                     MaterialButton(
-                      onPressed: () => Navigator.of(context).pop(false), // Annulla
-                      child: Text("Annulla"),
+                      onPressed: () => Navigator.of(context).pop(false), // Cancel
+                      child: Text("Cancel"),
                     ),
                     MaterialButton(
-                      onPressed: () => Navigator.of(context).pop(true), // Conferma
-                      child: Text("Conferma"),
+                      onPressed: () => Navigator.of(context).pop(true), // Confirm
+                      child: Text("Confirm"),
                     ),
                   ],
                 );
@@ -239,7 +266,7 @@ class _CarouselCardState extends State<CarouselCard> {
             // Perform delete action here
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text("Ricerca eliminata"),
+                content: Text("Search deleted"),
               ),
             );
           }
@@ -349,4 +376,3 @@ class _CarouselCardState extends State<CarouselCard> {
     );
   }
 }
-
