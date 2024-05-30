@@ -24,8 +24,6 @@ Future<List<SavedSearch>> fetchSavedSearch() async {
 
     String body = prefs.getString("saved_searches")!;
 
-    logger.i(body);
-
     List<dynamic>? results = json.decode(body);
 
     List<SavedSearch> savedSearches = results?.map((r) => SavedSearch(r)).toList() ?? [];
