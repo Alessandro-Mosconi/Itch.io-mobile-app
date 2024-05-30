@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 import 'helperClasses/Game.dart';
 import 'customIcons/custom_icon_icons.dart';
+import 'game_webview_page.dart';  // Import the GameWebViewPage
 
 class GameTile extends StatelessWidget {
   final Game game;
@@ -14,11 +13,14 @@ class GameTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () async {
-        if (game.url!=null && game.url!='') {
-          await launchUrlString(
-            game.url!,
-            mode: LaunchMode.inAppBrowserView,);
+      onTap: () {
+        if (game.url != null && game.url!.isNotEmpty) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => GameWebViewPage(gameUrl: game.url!),
+            ),
+          );
         } else {
           logger.i('Could not launch ${game.url}');
           throw 'Could not launch ${game.url}';
