@@ -186,20 +186,20 @@ exports.search = functions.https.onRequest(async (request, response) => {
 exports.get_saved_search_carousel = functions.https.onRequest(async (request, response) => {
 
     // Ensure the request method is GET
-    if (request.method !== "GET") {
-        response.status(400).send('Please send a GET request');
+    if (request.method !== "POST") {
+        response.status(400).send('Please send a POST request');
         return;
     }
 
-    // Ensure the query parameter 'search' is present
-    const user_token = request.body.user_token;
-    if (!user_token || typeof user_token !== 'string') {
-        response.status(400).send('Please provide a valid user_token');
+    // Ensure the query parameter 'token' is present
+    const token = request.body.token;
+    if (!token || typeof token !== 'string') {
+        response.status(400).send('Please provide a valid token');
         return;
     }
 
     const db = admin.database();
-    const dataSnapshot = await db.ref('user_search/' + user_token).once('value');
+    const dataSnapshot = await db.ref('user_search/' + token).once('value');
 
     if (!dataSnapshot.exists()) {
         response.status(200).send('[]');

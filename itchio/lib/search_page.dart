@@ -195,6 +195,8 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
         }
     );
 
+    prefs.remove("saved_searches");
+
   }
 
   void _performSearch() {
