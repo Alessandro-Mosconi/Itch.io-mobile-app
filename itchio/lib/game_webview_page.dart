@@ -65,10 +65,6 @@ class _GameWebViewPageState extends State<GameWebViewPage> {
             """
           (function() {
             function hideElements() {
-              var header = document.getElementById('header');
-              if (header) {
-                header.style.display = 'none';
-              }
               var footer = document.getElementById('view_game_footer');
               if (footer) {
                 footer.style.display = 'none';
