@@ -8,6 +8,7 @@ import 'package:logger/logger.dart';
 import 'developed_games_page.dart';
 import 'purchased_games_page.dart';
 import 'settings_page.dart';  // Import the SettingsPage
+import 'custom_app_bar.dart';  // Import the CustomAppBar
 
 class ProfilePage extends StatefulWidget {
   ProfilePage({Key? key}) : super(key: key);
@@ -56,6 +57,19 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: CustomAppBar(  // Use the CustomAppBar with actions here
+        actions: [
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SettingsPage()),
+              );
+            },
+          ),
+        ],
+      ),
       body: Stack(
         children: [
           Consumer<OAuthService>(
@@ -84,26 +98,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 );
               }
             },
-          ),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              actions: [
-                IconButton(
-                  icon: Icon(Icons.settings),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => SettingsPage()),
-                    );
-                  },
-                ),
-              ],
-            ),
           ),
         ],
       ),

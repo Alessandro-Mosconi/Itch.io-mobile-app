@@ -11,10 +11,10 @@ import 'home_page.dart';
 import 'search_page.dart';
 import 'favorite_page.dart';
 import 'profile_page.dart';
-import 'auth_page.dart'; // Import the AuthPage
-import 'settings_page.dart'; // Import the SettingsPage
-import 'theme_notifier.dart'; // Import the ThemeNotifier
-import 'custom_app_bar.dart'; // Import the CustomAppBar
+import 'auth_page.dart';
+import 'settings_page.dart';
+import 'theme_notifier.dart';
+import 'custom_app_bar.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
@@ -58,19 +58,20 @@ void setupFirebaseMessagingListeners() {
 
 void showNotification(RemoteMessage message) async {
   const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
-      'your_channel_id',
-      'your_channel_name',
-      channelDescription: 'your_channel_description',
-      importance: Importance.max,
-      priority: Priority.high,
-      showWhen: false
+    'your_channel_id',
+    'your_channel_name',
+    channelDescription: 'your_channel_description',
+    importance: Importance.max,
+    priority: Priority.high,
+    showWhen: false,
   );
   const NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
   await flutterLocalNotificationsPlugin.show(
-      0,
-      message.notification?.title,
-      message.notification?.body,
-      platformChannelSpecifics);
+    0,
+    message.notification?.title,
+    message.notification?.body,
+    platformChannelSpecifics,
+  );
 }
 
 Future<void> subscribeToTopic() async {
@@ -106,7 +107,7 @@ class _ProviderAppState extends State<ProviderApp> {
           create: (_) => ThemeNotifier(),
         ),
       ],
-      child: const MyApp(),
+      child: MyApp(),
     );
   }
 
@@ -118,8 +119,6 @@ class _ProviderAppState extends State<ProviderApp> {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     final themeNotifier = Provider.of<ThemeNotifier>(context);

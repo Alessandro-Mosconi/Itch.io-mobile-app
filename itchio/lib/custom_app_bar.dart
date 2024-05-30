@@ -4,6 +4,10 @@ import 'package:provider/provider.dart';
 import 'theme_notifier.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final List<Widget>? actions;
+
+  CustomAppBar({this.actions});
+
   @override
   Widget build(BuildContext context) {
     final themeNotifier = Provider.of<ThemeNotifier>(context);
@@ -22,9 +26,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         height: 30, // Adjust the height as needed
         color: iconColor,
       ),
+      actions: actions,
     );
   }
-
 
   @override
   Size get preferredSize => Size.fromHeight(kToolbarHeight);
