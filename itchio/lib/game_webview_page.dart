@@ -16,6 +16,7 @@ class GameWebViewPage extends StatefulWidget {
 class _GameWebViewPageState extends State<GameWebViewPage> {
   late final WebViewController _controller;
   bool _isLoading = true;
+  bool _elementsHidden = false;
 
   @override
   void initState() {
@@ -55,35 +56,49 @@ class _GameWebViewPageState extends State<GameWebViewPage> {
       onPageStarted: (String url) {
         setState(() {
           _isLoading = true;
+          _elementsHidden = false;
         });
       },
-      onPageFinished: (String url) {
-        setState(() {
-          _isLoading = false;
-        });
-        // Inject JavaScript to hide unwanted elements with null checks
-        _controller.runJavaScript(
+      onPageFinished: (String url) async {
+        // Inject JavaScript to hide unwanted elements
+        await _controller.runJavaScript(
             """
           (function() {
-            var header = document.getElementById('header');
-            if (header) {
-              header.style.display = 'none';
+            function hideElements() {
+              var header = document.getElementById('header');
+              if (header) {
+                header.style.display = 'none';
+              }
+              var footer = document.getElementById('view_game_footer');
+              if (footer) {
+                footer.style.display = 'none';
+              }
+              var bottomBar = document.querySelector('.bottom-bar-class-name');
+              if (bottomBar) {
+                bottomBar.style.display = 'none';
+              }
+              var userTools = document.getElementById('user_tools');
+              if (userTools) {
+                userTools.style.display = 'none';
+              }
             }
-            var footer = document.getElementById('view_game_footer');
-            if (footer) {
-              footer.style.display = 'none';
+            
+            if (document.readyState === 'complete') {
+              hideElements();
+            } else {
+              window.addEventListener('load', hideElements);
             }
-            var bottomBar = document.querySelector('.bottom-bar-class-name');
-            if (bottomBar) {
-              bottomBar.style.display = 'none';
-            }
-            var userTools = document.getElementById('user_tools');
-            if (userTools) {
-              userTools.style.display = 'none';
-            }
+
+            requestAnimationFrame(hideElements);
           })();
           """
         );
+        // Check if elements are hidden
+        await Future.delayed(Duration(milliseconds: 500)); // Wait for the elements to be hidden
+        setState(() {
+          _isLoading = false;
+          _elementsHidden = true;
+        });
       },
       onHttpError: (HttpResponseError error) {},
       onWebResourceError: (WebResourceError error) {},
@@ -102,10 +117,6 @@ class _GameWebViewPageState extends State<GameWebViewPage> {
       AndroidWebViewController.enableDebugging(true);
       (controller.platform as AndroidWebViewController)
           .setMediaPlaybackRequiresUserGesture(false);
-
-      // Enable Hybrid Composition
-      (controller.platform as AndroidWebViewController)
-          .setHybridComposition(true);
     }
   }
 
@@ -124,7 +135,7 @@ class _GameWebViewPageState extends State<GameWebViewPage> {
       ),
       body: Stack(
         children: [
-          WebViewWidget(controller: _controller),
+          if (_elementsHidden) WebViewWidget(controller: _controller),
           if (_isLoading)
             Center(
               child: CircularProgressIndicator(),
