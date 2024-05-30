@@ -42,8 +42,6 @@ exports.fetchRSSFeedAndNotify = functions.https.onRequest(async (request, respon
 });
 
 exports.item_list = functions.https.onRequest(async (request, response) => {
-    const xml2js = require('xml2js');
-    const rssUrl = 'https://itch.io/';
 
     // Verifica che il metodo della richiesta sia POST
     if (request.method !== "POST") {
@@ -66,88 +64,15 @@ exports.item_list = functions.https.onRequest(async (request, response) => {
         return;
     }
 
-    // Esegui le elaborazioni sulla stringa di input
-    const filters = request.body.filters || '';
-    const type = request.body.type;
-
-    const filteredUrl = rssUrl + type  + filters + '.xml'
-    console.log(filteredUrl)
-
-    let items = [];
-    let title = '';
-    
-    try {
-        // Ottieni il feed RSS con fetch
-        const res = await fetch(filteredUrl);
-        const xmlData = await res.text();
-
-        // Opzioni per il parsing
-        const parserOptions = {
-            trim: true,
-            explicitArray: false
-        };
-
-        // Effettua il parsing del documento XML
-        xml2js.parseString(xmlData, parserOptions, (err, result) => {
-            if (err) {
-                response.status(400).send('Errore nel parsing del documento XML:', err);
-                return;
-            }
-
-            items = result.rss.channel.item;            
-            title = result.rss.channel.title
-
-        });
-    } catch (error) {
-        response.status(400).send('Errore nella connessione con itch.io o url non corretto: "' + filteredUrl + '"\n' + error);
+    const result = await getSearchResult(request.body.type, request.body.filters || '');
+    if (result.type === 'error') {
+        response.status(400).send(result.message);
+        return;
+    } else {
+        // Restituisci l'oggetto JSON come risposta
+        response.json(result.content);
     }
 
-    // Correzione dei vari parametri di ogni gioco
-    if(type === 'games'){
-        for(const game of items){
-            const altRegex = /alt="(.*?)"/;
-            // Espressione regolare per estrarre il valore dell'attributo src
-            const srcRegex = /src="(.*?)"/;
-
-            // Estrarre il testo tra le doppie virgolette per l'attributo alt
-            const altMatch = altRegex.exec(game.description);
-            const alt = altMatch ? altMatch[1] : '';
-
-            // Estrarre il valore dell'attributo src
-            const srcMatch = srcRegex.exec(game.description);
-            const img = srcMatch ? srcMatch[1] : '';
-
-            // Rimuovere il tag img dalla descrizione
-            const cleanDescription = game.description.replace(/<img.*?>/, '').trim();
-            
-            game.alt = alt;
-            game.img = img;
-            game.oldDescription = game.description;
-            game.description = cleanDescription;
-
-            const [titleText, filtersText] = game.title.split(" [");
-
-            const filters = filtersText.replace(/\]/g, '').split(' ').filter(filter => filter !== '');
-
-            game.title = titleText;
-            game.filters = filters;
-
-            game.platforms = Object.keys(game.platforms).filter(key => game.platforms[key] === "yes");
-
-        }
-    }
-
-    // Crea un oggetto JSON con i risultati
-    const result = {
-        parsed_url: filteredUrl,
-        title: title,
-        item_type: type,
-        items_size: items.length,
-        items: items
-    };
-
-    // Restituisci l'oggetto JSON come risposta
-    response.json(result);
 });
 
 
@@ -257,3 +182,139 @@ exports.search = functions.https.onRequest(async (request, response) => {
     // Send the JSON object as the response
     response.json(result);
 });
+
+exports.get_saved_search_carousel = functions.https.onRequest(async (request, response) => {
+
+    // Ensure the request method is GET
+    if (request.method !== "GET") {
+        response.status(400).send('Please send a GET request');
+        return;
+    }
+
+    // Ensure the query parameter 'search' is present
+    const user_token = request.body.user_token;
+    if (!user_token || typeof user_token !== 'string') {
+        response.status(400).send('Please provide a valid user_token');
+        return;
+    }
+
+    const db = admin.database();
+    const dataSnapshot = await db.ref('user_search/' + user_token).once('value');
+
+    if (!dataSnapshot.exists()) {
+        response.status(200).send('[]');
+        return;
+    }
+
+    const result = dataSnapshot.val();
+
+    let values = Object.values(dataSnapshot.val());
+    const temp = await Promise.all(values.map(async value => {
+        const result = await getSearchResult(value.type || 'games', value.filters || '');
+        if(result.type === 'error') {
+            response.status(400).send('Error in parsing research');
+            return
+        } else {
+            return {
+                type: value.type,
+                filters: value.filters,
+                items: result.content.items
+            };
+        }
+    }));
+    values = temp;
+
+    // Send the JSON object as the response
+    response.json(values);
+});
+
+async function getSearchResult(type, filters) {
+    const xml2js = require('xml2js');
+    const rssUrl = 'https://itch.io/';
+
+    const filteredUrl = rssUrl + type + filters + '.xml';
+
+    let items = [];
+    let title = '';
+
+    try {
+        // Ottieni il feed RSS con fetch
+        const res = await fetch(filteredUrl);
+        const xmlData = await res.text();
+
+        // Opzioni per il parsing
+        const parserOptions = {
+            trim: true,
+            explicitArray: false
+        };
+
+        // Effettua il parsing del documento XML
+        xml2js.parseString(xmlData, parserOptions, (err, result) => {
+            if (err) {
+                return {
+                    type: 'error',
+                    message: 'Errore nel parsing del documento XML:' + err
+                };
+            }
+
+            items = result.rss.channel.item;
+            title = result.rss.channel.title;
+
+        });
+
+    } catch (error) {
+        return {
+            type: 'error',
+            message: 'Errore nella connessione con itch.io o url non corretto: "' + filteredUrl + '"\n' + error,
+        };
+    }
+
+    // Correzione dei vari parametri di ogni gioco
+    if (type === 'games') {
+        for (const game of items) {
+            const altRegex = /alt="(.*?)"/;
+            // Espressione regolare per estrarre il valore dell'attributo src
+            const srcRegex = /src="(.*?)"/;
+
+            // Estrarre il testo tra le doppie virgolette per l'attributo alt
+            const altMatch = altRegex.exec(game.description);
+            const alt = altMatch ? altMatch[1] : '';
+
+            // Estrarre il valore dell'attributo src
+            const srcMatch = srcRegex.exec(game.description);
+            const img = srcMatch ? srcMatch[1] : '';
+
+            // Rimuovere il tag img dalla descrizione
+            const cleanDescription = game.description.replace(/<img.*?>/, '').trim();
+
+            game.alt = alt;
+            game.img = img;
+            game.oldDescription = game.description;
+            game.description = cleanDescription;
+
+            const [titleText, filtersText] = game.title.split(" [");
+
+            const filters = filtersText.replace(/\]/g, '').split(' ').filter(filter => filter !== '');
+
+            game.title = titleText;
+            game.filters = filters;
+
+            game.platforms = Object.keys(game.platforms).filter(key => game.platforms[key] === "yes");
+
+        }
+    }
+
+    // Restituisci un oggetto JSON con i risultati
+    return {
+        type: 'success',
+        content: {
+            parsed_url: filteredUrl,
+            title: title,
+            item_type: type,
+            items_size: items.length,
+            items: items
+        }
+    };
+
+}
+
