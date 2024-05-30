@@ -1,5 +1,8 @@
 import 'dart:convert';
 
+import 'package:crypto/crypto.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:itchio/helperClasses/SavedSearch.dart';
 import 'package:logger/logger.dart';
@@ -23,6 +26,7 @@ Future<List<SavedSearch>> fetchSavedSearch() async {
   if(prefs.getString("saved_searches") != null && checkTimestamp(prefs.getInt("saved_searches_timestamp"))){
 
     String body = prefs.getString("saved_searches")!;
+
 
     List<dynamic>? results = json.decode(body);
 
@@ -66,6 +70,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: CustomAppBar(),
       body: FutureBuilder<List<SavedSearch>>(
@@ -84,9 +89,10 @@ class _HomePageState extends State<HomePage> {
               itemBuilder: (context, index) {
                 SavedSearch search = savedSearches[index];
                 return CarouselCard(
-                  title: kebabToCapitalized(search.type ?? ''),
+                  title: search.type ?? '',
                   subtitle: search.filters ?? '',
                   items: search.items ?? [],
+                  notify: search.notify ?? false,
                 );
               },
             );
@@ -106,16 +112,48 @@ String kebabToCapitalized(String kebab) {
 
   return capitalized;
 }
+Future<void> changeNotifyField(String type, String filters, bool notify) async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString("access_token");
 
+  final firebaseApp = Firebase.app();
+  final dbInstance = FirebaseDatabase.instanceFor(app: firebaseApp, databaseURL: 'https://itchioclientapp-default-rtdb.europe-west1.firebasedatabase.app');
+
+  String typeDefault = type ?? 'games';
+
+  String key = sha256.convert(utf8.encode(typeDefault + filters)).toString();
+
+  final DatabaseReference dbRef = dbInstance.ref('/user_search/${token!}/$key');
+  await dbRef.update(
+      {
+        "filters" : filters,
+        "type": typeDefault,
+        "notify": notify
+      }
+  );
+
+  String body = prefs.getString("saved_searches")!;
+  List<dynamic> results = json.decode(body) ?? [];
+
+  results = results.map((r){
+    if(r['type'] == type && r['filters']==filters){
+      r['notify'] = notify;
+    }
+    return r;
+  }).toList();
+  prefs.setString("saved_searches", json.encode(results));
+}
 class CarouselCard extends StatefulWidget {
   final String title;
   final String subtitle;
   final List<Game> items;
+  final bool notify;
 
   CarouselCard({
     required this.title,
     required this.subtitle,
     required this.items,
+    required this.notify,
   });
 
   @override
@@ -126,10 +164,16 @@ class _CarouselCardState extends State<CarouselCard> {
   bool isNotificationEnabled = false;
   final Logger logger = Logger();
 
-  void _toggleNotification() {
+  @override
+  void initState() {
+    super.initState();
+    isNotificationEnabled = widget.notify;
+  }
+
+  void _toggleNotification(String type, String filters) {
+    changeNotifyField(type, filters, !isNotificationEnabled);
     setState(() {
       isNotificationEnabled = !isNotificationEnabled;
-      logger.i('notifica');
     });
   }
 
@@ -153,7 +197,7 @@ class _CarouselCardState extends State<CarouselCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.title,
+                        kebabToCapitalized(widget.title),
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -178,7 +222,7 @@ class _CarouselCardState extends State<CarouselCard> {
                     isNotificationEnabled ? Icons.notifications_active : Icons.notification_add_outlined,
                     color: isNotificationEnabled ? Colors.amber : Colors.grey,
                   ),
-                  onPressed: _toggleNotification,
+                  onPressed: () => _toggleNotification(widget.title, widget.subtitle),
                 ),
               ],
             ),

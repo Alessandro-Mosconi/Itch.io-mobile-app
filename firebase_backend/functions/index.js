@@ -218,6 +218,7 @@ exports.get_saved_search_carousel = functions.https.onRequest(async (request, re
             return {
                 type: value.type,
                 filters: value.filters,
+                notify: value.notify,
                 items: result.content.items
             };
         }
