@@ -106,8 +106,8 @@ String kebabToCapitalized(String kebab) {
 
   return capitalized;
 }
-// Widget per il carosello
-class CarouselCard extends StatelessWidget {
+
+class CarouselCard extends StatefulWidget {
   final String title;
   final String subtitle;
   final List<Game> items;
@@ -119,39 +119,102 @@ class CarouselCard extends StatelessWidget {
   });
 
   @override
+  _CarouselCardState createState() => _CarouselCardState();
+}
+
+class _CarouselCardState extends State<CarouselCard> {
+  bool isNotificationEnabled = false;
+  final Logger logger = Logger();
+
+  void _toggleNotification() {
+    setState(() {
+      isNotificationEnabled = !isNotificationEnabled;
+      logger.i('notifica');
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.all(10),
+      margin: EdgeInsets.all(15),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            padding: EdgeInsets.all(15),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                SizedBox(height: 5),
-                Text(subtitle, style: TextStyle(fontSize: 14, color: Colors.grey)),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.title,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        widget.subtitle,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey[600],
+                        ),
+                        softWrap: true,
+                        overflow: TextOverflow.visible,
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(
+                    isNotificationEnabled ? Icons.notifications_active : Icons.notification_add_outlined,
+                    color: isNotificationEnabled ? Colors.amber : Colors.grey,
+                  ),
+                  onPressed: _toggleNotification,
+                ),
               ],
             ),
           ),
           SizedBox(
-            height: 180,
+            height: 200,  // Increased height for larger images
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: items.length,
+              itemCount: widget.items.length,
               itemBuilder: (context, index) {
-                Game game = items[index];
+                Game game = widget.items[index];
                 return Container(
-                  width: 150,
-                  margin: EdgeInsets.symmetric(horizontal: 5),
+                  width: 160,  // Increased width
+                  margin: EdgeInsets.symmetric(horizontal: 8),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Image.network(game.imageurl ?? '', fit: BoxFit.cover, width: 150, height: 120),
-                      SizedBox(height: 5),
-                      Text(game.title ?? '', maxLines: 2, overflow: TextOverflow.ellipsis),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.network(
+                          game.imageurl ?? '',
+                          fit: BoxFit.cover,
+                          width: 160,
+                          height: 140,  // Increased height
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        game.title ?? '',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ],
                   ),
                 );
