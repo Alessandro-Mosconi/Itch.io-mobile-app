@@ -60,7 +60,7 @@ class _GameWebViewPageState extends State<GameWebViewPage> {
         });
       },
       onPageFinished: (String url) async {
-        // Inject JavaScript to hide unwanted elements
+        // Inject JavaScript to progressively hide unwanted elements
         await _controller.runJavaScript(
             """
           (function() {
@@ -89,7 +89,8 @@ class _GameWebViewPageState extends State<GameWebViewPage> {
               window.addEventListener('load', hideElements);
             }
 
-            requestAnimationFrame(hideElements);
+            var observer = new MutationObserver(hideElements);
+            observer.observe(document.body, { childList: true, subtree: true });
           })();
           """
         );
