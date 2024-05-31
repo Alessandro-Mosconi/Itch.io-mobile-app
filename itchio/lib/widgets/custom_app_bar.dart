@@ -5,13 +5,13 @@ import '../providers/theme_notifier.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final List<Widget>? actions;
+  final Widget? leading; // Add leading property
 
-  CustomAppBar({this.actions});
+  CustomAppBar({this.actions, this.leading});
 
   @override
   Widget build(BuildContext context) {
     final themeNotifier = Provider.of<ThemeNotifier>(context);
-
     final isDarkMode = themeNotifier.isDarkMode;
     final appBarColor = isDarkMode ? Colors.black : Colors.white;
     final iconColor = isDarkMode ? Colors.white : Colors.black;
@@ -27,6 +27,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         color: iconColor,
       ),
       actions: actions,
+      leading: leading, // Include leading property in the AppBar
     );
   }
 

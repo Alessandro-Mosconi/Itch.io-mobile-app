@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
-import '../widgets/custom_app_bar.dart';
 import 'package:provider/provider.dart';
 import '../providers/page_provider.dart';
+import '../widgets/custom_app_bar.dart';
 
 class GameWebViewPage extends StatefulWidget {
   final String gameUrl;
@@ -127,12 +127,18 @@ class _GameWebViewPageState extends State<GameWebViewPage> {
         appBar: CustomAppBar(
           actions: [
             IconButton(
-              icon: Icon(Icons.refresh),
+              icon: Icon(Icons.favorite_border),
               onPressed: () {
-                _controller.reload();
+                // Handle like button pressed
               },
             ),
           ],
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Provider.of<PageProvider>(context, listen: false).clearExtraPage();
+            },
+          ),
         ),
         body: Stack(
           children: [
