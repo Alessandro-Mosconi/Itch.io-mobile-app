@@ -6,7 +6,6 @@ import '../widgets/bottom_navigation_bar.dart';
 import '../views/home_page.dart';
 import '../views/search_page.dart';
 import '../views/favorite_page.dart';
-import '../views/bookmark_page.dart';
 import '../views/profile_page.dart';
 
 class MainView extends StatefulWidget {
@@ -19,7 +18,6 @@ class _MainViewState extends State<MainView> {
     HomePage(),
     SearchPage(),
     FavoritePage(),
-    BookmarkPage(),
     ProfilePage(),
   ];
 

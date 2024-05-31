@@ -3,6 +3,7 @@ const admin = require('firebase-admin'); //added for FCM
 const fetch = require('node-fetch');
 const cheerio = require('cheerio');
 const RSSParser = require('rss-parser');
+const axios = require('axios');
 
 admin.initializeApp();
 
@@ -74,7 +75,6 @@ exports.item_list = functions.https.onRequest(async (request, response) => {
     }
 
 });
-
 
 exports.search = functions.https.onRequest(async (request, response) => {
     const searchUrl = 'https://itch.io/search?q=';
@@ -229,6 +229,59 @@ exports.get_saved_search_carousel = functions.https.onRequest(async (request, re
     response.json(values);
 });
 
+exports.fetch_jams = functions.https.onRequest(async (request, response) => {
+
+    // Ensure the request method is GET
+    if (request.method !== "GET") {
+        response.status(400).send('Please send a GET request');
+        return;
+    }
+    
+    const jams = await getJams();
+    // Creare un array di promesse per le chiamate getDetail
+    const promises = jams.map(oggetto => getJamDetail(oggetto.id));
+
+    try {
+        // Eseguire tutte le chiamate getDetail in parallelo
+        const details = await Promise.all(promises);
+
+        // Aggiungere i dettagli ai rispettivi oggetti nella lista
+        details.forEach((detail, index) => {
+            jams[index].detail = detail;
+        });
+
+    } catch (error) {
+        console.error(`Errore durante il recupero dei dettagli: ${error.message}`);
+    }
+    
+    response.json(jams);
+});
+
+async function getJams() {
+    const url = 'https://itch.io/jams';
+
+    const result = await fetch(url);
+    const htmlText = await result.text();
+
+    const $ = cheerio.load(htmlText);
+
+    const jams = [];
+
+    $('.jam_cell[data-jam_id]').each((index, element) => {
+        const jamId = $(element).attr('data-jam_id');
+        const spanElement = $(element).find('.sticky_label');
+        const joined_count = spanElement.find('.joined_count').text();
+        const title = spanElement.text().substring(0, spanElement.text().length - joined_count.length);
+        const joined_number = parseInt(joined_count.replaceAll('.', '').substring(1, joined_count.length - ' joined)'.length), 10);
+        jams.push({ 
+            id: parseInt(jamId, 10), 
+            title: title, 
+            joined_number: joined_number 
+        });
+    });
+    return jams;
+}
+
 async function getSearchResult(type, filters) {
     const xml2js = require('xml2js');
     const rssUrl = 'https://itch.io/';
@@ -317,5 +370,14 @@ async function getSearchResult(type, filters) {
         }
     };
 
+}
+async function getJamDetail(id) {
+    try {
+        const response = await axios.get(`https://itch.io/jam/${id}/entries.json`);
+        return response.data;
+    } catch (error) {
+        console.error(`Errore durante la richiesta per l'ID ${id}: ${error.message}`);
+        return null;
+    }
 }
 
