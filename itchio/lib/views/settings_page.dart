@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'oauth_service.dart';
-import 'theme_notifier.dart';
+import '../services/oauth_service.dart';
+import '../providers/theme_notifier.dart';
 
 class SettingsPage extends StatelessWidget {
   @override

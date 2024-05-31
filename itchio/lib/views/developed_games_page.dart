@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'helperClasses/Game.dart';
+import '../helperClasses/Game.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
-import 'customIcons/custom_icon_icons.dart';
+import '../customIcons/custom_icon_icons.dart';
 
 class DevelopedGamesPage extends StatefulWidget {
   final String? accessToken;

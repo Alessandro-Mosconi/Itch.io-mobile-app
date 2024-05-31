@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'helperClasses/Game.dart';
-import 'helperClasses/PurchaseGame.dart';
-import 'oauth_service.dart';
+import '../helperClasses/Game.dart';
+import '../helperClasses/PurchaseGame.dart';
+import '../services/oauth_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
-import 'game_tile.dart'; // Import the external GameTile widget
+import '../widgets/game_tile.dart'; // Import the external GameTile widget
 
 class PurchasedGamesPage extends StatefulWidget {
   final String? accessToken;

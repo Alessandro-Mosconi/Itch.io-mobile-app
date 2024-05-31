@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'custom_app_bar.dart';
+import '../widgets/custom_app_bar.dart';
 
 class FavoritePage extends StatelessWidget {
 

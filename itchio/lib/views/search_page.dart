@@ -7,11 +7,11 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'custom_app_bar.dart';
-import 'customIcons/custom_icon_icons.dart';
-import 'helperClasses/Game.dart';
-import 'helperClasses/User.dart';
-import 'game_tile.dart';
+import '../widgets/custom_app_bar.dart';
+import '../customIcons/custom_icon_icons.dart';
+import '../helperClasses/Game.dart';
+import '../helperClasses/User.dart';
+import '../widgets/game_tile.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:firebase_database/firebase_database.dart';
 

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'helperClasses/User.dart';
-import 'oauth_service.dart';
+import '../helperClasses/User.dart';
+import '../services/oauth_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:logger/logger.dart';
 import 'developed_games_page.dart';
 import 'purchased_games_page.dart';
 import 'settings_page.dart';  // Import the SettingsPage
-import 'custom_app_bar.dart';  // Import the CustomAppBar
+import '../widgets/custom_app_bar.dart';  // Import the CustomAppBar
 
 class ProfilePage extends StatefulWidget {
   ProfilePage({Key? key}) : super(key: key);

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:mockito/mockito.dart';
-import 'package:itchio/auth_page.dart';
-import 'package:itchio/home_page.dart';
+import 'package:itchio/views/auth_page.dart';
+import 'package:itchio/views/home_page.dart';
 import 'package:itchio/oauth_service.dart';
 import 'package:itchio/main.dart';
 
@@ -27,7 +27,7 @@ void main() {
 
     // Assert
     expect(find.byType(AuthPage), findsOneWidget);
-    expect(find.byType(MyHomePage), findsNothing);
+    expect(find.byType(Main_view), findsNothing);
   });
 
   testWidgets('AuthOrHomePage shows MyHomePage when authenticated', (WidgetTester tester) async {
@@ -47,6 +47,6 @@ void main() {
 
     // Assert
     expect(find.byType(AuthPage), findsNothing);
-    expect(find.byType(MyHomePage), findsOneWidget);
+    expect(find.byType(Main_view), findsOneWidget);
   });
 }

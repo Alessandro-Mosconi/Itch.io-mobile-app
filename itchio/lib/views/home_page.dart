@@ -7,10 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:itchio/helperClasses/SavedSearch.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'custom_app_bar.dart';
+import '../widgets/custom_app_bar.dart';
 import 'package:http/http.dart' as http;
 
-import 'helperClasses/Game.dart';
+import '../helperClasses/Game.dart';
 
 final Logger logger = Logger(printer: PrettyPrinter());
 

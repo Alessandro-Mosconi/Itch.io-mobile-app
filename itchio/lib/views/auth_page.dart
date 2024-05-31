@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
-import 'oauth_service.dart';
-import 'theme_notifier.dart';
+import '../services/oauth_service.dart';
 
 class AuthPage extends StatelessWidget {
   @override
