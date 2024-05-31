@@ -34,7 +34,7 @@ class GameTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Image.network(
-                    game.imageurl ?? "https://via.placeholder.com/50", // Default image URL
+                    game.imageurl ?? "https://via.placeholder.com/50",
                     width: 50,
                     height: 50,
                     fit: BoxFit.contain,

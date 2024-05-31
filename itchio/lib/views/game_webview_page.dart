@@ -3,6 +3,8 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 import '../widgets/custom_app_bar.dart';
+import 'package:provider/provider.dart';
+import '../providers/page_provider.dart';
 
 class GameWebViewPage extends StatefulWidget {
   final String gameUrl;
@@ -60,38 +62,8 @@ class _GameWebViewPageState extends State<GameWebViewPage> {
         });
       },
       onPageFinished: (String url) async {
-        // Inject JavaScript to progressively hide unwanted elements
-        await _controller.runJavaScript(
-            """
-          (function() {
-            function hideElements() {
-              var footer = document.getElementById('view_game_footer');
-              if (footer) {
-                footer.style.display = 'none';
-              }
-              var bottomBar = document.querySelector('.bottom-bar-class-name');
-              if (bottomBar) {
-                bottomBar.style.display = 'none';
-              }
-              var userTools = document.getElementById('user_tools');
-              if (userTools) {
-                userTools.style.display = 'none';
-              }
-            }
-            
-            if (document.readyState === 'complete') {
-              hideElements();
-            } else {
-              window.addEventListener('load', hideElements);
-            }
-
-            var observer = new MutationObserver(hideElements);
-            observer.observe(document.body, { childList: true, subtree: true });
-          })();
-          """
-        );
-        // Check if elements are hidden
-        await Future.delayed(Duration(milliseconds: 500)); // Wait for the elements to be hidden
+        await _controller.runJavaScript(_hideUnwantedElementsScript);
+        await Future.delayed(Duration(milliseconds: 500));
         setState(() {
           _isLoading = false;
           _elementsHidden = true;
@@ -100,7 +72,6 @@ class _GameWebViewPageState extends State<GameWebViewPage> {
       onHttpError: (HttpResponseError error) {},
       onWebResourceError: (WebResourceError error) {},
       onNavigationRequest: (NavigationRequest request) {
-        // Prevent navigation to specific URLs if needed
         if (request.url.startsWith('https://www.youtube.com/')) {
           return NavigationDecision.prevent;
         }
@@ -117,27 +88,58 @@ class _GameWebViewPageState extends State<GameWebViewPage> {
     }
   }
 
+  static const String _hideUnwantedElementsScript = """
+    (function() {
+      function hideElements() {
+        var footer = document.getElementById('view_game_footer');
+        if (footer) {
+          footer.style.display = 'none';
+        }
+        var bottomBar = document.querySelector('.bottom-bar-class-name');
+        if (bottomBar) {
+          bottomBar.style.display = 'none';
+        }
+        var userTools = document.getElementById('user_tools');
+        if (userTools) {
+          userTools.style.display = 'none';
+        }
+      }
+      
+      if (document.readyState === 'complete') {
+        hideElements();
+      } else {
+        window.addEventListener('load', hideElements);
+      }
+
+      var observer = new MutationObserver(hideElements);
+      observer.observe(document.body, { childList: true, subtree: true });
+    })();
+  """;
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        actions: [
-          IconButton(
-            icon: Icon(Icons.refresh),
-            onPressed: () {
-              _controller.reload();
-            },
-          ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          if (_elementsHidden) WebViewWidget(controller: _controller),
-          if (_isLoading)
-            Center(
-              child: CircularProgressIndicator(),
+    return WillPopScope(
+      onWillPop: () async {
+        Provider.of<PageProvider>(context, listen: false).clearExtraPage();
+        return false; // Prevent default back navigation
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          actions: [
+            IconButton(
+              icon: Icon(Icons.refresh),
+              onPressed: () {
+                _controller.reload();
+              },
             ),
-        ],
+          ],
+        ),
+        body: Stack(
+          children: [
+            if (_elementsHidden) WebViewWidget(controller: _controller),
+            if (_isLoading) Center(child: CircularProgressIndicator()),
+          ],
+        ),
       ),
     );
   }

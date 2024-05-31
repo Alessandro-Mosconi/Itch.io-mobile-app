@@ -29,14 +29,12 @@ class _MainViewState extends State<MainView> {
       builder: (context, pageProvider, child) {
         return Scaffold(
           body: pageProvider.extraPage ?? _widgetOptions.elementAt(pageProvider.selectedIndex),
-          bottomNavigationBar: pageProvider.extraPage == null
-              ? MyBottomNavigationBar(
+          bottomNavigationBar: MyBottomNavigationBar(
             currentIndex: pageProvider.selectedIndex,
             onTap: (index) {
               pageProvider.setSelectedIndex(index);
             },
-          )
-              : null,
+          ),
         );
       },
     );
