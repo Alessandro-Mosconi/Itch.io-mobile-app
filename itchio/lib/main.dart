@@ -9,7 +9,7 @@ import 'services/oauth_service.dart';
 import 'services/notification_service.dart';
 import 'providers/page_provider.dart';
 import 'providers/theme_notifier.dart';
-import 'views/auth_or_home_page.dart';
+import 'views/auth_or_main_view.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
