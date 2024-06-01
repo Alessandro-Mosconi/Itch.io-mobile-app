@@ -237,22 +237,35 @@ exports.fetch_jams = functions.https.onRequest(async (request, response) => {
         return;
     }
     
-    const jams = await getJams();
-    // Creare un array di promesse per le chiamate getDetail
-    const promises = jams.map(oggetto => getJamDetail(oggetto.id));
+    const includeDetailsParam = request.query.include_details;
 
-    try {
-        // Eseguire tutte le chiamate getDetail in parallelo
-        const details = await Promise.all(promises);
-
-        // Aggiungere i dettagli ai rispettivi oggetti nella lista
-        details.forEach((detail, index) => {
-            jams[index].detail = detail;
-        });
-
-    } catch (error) {
-        console.error(`Errore durante il recupero dei dettagli: ${error.message}`);
+    let includeDetails;
+    if (includeDetailsParam === undefined) {
+        includeDetails = false; // Parametro non presente, imposta il valore predefinito a false
+    } else {
+        // Converti la stringa in un booleano
+        includeDetails = includeDetailsParam.toLowerCase() === 'true';
     }
+
+    const jams = await getJams();
+
+    if(includeDetails){
+        const promises = jams.map(oggetto => getJamDetail(oggetto.id));
+
+        try {
+            // Eseguire tutte le chiamate getDetail in parallelo
+            const details = await Promise.all(promises);
+    
+            // Aggiungere i dettagli ai rispettivi oggetti nella lista
+            details.forEach((detail, index) => {
+                jams[index].detail = detail;
+            });
+    
+        } catch (error) {
+            console.error(`Errore durante il recupero dei dettagli: ${error.message}`);
+        }
+    }
+    
     
     response.json(jams);
 });
