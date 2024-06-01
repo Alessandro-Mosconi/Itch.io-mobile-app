@@ -81,7 +81,6 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
       Set<String> filteredList = {};
       for (var item in value) {
         String itemName = item['name']!;
-        logger.i(itemName);
         if (searchItems.contains(itemName)) {
           filteredList.add(itemName);
         }
@@ -119,7 +118,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
 
     var concatenatedFilters = '';
 
-    if(filters.entries.isNotEmpty && filters.entries.every((e) => e.value.isNotEmpty)){
+    if(filters.entries.isNotEmpty){
       concatenatedFilters = '/${filters.entries.expand((entry) => entry.value).join('/')}';
     }
 
@@ -230,7 +229,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
 
     var concatenatedFilters = '';
     var tab = currentTab['name'] ?? 'games';
-    if(_selectedFilters.entries.isNotEmpty && _selectedFilters.entries.every((e) => e.value.isNotEmpty)){
+    if(_selectedFilters.entries.isNotEmpty){
       concatenatedFilters = '/${_selectedFilters.entries.expand((entry) => entry.value).join('/')}';
     }
 
@@ -328,33 +327,35 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
 
     return filterRows;
   }
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   void _saveSearch() {
-    logger.i(_selectedFilters);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Bookmark'),
         content: widget.initialTab == null ?
-          Text('You are going to save this research in home page')
-        : Text('You are going to edit this research in home page'),
+        Text('You are going to save this research in home page')
+            : Text('You are going to edit this research in home page'),
         actions: <Widget>[
           TextButton(
-              child: Text('Confirm'),
-              onPressed: () =>
-              {
-                uploadSavedSearchToDb(),
-                Navigator.of(context).pop()
-              }
+            child: Text('Confirm'),
+            onPressed: () async {
+              await uploadSavedSearchToDb();
+              Navigator.of(context).pop();
+              final snackBar = SnackBar(content: Text('Search saved successfully'));
+              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+            },
           ),
           TextButton(
-              child: Text('Cancel'),
-              onPressed: () => Navigator.of(context).pop()
+            child: Text('Cancel'),
+            onPressed: () => Navigator.of(context).pop(),
           ),
         ],
       ),
     );
   }
+
 
   Widget _buildSearchBar() {
     return Padding(
