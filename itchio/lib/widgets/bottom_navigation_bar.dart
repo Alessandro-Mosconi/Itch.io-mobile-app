@@ -25,6 +25,10 @@ class MyBottomNavigationBar extends StatelessWidget {
           label: 'Favorites',
         ),
         BottomNavigationBarItem(
+          icon: Icon(Icons.emoji_events),
+          label: 'Jams',
+        ),
+        BottomNavigationBarItem(
           icon: Icon(Icons.person),
           label: 'Profile',
         ),

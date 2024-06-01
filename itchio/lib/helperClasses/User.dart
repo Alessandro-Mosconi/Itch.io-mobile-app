@@ -11,7 +11,6 @@ class User {
   String? avatar;
   int? numberOfProjects;
 
-  // Constructor for User class to handle JSON data
   User(Map<String, dynamic> data) {
     username = data['username'];
     url = data['url'];
@@ -24,7 +23,6 @@ class User {
     numberOfProjects = int.tryParse(data['number_of_projects'] ?? '0');
   }
 
-  // Additional constructor to handle JSON string
   User.fromJson(String jsonUser) {
     var data = json.decode(jsonUser);
     username = data['username'];
