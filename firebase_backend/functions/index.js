@@ -259,26 +259,36 @@ exports.fetch_jams = functions.https.onRequest(async (request, response) => {
 
 async function getJams() {
     const url = 'https://itch.io/jams';
+    let jams = [];
 
-    const result = await fetch(url);
-    const htmlText = await result.text();
+    try {
+        const response = await axios.get(url);
+        const html = response.data;
 
-    const $ = cheerio.load(htmlText);
+        const $ = cheerio.load(html);
+        
+        const scriptTag = $('script[type="text/javascript"]').filter((i, el) => {
+            return $(el).html().includes('R.Jam.FilteredJamCalendar');
+        }).html();
 
-    const jams = [];
+        if (!scriptTag) {
+            return res.status(404).send('JSON script tag not found');
+        }
 
-    $('.jam_cell[data-jam_id]').each((index, element) => {
-        const jamId = $(element).attr('data-jam_id');
-        const spanElement = $(element).find('.sticky_label');
-        const joined_count = spanElement.find('.joined_count').text();
-        const title = spanElement.text().substring(0, spanElement.text().length - joined_count.length);
-        const joined_number = parseInt(joined_count.replaceAll('.', '').substring(1, joined_count.length - ' joined)'.length), 10);
-        jams.push({ 
-            id: parseInt(jamId, 10), 
-            title: title, 
-            joined_number: joined_number 
-        });
-    });
+        const scriptContent = scriptTag;
+
+        const jsonStartIndex = scriptContent.indexOf('R.Jam.FilteredJamCalendar(') + 'R.Jam.FilteredJamCalendar('.length;
+        const jsonEndIndex = scriptContent.indexOf('), document.getElementById');
+
+        const jsonString = scriptContent.substring(jsonStartIndex, jsonEndIndex).trim();
+
+        const jsonObject = JSON.parse(jsonString);
+        jams = jsonObject.jams;
+;
+    } catch (error) {
+        console.error('Error extracting JSON:', error);
+        res.status(500).send('Internal Server Error');
+    }
     return jams;
 }
 
@@ -376,7 +386,7 @@ async function getJamDetail(id) {
         const response = await axios.get(`https://itch.io/jam/${id}/entries.json`);
         return response.data;
     } catch (error) {
-        console.error(`Errore durante la richiesta per l'ID ${id}: ${error.message}`);
+        //console.error(`Errore durante la richiesta per l'ID ${id}: ${error.message}`);
         return null;
     }
 }
