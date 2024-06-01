@@ -16,8 +16,8 @@ import 'package:badges/badges.dart' as badges;
 import 'package:firebase_database/firebase_database.dart';
 
 class SearchPage extends StatefulWidget {
-  final String? initialTab;
-  final String? initialFilters;
+  String? initialTab;
+  String? initialFilters;
 
   SearchPage({this.initialTab, this.initialFilters});
 
@@ -48,9 +48,12 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     ]).then((List<dynamic> results) {
       Map<String, List<Map<String, String>>> filtersData = results[0] as Map<String, List<Map<String, String>>>;
 
+      logger.i(widget.initialTab);
       if (widget.initialTab != null) {
         final index = _tabs.indexWhere((tab) => tab['name'] == widget.initialTab!);
+
         if (index != -1) {
+          currentTab = _tabs[index];
           _tabController.index = index;
         }
       }
@@ -70,17 +73,19 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   }
   Map<String, Set<String>> filterMap(
       Map<String, List<Map<String, String>>> data, String searchString) {
-    List<String> searchItems = searchString.split('/');
+
+    List<String> searchItems = searchString.split('/').where((item) => item.isNotEmpty).toList();
     Map<String, Set<String>> filteredData = {};
 
     data.forEach((key, value) {
       Set<String> filteredList = {};
-      value.forEach((item) {
+      for (var item in value) {
         String itemName = item['name']!;
-        if (searchItems.contains('/$itemName')) {
+        logger.i(itemName);
+        if (searchItems.contains(itemName)) {
           filteredList.add(itemName);
         }
-      });
+      }
       if (filteredList.isNotEmpty) {
         filteredData[key] = filteredList;
       }
@@ -231,6 +236,15 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
 
     String key = sha256.convert(utf8.encode(tab + concatenatedFilters)).toString();
 
+    if(widget.initialTab != null){
+      String oldKey = sha256.convert(utf8.encode(widget.initialTab! + (widget.initialFilters ?? ''))).toString();
+      final DatabaseReference dbRef = dbInstance.ref('/user_search/${token!}/$oldKey');
+      await dbRef.remove();
+      widget.initialTab = tab;
+      widget.initialFilters = concatenatedFilters;
+
+    }
+
     final DatabaseReference dbRef = dbInstance.ref('/user_search/${token!}/$key');
     await dbRef.update(
         {
@@ -240,7 +254,6 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     );
 
     prefs.remove("saved_searches");
-
   }
 
   void _performSearch() {
@@ -317,11 +330,14 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   }
 
   void _saveSearch() {
+    logger.i(_selectedFilters);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Bookmark'),
-        content: Text('You are going to save this research in bookmark section'),
+        content: widget.initialTab == null ?
+          Text('You are going to save this research in home page')
+        : Text('You are going to edit this research in home page'),
         actions: <Widget>[
           TextButton(
               child: Text('Confirm'),
@@ -332,7 +348,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
               }
           ),
           TextButton(
-              child: Text('Undo'),
+              child: Text('Cancel'),
               onPressed: () => Navigator.of(context).pop()
           ),
         ],

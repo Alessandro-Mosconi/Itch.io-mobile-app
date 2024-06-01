@@ -92,6 +92,13 @@ class _HomePageState extends State<HomePage> {
                   subtitle: search.filters ?? '',
                   items: search.items ?? [],
                   notify: search.notify ?? false,
+                  onUpdateSavedSearches: (bool hasChanges) {
+                    if (hasChanges) {
+                      setState(() {
+                        futureSavedSearches = fetchSavedSearch();
+                      });
+                    }
+                  },
                 );
               },
             );
@@ -101,6 +108,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
 String kebabToCapitalized(String kebab) {
   List<String> words = kebab.split('-');
 
@@ -111,6 +119,7 @@ String kebabToCapitalized(String kebab) {
 
   return capitalized;
 }
+
 Future<void> changeNotifyField(String type, String filters, bool notify) async {
   final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString("access_token");
@@ -143,18 +152,19 @@ Future<void> changeNotifyField(String type, String filters, bool notify) async {
   prefs.setString("saved_searches", json.encode(results));
 }
 
-
 class CarouselCard extends StatefulWidget {
   final String title;
   final String subtitle;
   final List<Game> items;
   final bool notify;
+  final Function(bool) onUpdateSavedSearches;
 
   CarouselCard({
     required this.title,
     required this.subtitle,
     required this.items,
     required this.notify,
+    required this.onUpdateSavedSearches,
   });
 
   @override
@@ -177,7 +187,6 @@ class _CarouselCardState extends State<CarouselCard> {
       isNotificationEnabled = !isNotificationEnabled;
     });
   }
-
 
   Future<void> deleteSavedSearch(String type, String filters) async {
     final prefs = await SharedPreferences.getInstance();
@@ -252,18 +261,18 @@ class _CarouselCardState extends State<CarouselCard> {
                       child: Text("Cancel"),
                     ),
                     MaterialButton(
-                      onPressed: () =>
-                      {
-                        Navigator.of(context).pop(false),
-                        Navigator.push(
+                      onPressed: () async {
+                        Navigator.of(context).pop(false);
+                        await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => SearchPage(
                               initialTab: widget.title,
-                              initialFilters: widget.subtitle
+                              initialFilters: widget.subtitle,
                             ),
                           ),
-                        )
+                        );
+                        widget.onUpdateSavedSearches(true);
                       }, // Confirm
                       child: Text("Confirm"),
                     ),
