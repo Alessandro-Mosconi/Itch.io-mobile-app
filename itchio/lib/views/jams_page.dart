@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:add_2_calendar/add_2_calendar.dart';
@@ -9,6 +10,7 @@ import '../widgets/custom_app_bar.dart';
 import 'home_page.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:flutter_dialogs/flutter_dialogs.dart';
 
 class JamsPage extends StatelessWidget {
   final Logger logger = Logger(printer: PrettyPrinter());
@@ -48,10 +50,114 @@ class JamsPage extends StatelessWidget {
     }
   }
 
-  void _addToCalendar(Jam jam) async {
-    final eventTitle = jam.title ?? 'Jam senza titolo';
-    final startDate = jam.startDate ?? DateTime.now();
-    final endDate = jam.endDate ?? DateTime.now().add(Duration(hours: 1));
+  Future<String> _showEventOptionDialog(BuildContext context, Jam jam) {
+    Completer<String> completer = Completer<String>();
+
+    showDialog<String>(
+      context: context,
+      barrierDismissible: false, // Impedisce di chiudere il dialogo toccando fuori
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            "Choose the event to save",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  completer.complete('duration');
+                  Navigator.pop(context);
+                },
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(Colors.green),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Text(
+                    "Jam duration:\n${DateFormat('dd/MM/yyyy HH:mm').format(jam.startDate!)}\n${jam.endDate != null ? DateFormat('dd/MM/yyyy HH:mm').format(jam.endDate!) : 'n/a'}",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  ),
+                ),
+              ),
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  completer.complete('votingEndDate');
+                  Navigator.pop(context);
+                },
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Text(
+                    "Voting end:\n${DateFormat('dd/MM/yyyy HH:mm').format(jam.votingEndDate!)}",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                completer.complete('');
+                Navigator.pop(context);
+              },
+              child: Text(
+                "Cancel",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    return completer.future;
+  }
+
+  void _addToCalendar( BuildContext context, Jam jam) async {
+    final result = await _showEventOptionDialog(context, jam);
+
+    logger.i(result);
+
+    String eventTitle = jam.title ?? 'Jam senza titolo';
+    DateTime startDate = DateTime.now();
+    DateTime endDate = DateTime.now();
+
+    if (result == 'duration') {
+      startDate = jam.startDate ?? DateTime.now();
+      endDate = jam.endDate ?? DateTime.now().add(Duration(hours: 1));
+    } else if (result == 'votingEndDate') {
+      eventTitle = "Ending vote ${eventTitle}";
+      startDate = jam.votingEndDate ?? DateTime.now();
+      endDate = jam.votingEndDate ?? DateTime.now();
+    } else {
+      return;
+    }
 
     final Event event = Event(
       title: eventTitle,
@@ -135,7 +241,7 @@ class JamsPage extends StatelessWidget {
                           child: IconButton(
                             icon: Icon(Icons.calendar_today),
                             onPressed: () {
-                              _addToCalendar(jam);
+                              _addToCalendar(context, jam);
                             },
                           ),
                         ),
