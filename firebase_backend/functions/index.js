@@ -241,9 +241,8 @@ exports.fetch_jams = functions.https.onRequest(async (request, response) => {
 
     let includeDetails;
     if (includeDetailsParam === undefined) {
-        includeDetails = false; // Parametro non presente, imposta il valore predefinito a false
+        includeDetails = false; 
     } else {
-        // Converti la stringa in un booleano
         includeDetails = includeDetailsParam.toLowerCase() === 'true';
     }
 
@@ -253,10 +252,8 @@ exports.fetch_jams = functions.https.onRequest(async (request, response) => {
         const promises = jams.map(oggetto => getJamDetail(oggetto.id));
 
         try {
-            // Eseguire tutte le chiamate getDetail in parallelo
             const details = await Promise.all(promises);
     
-            // Aggiungere i dettagli ai rispettivi oggetti nella lista
             details.forEach((detail, index) => {
                 jams[index].detail = detail;
             });
@@ -265,7 +262,6 @@ exports.fetch_jams = functions.https.onRequest(async (request, response) => {
             console.error(`Errore durante il recupero dei dettagli: ${error.message}`);
         }
     }
-    
     
     response.json(jams);
 });
