@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:itchio/helperClasses/SavedSearch.dart';
+import 'package:itchio/views/search_page.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/custom_app_bar.dart';
@@ -251,7 +252,19 @@ class _CarouselCardState extends State<CarouselCard> {
                       child: Text("Cancel"),
                     ),
                     MaterialButton(
-                      onPressed: () => Navigator.of(context).pop(true), // Confirm
+                      onPressed: () =>
+                      {
+                        Navigator.of(context).pop(false),
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SearchPage(
+                              initialTab: widget.title,
+                              initialFilters: widget.subtitle
+                            ),
+                          ),
+                        )
+                      }, // Confirm
                       child: Text("Confirm"),
                     ),
                   ],

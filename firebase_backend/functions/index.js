@@ -231,7 +231,6 @@ exports.get_saved_search_carousel = functions.https.onRequest(async (request, re
 
 exports.fetch_jams = functions.https.onRequest(async (request, response) => {
 
-    // Ensure the request method is GET
     if (request.method !== "GET") {
         response.status(400).send('Please send a GET request');
         return;

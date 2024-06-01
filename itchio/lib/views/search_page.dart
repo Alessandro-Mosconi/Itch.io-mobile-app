@@ -16,6 +16,11 @@ import 'package:badges/badges.dart' as badges;
 import 'package:firebase_database/firebase_database.dart';
 
 class SearchPage extends StatefulWidget {
+  final String? initialTab;
+  final String? initialFilters;
+
+  SearchPage({this.initialTab, this.initialFilters});
+
   @override
   _SearchPageState createState() => _SearchPageState();
 }
@@ -36,12 +41,52 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
 
   @override
   void initState() {
-    fetchFilters();
-    fetchTabs();
     super.initState();
-    searchResults = Future.value({"games": [], "users": []});
-    tabFilteredResults = Future.value({"items": [], "title": ""});
-    _changeTab();
+    Future.wait([
+      fetchFilters(),
+      fetchTabs(),
+    ]).then((List<dynamic> results) {
+      Map<String, List<Map<String, String>>> filtersData = results[0] as Map<String, List<Map<String, String>>>;
+
+      if (widget.initialTab != null) {
+        final index = _tabs.indexWhere((tab) => tab['name'] == widget.initialTab!);
+        if (index != -1) {
+          _tabController.index = index;
+        }
+      }
+
+      if (widget.initialFilters != null) {
+        setState(() {
+          _selectedFilters = filterMap(filtersData, widget.initialFilters!);
+          int count = (widget.initialFilters!.split('/').length - 1);
+          _filterCount = count;
+        });
+      }
+
+      searchResults = Future.value({"games": [], "users": []});
+      tabFilteredResults = Future.value({"items": [], "title": ""});
+      _changeTab();
+    });
+  }
+  Map<String, Set<String>> filterMap(
+      Map<String, List<Map<String, String>>> data, String searchString) {
+    List<String> searchItems = searchString.split('/');
+    Map<String, Set<String>> filteredData = {};
+
+    data.forEach((key, value) {
+      Set<String> filteredList = {};
+      value.forEach((item) {
+        String itemName = item['name']!;
+        if (searchItems.contains('/$itemName')) {
+          filteredList.add(itemName);
+        }
+      });
+      if (filteredList.isNotEmpty) {
+        filteredData[key] = filteredList;
+      }
+    });
+
+    return filteredData;
   }
 
   @override
@@ -178,7 +223,6 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     final firebaseApp = Firebase.app();
     final dbInstance = FirebaseDatabase.instanceFor(app: firebaseApp, databaseURL: 'https://itchioclientapp-default-rtdb.europe-west1.firebasedatabase.app');
 
-
     var concatenatedFilters = '';
     var tab = currentTab['name'] ?? 'games';
     if(_selectedFilters.entries.isNotEmpty && _selectedFilters.entries.every((e) => e.value.isNotEmpty)){
@@ -309,9 +353,8 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
                 suffixIcon: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-
                     Visibility(
-                      visible: _showSaveButton,
+                      visible: _showSaveButton && _filterCount == 0,
                       child: IconButton(
                         icon: Icon(Icons.search),
                         onPressed: (){
@@ -370,6 +413,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
       ),
     );
   }
+
 
   Widget _buildSearchActions() {
     return Padding(
