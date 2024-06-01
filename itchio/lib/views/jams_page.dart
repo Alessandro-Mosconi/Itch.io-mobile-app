@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,6 +8,7 @@ import '../helperClasses/Jam.dart';
 import '../widgets/custom_app_bar.dart';
 import 'home_page.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 class JamsPage extends StatelessWidget {
   final Logger logger = Logger(printer: PrettyPrinter());
@@ -46,6 +48,28 @@ class JamsPage extends StatelessWidget {
     }
   }
 
+  void _addToCalendar(Jam jam) async {
+    final eventTitle = jam.title ?? 'Jam senza titolo';
+    final startDate = jam.startDate ?? DateTime.now();
+    final endDate = jam.endDate ?? DateTime.now().add(Duration(hours: 1));
+
+    final Event event = Event(
+      title: eventTitle,
+      description: 'Event description',
+      location: 'Event location',
+      startDate: startDate,
+      endDate: endDate,
+      iosParams: IOSParams(
+        reminder: Duration(hours:1),
+      ),
+      androidParams: AndroidParams(
+        emailInvites: [],
+      ),
+    );
+
+    Add2Calendar.addEvent2Cal(event);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,8 +91,56 @@ class JamsPage extends StatelessWidget {
               return ListView.builder(
                 itemCount: jams.length,
                 itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(jams[index].title!),
+                  Jam jam = jams[index];
+                  return Card(
+                    margin: EdgeInsets.all(8.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    elevation: 5,
+                    child: Stack(
+                      children: [
+                        Column(
+                          children: [
+                            ListTile(
+                              contentPadding: EdgeInsets.all(16.0),
+                              title: Text(
+                                jam.title ?? '',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20
+                                ),
+                              ),
+                              subtitle: Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    _buildInfoRow(Icons.date_range, 'Start:', jam.startDate, Colors.green),
+                                    SizedBox(height: 5),
+                                    _buildInfoRow(Icons.event, 'End:', jam.endDate, Colors.red),
+                                    SizedBox(height: 5),
+                                    _buildInfoRow(Icons.how_to_vote, 'Voting Ends:', jam.votingEndDate, Colors.blue),
+                                    SizedBox(height: 5),
+                                    _buildInfoRow(Icons.people, 'Participants:', jam.joined.toString(), Colors.orange),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Positioned(
+                          top: 10,
+                          right: 10,
+                          child: IconButton(
+                            icon: Icon(Icons.calendar_today),
+                            onPressed: () {
+                              _addToCalendar(jam);
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                   );
                 },
               );
@@ -79,6 +151,43 @@ class JamsPage extends StatelessWidget {
             }
           }
         },
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, dynamic value, Color color) {
+    String displayValue;
+    if (value is DateTime) {
+      final DateFormat formatter = DateFormat('dd MMM yyyy');
+      displayValue = formatter.format(value);
+    } else {
+      displayValue = value.toString();
+    }
+
+    return Row(
+      children: [
+        Icon(icon, color: color),
+        SizedBox(width: 5),
+        Text(
+          '$label $displayValue',
+          style: TextStyle(color: color),
+        ),
+      ],
+    );
+  }
+}
+
+class JamDetailPage extends StatelessWidget {
+  final String url;
+
+  JamDetailPage({required this.url});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CustomAppBar(),
+      body: Center(
+        child: Text('Opening URL: https://itch.io$url'),
       ),
     );
   }
