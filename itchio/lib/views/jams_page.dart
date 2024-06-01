@@ -4,9 +4,12 @@ import 'dart:convert';
 import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../helperClasses/Jam.dart';
+import '../providers/page_provider.dart';
 import '../widgets/custom_app_bar.dart';
+import 'game_webview_page.dart';
 import 'home_page.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -198,56 +201,67 @@ class JamsPage extends StatelessWidget {
                 itemCount: jams.length,
                 itemBuilder: (context, index) {
                   Jam jam = jams[index];
-                  return Card(
-                    margin: EdgeInsets.all(8.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                    ),
-                    elevation: 5,
-                    child: Stack(
-                      children: [
-                        Column(
-                          children: [
-                            ListTile(
-                              contentPadding: EdgeInsets.all(16.0),
-                              title: Text(
-                                jam.title ?? '',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20
+                  return
+                    GestureDetector(
+                      onTap: () {
+                        if (jam.url != null && jam.url!.isNotEmpty) {
+                          Provider.of<PageProvider>(context, listen: false).setExtraPage(GameWebViewPage(gameUrl: 'https://itch.io${jam.url!}'));
+                        } else {
+                          logger.i('Could not launch ${jam.url}');
+                          throw 'Could not launch ${jam.url}';
+                        }
+                        },
+                      child:Card(
+                      margin: EdgeInsets.all(8.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      elevation: 5,
+                      child: Stack(
+                        children: [
+                          Column(
+                            children: [
+                              ListTile(
+                                contentPadding: EdgeInsets.all(16.0),
+                                title: Text(
+                                  jam.title ?? '',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20
+                                  ),
+                                ),
+                                subtitle: Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      _buildInfoRow(Icons.date_range, 'Start:', jam.startDate, Colors.green),
+                                      SizedBox(height: 5),
+                                      _buildInfoRow(Icons.event, 'End:', jam.endDate, Colors.red),
+                                      SizedBox(height: 5),
+                                      _buildInfoRow(Icons.how_to_vote, 'Voting Ends:', jam.votingEndDate, Colors.blue),
+                                      SizedBox(height: 5),
+                                      _buildInfoRow(Icons.people, 'Participants:', jam.joined.toString(), Colors.orange),
+                                    ],
+                                  ),
                                 ),
                               ),
-                              subtitle: Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    _buildInfoRow(Icons.date_range, 'Start:', jam.startDate, Colors.green),
-                                    SizedBox(height: 5),
-                                    _buildInfoRow(Icons.event, 'End:', jam.endDate, Colors.red),
-                                    SizedBox(height: 5),
-                                    _buildInfoRow(Icons.how_to_vote, 'Voting Ends:', jam.votingEndDate, Colors.blue),
-                                    SizedBox(height: 5),
-                                    _buildInfoRow(Icons.people, 'Participants:', jam.joined.toString(), Colors.orange),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Positioned(
-                          top: 10,
-                          right: 10,
-                          child: IconButton(
-                            icon: Icon(Icons.calendar_today),
-                            onPressed: () {
-                              _addToCalendar(context, jam);
-                            },
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
-                  );
+                          Positioned(
+                            top: 10,
+                            right: 10,
+                            child: IconButton(
+                              icon: Icon(Icons.calendar_today),
+                              onPressed: () {
+                                _addToCalendar(context, jam);
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                    );
                 },
               );
             } else {
@@ -279,22 +293,6 @@ class JamsPage extends StatelessWidget {
           style: TextStyle(color: color),
         ),
       ],
-    );
-  }
-}
-
-class JamDetailPage extends StatelessWidget {
-  final String url;
-
-  JamDetailPage({required this.url});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(),
-      body: Center(
-        child: Text('Opening URL: https://itch.io$url'),
-      ),
     );
   }
 }
