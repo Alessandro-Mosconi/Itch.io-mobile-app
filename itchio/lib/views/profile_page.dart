@@ -97,36 +97,32 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
       ),
-      body: Stack(
-        children: [
-          Consumer<OAuthService>(
-            builder: (context, authService, child) {
-              if (authService.accessToken == null) {
-                return Center(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      authService.startOAuth();
-                    },
-                    child: Text('Authenticate'),
-                  ),
-                );
-              } else {
-                return FutureBuilder<User>(
-                  future: user,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Center(child: Text("Error: ${snapshot.error}"));
-                    } else if (snapshot.hasData) {
-                      return buildUserProfile(snapshot.data!);
-                    } else {
-                      return Center(child: Text("Loading profile..."));
-                    }
-                  },
-                );
-              }
-            },
-          ),
-        ],
+      body: Consumer<OAuthService>(
+        builder: (context, authService, child) {
+          if (authService.accessToken == null) {
+            return Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  authService.startOAuth();
+                },
+                child: Text('Authenticate'),
+              ),
+            );
+          } else {
+            return FutureBuilder<User>(
+              future: user,
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(child: Text("Error: ${snapshot.error}"));
+                } else if (snapshot.hasData) {
+                  return buildUserProfile(snapshot.data!);
+                } else {
+                  return Center(child: Text("Loading profile..."));
+                }
+              },
+            );
+          }
+        },
       ),
     );
   }
@@ -138,27 +134,7 @@ class _ProfilePageState extends State<ProfilePage> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           SizedBox(height: 20),
-          Text(
-            user.displayName ?? "",
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 10),
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              image: DecorationImage(
-                image: NetworkImage(user.coverUrl ?? ""),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          SizedBox(height: 20),
-          Text(
-            "@" + (user.username ?? ""),
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
+          _buildProfileHeader(user),
           SizedBox(height: 20),
           buildUserTags(user),
           SizedBox(height: 20),
@@ -170,6 +146,27 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  Widget _buildProfileHeader(User user) {
+    return Column(
+      children: [
+        Text(
+          user.displayName ?? "",
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 10),
+        CircleAvatar(
+          radius: 60,
+          backgroundImage: NetworkImage(user.coverUrl ?? ""),
+        ),
+        SizedBox(height: 20),
+        Text(
+          "@${user.username ?? ""}",
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey),
+        ),
+      ],
+    );
+  }
+
   Widget buildUserTags(User user) {
     List<Widget> tags = [];
     if (user.isDeveloper ?? false) {
@@ -178,8 +175,10 @@ class _ProfilePageState extends State<ProfilePage> {
     if (user.isGamer ?? false) {
       tags.add(buildTag("Gamer", Colors.blue));
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      alignment: WrapAlignment.center,
       children: tags,
     );
   }
@@ -187,7 +186,6 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget buildTag(String label, Color color) {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-      margin: EdgeInsets.only(right: 8),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(16),
@@ -212,7 +210,7 @@ class _ProfilePageState extends State<ProfilePage> {
           future: gamesFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return SizedBox.shrink(); // Remove loading indicator
+              return Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError) {
               return Center(child: Text("Error: ${snapshot.error}"));
             } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
@@ -246,7 +244,7 @@ class _ProfilePageState extends State<ProfilePage> {
           future: gamesFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return SizedBox.shrink(); // Remove loading indicator
+              return Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError) {
               return Center(child: Text("Error: ${snapshot.error}"));
             } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
