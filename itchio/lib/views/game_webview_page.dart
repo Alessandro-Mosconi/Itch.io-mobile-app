@@ -4,12 +4,15 @@ import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 import 'package:provider/provider.dart';
 import '../providers/page_provider.dart';
+import '../providers/favorite_provider.dart';
 import '../widgets/custom_app_bar.dart';
+import '../helperClasses/Game.dart';
 
 class GameWebViewPage extends StatefulWidget {
   final String gameUrl;
+  final Game game;
 
-  GameWebViewPage({required this.gameUrl});
+  GameWebViewPage({required this.gameUrl, required this.game});
 
   @override
   _GameWebViewPageState createState() => _GameWebViewPageState();
@@ -118,6 +121,9 @@ class _GameWebViewPageState extends State<GameWebViewPage> {
 
   @override
   Widget build(BuildContext context) {
+    final favoriteProvider = Provider.of<FavoriteProvider>(context);
+    final isFavorite = favoriteProvider.isFavorite(widget.game);
+
     return WillPopScope(
       onWillPop: () async {
         Provider.of<PageProvider>(context, listen: false).clearExtraPage();
@@ -127,9 +133,13 @@ class _GameWebViewPageState extends State<GameWebViewPage> {
         appBar: CustomAppBar(
           actions: [
             IconButton(
-              icon: Icon(Icons.favorite_border),
+              icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border),
               onPressed: () {
-                // Handle like button pressed
+                if (isFavorite) {
+                  favoriteProvider.removeFavorite(widget.game);
+                } else {
+                  favoriteProvider.addFavorite(widget.game);
+                }
               },
             ),
           ],

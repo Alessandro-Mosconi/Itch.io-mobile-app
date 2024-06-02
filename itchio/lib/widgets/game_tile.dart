@@ -17,7 +17,12 @@ class GameTile extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         if (game.url != null && game.url!.isNotEmpty) {
-          Provider.of<PageProvider>(context, listen: false).setExtraPage(GameWebViewPage(gameUrl: game.url!));
+          Provider.of<PageProvider>(context, listen: false).setExtraPage(
+            GameWebViewPage(
+              gameUrl: game.url!,
+              game: game, // Provide the required game parameter
+            ),
+          );
         } else {
           logger.i('Could not launch ${game.url}');
           throw 'Could not launch ${game.url}';
@@ -51,10 +56,8 @@ class GameTile extends StatelessWidget {
                               child: Text(
                                 game.title ?? "Default Title",
                                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            SizedBox(width: 8),
                             Text(
                               game.getFormatPriceWithCurrency(),
                               style: TextStyle(
@@ -62,7 +65,6 @@ class GameTile extends StatelessWidget {
                                 fontWeight: FontWeight.bold,
                                 color: game.min_price == 0 ? Colors.green : null,
                               ),
-                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
@@ -70,8 +72,6 @@ class GameTile extends StatelessWidget {
                         Text(
                           game.short_text ?? "No description",
                           style: TextStyle(fontSize: 14),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
                         ),
                         SizedBox(height: 8),
                         Row(

@@ -1,19 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import '../helperClasses/Jam.dart';
+import '../helperClasses/Game.dart';
 import '../providers/page_provider.dart';
 import '../widgets/custom_app_bar.dart';
 import 'game_webview_page.dart';
-import 'home_page.dart';
-import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
-import 'package:flutter_dialogs/flutter_dialogs.dart';
 
 class JamsPage extends StatelessWidget {
   final Logger logger = Logger(printer: PrettyPrinter());
@@ -23,31 +21,21 @@ class JamsPage extends StatelessWidget {
     final prefs = await SharedPreferences.getInstance();
     var key = includeDetails ? "saved_jams_details" : "saved_jams";
 
-    if (prefs.getString(key) != null &&
-        checkTimestamp(prefs.getInt("${key}_timestamp"))) {
+    if (prefs.getString(key) != null && checkTimestamp(prefs.getInt("${key}_timestamp"))) {
       String body = prefs.getString(key)!;
       List<dynamic>? results = json.decode(body);
 
-      List<Jam> savedJams =
-          results?.map((r) => Jam(r)).toList() ?? [];
-
-      return savedJams;
+      return results?.map((r) => Jam(r)).toList() ?? [];
     }
 
-    final response = await http.get(
-      Uri.parse('https://us-central1-itchioclientapp.cloudfunctions.net/fetch_jams?include_details=$includeDetails'),
-    );
+    final response = await http.get(Uri.parse('https://us-central1-itchioclientapp.cloudfunctions.net/fetch_jams?include_details=$includeDetails'));
     if (response.statusCode == 200) {
       List<dynamic>? results = json.decode(response.body);
 
-      List<Jam> savedSearches =
-          results?.map((r) => Jam(r)).toList() ?? [];
-
       prefs.setString(key, response.body);
-      prefs.setInt(
-          "${key}_timestamp", DateTime.now().millisecondsSinceEpoch);
+      prefs.setInt("${key}_timestamp", DateTime.now().millisecondsSinceEpoch);
 
-      return savedSearches;
+      return results?.map((r) => Jam(r)).toList() ?? [];
     } else {
       throw Exception('Failed to load saved jams results');
     }
@@ -58,7 +46,7 @@ class JamsPage extends StatelessWidget {
 
     showDialog<String>(
       context: context,
-      barrierDismissible: false, // Impedisce di chiudere il dialogo toccando fuori
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(
@@ -142,7 +130,7 @@ class JamsPage extends StatelessWidget {
     return completer.future;
   }
 
-  void _addToCalendar( BuildContext context, Jam jam) async {
+  void _addToCalendar(BuildContext context, Jam jam) async {
     final result = await _showEventOptionDialog(context, jam);
 
     logger.i(result);
@@ -169,7 +157,7 @@ class JamsPage extends StatelessWidget {
       startDate: startDate,
       endDate: endDate,
       iosParams: IOSParams(
-        reminder: Duration(hours:1),
+        reminder: Duration(hours: 1),
       ),
       androidParams: AndroidParams(
         emailInvites: [],
@@ -201,17 +189,29 @@ class JamsPage extends StatelessWidget {
                 itemCount: jams.length,
                 itemBuilder: (context, index) {
                   Jam jam = jams[index];
-                  return
-                    GestureDetector(
-                      onTap: () {
-                        if (jam.url != null && jam.url!.isNotEmpty) {
-                          Provider.of<PageProvider>(context, listen: false).setExtraPage(GameWebViewPage(gameUrl: 'https://itch.io${jam.url!}'));
-                        } else {
-                          logger.i('Could not launch ${jam.url}');
-                          throw 'Could not launch ${jam.url}';
-                        }
-                        },
-                      child:Card(
+                  return GestureDetector(
+                    onTap: () {
+                      if (jam.url != null && jam.url!.isNotEmpty) {
+                        // Assuming you have a Game object that can be created from a Jam
+                        Game game = Game({
+                          'url': jam.url,
+                          'title': jam.title,
+                          'short_text': 'Jam Description', // Example description
+                          'coverUrl': 'https://via.placeholder.com/150', // Example cover URL
+                        });
+
+                        Provider.of<PageProvider>(context, listen: false).setExtraPage(
+                          GameWebViewPage(
+                            gameUrl: 'https://itch.io${jam.url!}',
+                            game: game,
+                          ),
+                        );
+                      } else {
+                        logger.i('Could not launch ${jam.url}');
+                        throw 'Could not launch ${jam.url}';
+                      }
+                    },
+                    child: Card(
                       margin: EdgeInsets.all(8.0),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15.0),
@@ -226,8 +226,8 @@ class JamsPage extends StatelessWidget {
                                 title: Text(
                                   jam.title ?? '',
                                   style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
                                   ),
                                 ),
                                 subtitle: Padding(
@@ -260,8 +260,8 @@ class JamsPage extends StatelessWidget {
                           ),
                         ],
                       ),
-                    )
-                    );
+                    ),
+                  );
                 },
               );
             } else {
@@ -285,14 +285,21 @@ class JamsPage extends StatelessWidget {
     }
 
     return Row(
-      children: [
+        children: [
         Icon(icon, color: color),
-        SizedBox(width: 5),
-        Text(
-          '$label $displayValue',
-          style: TextStyle(color: color),
-        ),
-      ],
+    SizedBox(width: 5),
+          Text(
+            '$label $displayValue',
+            style: TextStyle(color: color),
+          ),
+        ],
     );
+  }
+
+  bool checkTimestamp(int? timestamp) {
+    if (timestamp == null) return false;
+    final cacheDuration = Duration(hours: 24);
+    final now = DateTime.now().millisecondsSinceEpoch;
+    return now - timestamp < cacheDuration.inMilliseconds;
   }
 }
