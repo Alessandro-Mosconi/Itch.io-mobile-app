@@ -6,11 +6,11 @@ import '../customIcons/custom_icon_icons.dart';
 import '../views/game_webview_page.dart';
 import '../providers/page_provider.dart';
 
-class GameTile extends StatelessWidget {
+class GameCard extends StatelessWidget {
   final Game game;
   final Logger logger = Logger(printer: PrettyPrinter());
 
-  GameTile({Key? key, required this.game}) : super(key: key);
+  GameCard({Key? key, required this.game}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

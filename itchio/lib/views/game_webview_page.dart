@@ -106,6 +106,10 @@ class _GameWebViewPageState extends State<GameWebViewPage> {
         if (userTools) {
           userTools.style.display = 'none';
         }
+        var header = document.querySelector('.jam_layout_header_widget');
+        if (header) {
+          header.style.display = 'none';
+        }
       }
       
       if (document.readyState === 'complete') {

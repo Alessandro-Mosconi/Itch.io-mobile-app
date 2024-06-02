@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/favorite_provider.dart';
 import '../widgets/custom_app_bar.dart';
-import '../widgets/game_tile.dart';
+import '../widgets/game_card.dart';
 
 class FavoritePage extends StatelessWidget {
   @override
@@ -17,7 +17,7 @@ class FavoritePage extends StatelessWidget {
           return ListView.builder(
             itemCount: favoriteProvider.favorites.length,
             itemBuilder: (context, index) {
-              return GameTile(game: favoriteProvider.favorites[index]);
+              return GameCard(game: favoriteProvider.favorites[index]);
             },
           );
         },

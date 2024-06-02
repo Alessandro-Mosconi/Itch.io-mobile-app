@@ -8,10 +8,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import '../helperClasses/Jam.dart';
-import '../helperClasses/Game.dart';
-import '../providers/page_provider.dart';
 import '../widgets/custom_app_bar.dart';
-import 'game_webview_page.dart';
+import '../widgets/jam_card.dart';
 
 class JamsPage extends StatelessWidget {
   final Logger logger = Logger(printer: PrettyPrinter());
@@ -22,149 +20,145 @@ class JamsPage extends StatelessWidget {
     var key = includeDetails ? "saved_jams_details" : "saved_jams";
 
     if (prefs.getString(key) != null && checkTimestamp(prefs.getInt("${key}_timestamp"))) {
-      String body = prefs.getString(key)!;
-      List<dynamic>? results = json.decode(body);
-
-      return results?.map((r) => Jam(r)).toList() ?? [];
+      return _getCachedJams(prefs, key);
     }
 
+    return _fetchJamsFromNetwork(key, includeDetails, prefs);
+  }
+
+  Future<List<Jam>> _getCachedJams(SharedPreferences prefs, String key) async {
+    String body = prefs.getString(key)!;
+    List<dynamic>? results = json.decode(body);
+    return results?.map((r) => Jam(r)).toList() ?? [];
+  }
+
+  Future<List<Jam>> _fetchJamsFromNetwork(String key, bool includeDetails, SharedPreferences prefs) async {
     final response = await http.get(Uri.parse('https://us-central1-itchioclientapp.cloudfunctions.net/fetch_jams?include_details=$includeDetails'));
+
     if (response.statusCode == 200) {
       List<dynamic>? results = json.decode(response.body);
-
       prefs.setString(key, response.body);
       prefs.setInt("${key}_timestamp", DateTime.now().millisecondsSinceEpoch);
-
       return results?.map((r) => Jam(r)).toList() ?? [];
     } else {
       throw Exception('Failed to load saved jams results');
     }
   }
 
-  Future<String> _showEventOptionDialog(BuildContext context, Jam jam) {
-    Completer<String> completer = Completer<String>();
-
-    showDialog<String>(
+  Future<String> _showEventOptionDialog(BuildContext context, Jam jam) async {
+    return showDialog<String>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            "Choose the event to save",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  completer.complete('duration');
-                  Navigator.pop(context);
-                },
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(Colors.green),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                ),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  child: Text(
-                    "Jam duration:\n${DateFormat('dd/MM/yyyy HH:mm').format(jam.startDate!)}\n${jam.endDate != null ? DateFormat('dd/MM/yyyy HH:mm').format(jam.endDate!) : 'n/a'}",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16, color: Colors.white),
-                  ),
-                ),
-              ),
-              SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  completer.complete('votingEndDate');
-                  Navigator.pop(context);
-                },
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                ),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  child: Text(
-                    "Voting end:\n${DateFormat('dd/MM/yyyy HH:mm').format(jam.votingEndDate!)}",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16, color: Colors.white),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                completer.complete('');
-                Navigator.pop(context);
-              },
-              child: Text(
-                "Cancel",
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-          ],
-        );
+        return _buildEventOptionDialog(context, jam);
       },
-    );
+    ).then((value) => value ?? '');
+  }
 
-    return completer.future;
+  AlertDialog _buildEventOptionDialog(BuildContext context, Jam jam) {
+    return AlertDialog(
+      title: Text(
+        "Choose the event to save",
+        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+      ),
+      content: _buildEventOptionContent(context, jam),
+      actions: [_buildCancelButton(context)],
+    );
+  }
+
+  Column _buildEventOptionContent(BuildContext context, Jam jam) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildEventOptionButton(
+          context,
+          'duration',
+          Colors.green,
+          "Jam duration:\n${_formatDate(jam.startDate)}\n${_formatDate(jam.endDate)}",
+        ),
+        SizedBox(height: 16),
+        _buildEventOptionButton(
+          context,
+          'votingEndDate',
+          Colors.blue,
+          "Voting end:\n${_formatDate(jam.votingEndDate)}",
+        ),
+      ],
+    );
+  }
+
+  String _formatDate(DateTime? date) {
+    return date != null ? DateFormat('dd/MM/yyyy HH:mm').format(date) : 'n/a';
+  }
+
+  ElevatedButton _buildEventOptionButton(BuildContext context, String eventType, Color color, String text) {
+    return ElevatedButton(
+      onPressed: () {
+        Navigator.pop(context, eventType);
+      },
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all<Color>(color),
+        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+        ),
+      ),
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 16),
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 16, color: Colors.white),
+        ),
+      ),
+    );
+  }
+
+  TextButton _buildCancelButton(BuildContext context) {
+    return TextButton(
+      onPressed: () {
+        Navigator.pop(context, '');
+      },
+      child: Text(
+        "Cancel",
+        style: TextStyle(fontSize: 16, color: Colors.black),
+      ),
+    );
   }
 
   void _addToCalendar(BuildContext context, Jam jam) async {
     final result = await _showEventOptionDialog(context, jam);
+    if (result.isEmpty) return;
 
-    logger.i(result);
+    Event event = _createEvent(jam, result);
+    Add2Calendar.addEvent2Cal(event);
+  }
 
+  Event _createEvent(Jam jam, String result) {
     String eventTitle = jam.title ?? 'Jam senza titolo';
-    DateTime startDate = DateTime.now();
-    DateTime endDate = DateTime.now();
+    DateTime startDate;
+    DateTime endDate;
 
     if (result == 'duration') {
       startDate = jam.startDate ?? DateTime.now();
       endDate = jam.endDate ?? DateTime.now().add(Duration(hours: 1));
-    } else if (result == 'votingEndDate') {
-      eventTitle = "Ending vote ${eventTitle}";
+    } else {
+      eventTitle = "Ending vote $eventTitle";
       startDate = jam.votingEndDate ?? DateTime.now();
       endDate = jam.votingEndDate ?? DateTime.now();
-    } else {
-      return;
     }
 
-    final Event event = Event(
+    return Event(
       title: eventTitle,
       description: 'Event description',
       location: 'Event location',
       startDate: startDate,
       endDate: endDate,
-      iosParams: IOSParams(
-        reminder: Duration(hours: 1),
-      ),
-      androidParams: AndroidParams(
-        emailInvites: [],
-      ),
+      iosParams: IOSParams(reminder: Duration(hours: 1)),
+      androidParams: AndroidParams(emailInvites: []),
     );
-
-    Add2Calendar.addEvent2Cal(event);
   }
 
   @override
@@ -175,124 +169,28 @@ class JamsPage extends StatelessWidget {
         future: fetchJams(false),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
+            return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(
-              child: Text('Error: ${snapshot.error}'),
-            );
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+            return _buildJamList(snapshot.data!);
           } else {
-            List<Jam>? jams = snapshot.data;
-            if (jams != null && jams.isNotEmpty) {
-              return ListView.builder(
-                itemCount: jams.length,
-                itemBuilder: (context, index) {
-                  Jam jam = jams[index];
-                  return GestureDetector(
-                    onTap: () {
-                      if (jam.url != null && jam.url!.isNotEmpty) {
-                        // Assuming you have a Game object that can be created from a Jam
-                        Game game = Game({
-                          'url': jam.url,
-                          'title': jam.title,
-                          'short_text': 'Jam Description', // Example description
-                          'coverUrl': 'https://via.placeholder.com/150', // Example cover URL
-                        });
-
-                        Provider.of<PageProvider>(context, listen: false).setExtraPage(
-                          GameWebViewPage(
-                            gameUrl: 'https://itch.io${jam.url!}',
-                            game: game,
-                          ),
-                        );
-                      } else {
-                        logger.i('Could not launch ${jam.url}');
-                        throw 'Could not launch ${jam.url}';
-                      }
-                    },
-                    child: Card(
-                      margin: EdgeInsets.all(8.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      elevation: 5,
-                      child: Stack(
-                        children: [
-                          Column(
-                            children: [
-                              ListTile(
-                                contentPadding: EdgeInsets.all(16.0),
-                                title: Text(
-                                  jam.title ?? '',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
-                                  ),
-                                ),
-                                subtitle: Padding(
-                                  padding: const EdgeInsets.only(top: 8.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      _buildInfoRow(Icons.date_range, 'Start:', jam.startDate, Colors.green),
-                                      SizedBox(height: 5),
-                                      _buildInfoRow(Icons.event, 'End:', jam.endDate, Colors.red),
-                                      SizedBox(height: 5),
-                                      _buildInfoRow(Icons.how_to_vote, 'Voting Ends:', jam.votingEndDate, Colors.blue),
-                                      SizedBox(height: 5),
-                                      _buildInfoRow(Icons.people, 'Participants:', jam.joined.toString(), Colors.orange),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          Positioned(
-                            top: 10,
-                            right: 10,
-                            child: IconButton(
-                              icon: Icon(Icons.calendar_today),
-                              onPressed: () {
-                                _addToCalendar(context, jam);
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              );
-            } else {
-              return Center(
-                child: Text('No jams found'),
-              );
-            }
+            return Center(child: Text('No jams found'));
           }
         },
       ),
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, dynamic value, Color color) {
-    String displayValue;
-    if (value is DateTime) {
-      final DateFormat formatter = DateFormat('dd MMM yyyy');
-      displayValue = formatter.format(value);
-    } else {
-      displayValue = value.toString();
-    }
-
-    return Row(
-        children: [
-        Icon(icon, color: color),
-    SizedBox(width: 5),
-          Text(
-            '$label $displayValue',
-            style: TextStyle(color: color),
-          ),
-        ],
+  ListView _buildJamList(List<Jam> jams) {
+    return ListView.builder(
+      itemCount: jams.length,
+      itemBuilder: (context, index) {
+        return JamCard(
+          jam: jams[index],
+          onAddToCalendar: () => _addToCalendar(context, jams[index]),
+        );
+      },
     );
   }
 
@@ -303,3 +201,4 @@ class JamsPage extends StatelessWidget {
     return now - timestamp < cacheDuration.inMilliseconds;
   }
 }
+

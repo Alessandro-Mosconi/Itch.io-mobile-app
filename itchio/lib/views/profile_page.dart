@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:logger/logger.dart';
 import 'settings_page.dart';
 import '../widgets/custom_app_bar.dart';
-import '../widgets/game_tile.dart';
+import '../widgets/game_card.dart';
 
 class ProfilePage extends StatefulWidget {
   ProfilePage({Key? key}) : super(key: key);
@@ -219,7 +219,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 physics: NeverScrollableScrollPhysics(),
                 itemCount: snapshot.data!.length,
                 itemBuilder: (context, index) {
-                  return GameTile(game: snapshot.data![index]);
+                  return GameCard(game: snapshot.data![index]);
                 },
               );
             } else {
@@ -255,7 +255,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 itemBuilder: (context, index) {
                   PurchaseGame purchasedGame = snapshot.data![index];
                   return purchasedGame.game != null
-                      ? GameTile(game: purchasedGame.game!)
+                      ? GameCard(game: purchasedGame.game!)
                       : SizedBox.shrink();
                 },
               );

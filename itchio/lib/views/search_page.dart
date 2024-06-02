@@ -11,7 +11,7 @@ import '../widgets/custom_app_bar.dart';
 import '../customIcons/custom_icon_icons.dart';
 import '../helperClasses/Game.dart';
 import '../helperClasses/User.dart';
-import '../widgets/game_tile.dart';
+import '../widgets/game_card.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:firebase_database/firebase_database.dart';
 
@@ -496,7 +496,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
                   padding: EdgeInsets.all(8.0),
                   child: Text('Games', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 ),
-              ...games.map((game) => GameTile(game: game)).toList(),
+              ...games.map((game) => GameCard(game: game)).toList(),
             ],
           );
         } else {
@@ -527,7 +527,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
                   padding: EdgeInsets.all(8.0),
                   child: Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 ),
-              ...items.map((game) => GameTile(game: game)).toList(),
+              ...items.map((game) => GameCard(game: game)).toList(),
             ],
           );
         } else {
