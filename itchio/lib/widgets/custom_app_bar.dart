@@ -14,7 +14,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     final themeNotifier = Provider.of<ThemeNotifier>(context);
     final isDarkMode = themeNotifier.isDarkMode;
     final appBarColor = isDarkMode ? Colors.black : Colors.white;
-    final iconColor = isDarkMode ? Colors.white : Colors.black;
     final logoAsset = isDarkMode ? 'assets/logo-white-new.svg' : 'assets/logo-black-new.svg';
 
     return AppBar(
@@ -24,7 +23,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: SvgPicture.asset(
         logoAsset,
         height: 30, // Adjust the height as needed
-        color: iconColor,
+        // Do not set the color property as it doesn't affect SVG colors
       ),
       actions: actions,
       leading: leading, // Include leading property in the AppBar

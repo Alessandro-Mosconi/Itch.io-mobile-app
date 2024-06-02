@@ -36,6 +36,12 @@ class _ProviderAppState extends State<ProviderApp> {
   }
 
   @override
+  void dispose() {
+    _oauthService.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
@@ -51,12 +57,6 @@ class _ProviderAppState extends State<ProviderApp> {
       ],
       child: MyApp(),
     );
-  }
-
-  @override
-  void dispose() {
-    _oauthService.dispose();
-    super.dispose();
   }
 }
 
