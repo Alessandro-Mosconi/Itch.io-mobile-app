@@ -21,12 +21,12 @@ class MyBottomNavigationBar extends StatelessWidget {
           label: 'Search',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.favorite),
-          label: 'Favorites',
-        ),
-        BottomNavigationBarItem(
           icon: Icon(Icons.emoji_events),
           label: 'Jams',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.favorite),
+          label: 'Favorites',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person),
