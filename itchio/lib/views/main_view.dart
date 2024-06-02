@@ -18,8 +18,8 @@ class _MainViewState extends State<MainView> {
   final List<Widget> _widgetOptions = <Widget>[
     HomePage(),
     SearchPage(),
-    FavoritePage(),
     JamsPage(),
+    FavoritePage(),
     ProfilePage(),
   ];
 
