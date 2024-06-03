@@ -4,7 +4,22 @@ import '../providers/favorite_provider.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/game_card.dart';
 
-class FavoritePage extends StatelessWidget {
+class FavoritePage extends StatefulWidget {
+  @override
+  _FavoritePageState createState() => _FavoritePageState();
+}
+
+class _FavoritePageState extends State<FavoritePage> {
+  @override
+  void initState() {
+    super.initState();
+    _fetchFavorites();
+  }
+
+  Future<void> _fetchFavorites() async {
+    await Provider.of<FavoriteProvider>(context, listen: false).fetchFavorites();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:crypto/crypto.dart';
 import 'package:itchio/helperClasses/Game.dart';
 
 class SavedSearch {
@@ -29,6 +30,14 @@ class SavedSearch {
 
   void setNotify(bool newValue) {
     notify = newValue;
+  }
+
+
+  getKey(){
+    String filtersDefault = filters ?? '';
+    String typeDefault = type ?? 'games';
+    String key = sha256.convert(utf8.encode(typeDefault + filtersDefault)).toString();
+    return key;
   }
 }
 

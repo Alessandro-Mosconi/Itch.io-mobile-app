@@ -1,5 +1,9 @@
 import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import 'package:itchio/helperClasses/User.dart';
+import 'package:logger/logger.dart';
+
+final Logger logger = Logger(printer: PrettyPrinter());
 
 class Game {
   int? views_count;
@@ -60,7 +64,18 @@ class Game {
     author = data['author'];
     currency = data['currency'];
 
-    price = double.parse(data['price'] == null? "0.0" : data['price'].replaceAll('\$', '').trim());
+    if (data['price'] == null) {
+      price = 0.0;
+    } else if (data['price'] is String) {
+      price = double.tryParse(data['price'].replaceAll('\$', '').trim()) ?? 0.0;
+    } else if (data['price'] is double) {
+      price = data['price'];
+    } else if (data['price'] is int) {
+      price = data['price'].toDouble();
+    } else {
+      logger.i(data['price'].runtimeType);
+    }
+
   }
 
   Game.fromJson(String jsonGame) {
@@ -154,6 +169,11 @@ class Game {
       'author': author,
       'currency': currency,
     };
+  }
+
+  getKey(){
+    String key = sha256.convert(utf8.encode(url!)).toString();
+    return key;
   }
 }
 

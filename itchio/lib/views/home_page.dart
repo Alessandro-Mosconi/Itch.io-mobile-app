@@ -7,7 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:itchio/helperClasses/SavedSearch.dart';
 import 'package:itchio/views/search_page.dart';
 import 'package:logger/logger.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../providers/favorite_provider.dart';
 import '../widgets/custom_app_bar.dart';
 import 'package:http/http.dart' as http;
 
@@ -58,6 +60,11 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
+Future<void> initFavorites(BuildContext context) async {
+  final favoriteProvider = Provider.of<FavoriteProvider>(context);
+  await favoriteProvider.fetchFavorites();
+}
+
 class _HomePageState extends State<HomePage> {
   late Future<List<SavedSearch>> futureSavedSearches;
 
@@ -69,6 +76,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    initFavorites(context);
 
     return Scaffold(
       appBar: CustomAppBar(),
