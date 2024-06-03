@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:badges/badges.dart' as badges;
+import 'package:badges/badges.dart' as badges; // Alias this import
 
 class SearchBar extends StatelessWidget {
   final TextEditingController searchController;
   final bool showSaveButton;
   final int filterCount;
+  final bool isBookmarked;
   final VoidCallback onSearch;
   final VoidCallback onClear;
   final VoidCallback onFilter;
@@ -14,6 +15,7 @@ class SearchBar extends StatelessWidget {
     required this.searchController,
     required this.showSaveButton,
     required this.filterCount,
+    required this.isBookmarked,
     required this.onSearch,
     required this.onClear,
     required this.onFilter,
@@ -34,18 +36,23 @@ class SearchBar extends StatelessWidget {
                 suffixIcon: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (showSaveButton)
-                      IconButton(
+                    Visibility(
+                      visible: showSaveButton,
+                      child: IconButton(
                         icon: Icon(Icons.search),
                         onPressed: onSearch,
                       ),
-                    if (!showSaveButton)
-                      IconButton(
-                        icon: Icon(Icons.close),
+                    ),
+                    Visibility(
+                      visible: !showSaveButton,
+                      child: IconButton(
+                        icon: Icon(Icons.clear),
                         onPressed: onClear,
                       ),
-                    if (showSaveButton)
-                      IconButton(
+                    ),
+                    Visibility(
+                      visible: showSaveButton,
+                      child: IconButton(
                         icon: badges.Badge(
                           showBadge: filterCount > 0,
                           badgeContent: Text('$filterCount', style: TextStyle(color: Colors.white)),
@@ -55,16 +62,22 @@ class SearchBar extends StatelessWidget {
                         ),
                         onPressed: onFilter,
                       ),
-                    if (showSaveButton && filterCount > 0)
-                      IconButton(
-                        icon: Icon(Icons.bookmark),
+                    ),
+                    Visibility(
+                      visible: showSaveButton,
+                      child: IconButton(
+                        icon: Icon(
+                          isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                        ),
                         onPressed: onSaveSearch,
                       ),
+                    ),
                   ],
                 ),
               ),
               onSubmitted: (value) {
                 onSearch();
+                // set the state to not show the save button once a search is performed
               },
             ),
           ),

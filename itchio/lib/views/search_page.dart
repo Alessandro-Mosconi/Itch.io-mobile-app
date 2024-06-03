@@ -38,6 +38,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   late TabController _tabController;
   List<Map<String, String>> _tabs = [];
   bool _showSaveButton = true;
+  bool isBookmarked = false;
 
   @override
   void initState() {
@@ -79,6 +80,87 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     });
   }
 
+  Future<Map<String, List<Map<String, String>>>> _fetchFilters() async {
+    final firebaseApp = Firebase.app();
+    final dbInstance = FirebaseDatabase.instanceFor(app: firebaseApp, databaseURL: 'https://itchioclientapp-default-rtdb.europe-west1.firebasedatabase.app');
+
+    final DatabaseReference dbRef = dbInstance.ref('/items/filters');
+    final snapshot = await dbRef.get();
+    if (snapshot.exists) {
+      final dynamic data = snapshot.value;
+      Map<String, List<Map<String, String>>> resultMap = {};
+
+      data.forEach((key, value) {
+        if (key is String) {
+          if (value is List) {
+            List<Map<String, String>> listValue = [];
+            for (var item in value) {
+              if (item is Map) {
+                Map<String, String> stringMap = {};
+
+                item.forEach((key, value) {
+                  if (key is String && value is String) {
+                    stringMap[key] = value;
+                  }
+                });
+
+                listValue.add(stringMap);
+              }
+            }
+
+            resultMap[key] = listValue;
+          }
+        }
+      });
+      return resultMap;
+    } else {
+      logger.i('No data available.');
+      return {};
+    }
+  }
+
+  Future<void> _fetchTabs() async {
+    final firebaseApp = Firebase.app();
+    final dbInstance = FirebaseDatabase.instanceFor(app: firebaseApp, databaseURL: 'https://itchioclientapp-default-rtdb.europe-west1.firebasedatabase.app');
+
+    final DatabaseReference dbRef = dbInstance.ref('/items/item_types');
+    final snapshot = await dbRef.get();
+    if (snapshot.exists) {
+      final dynamic data = snapshot.value;
+      if (data is List<dynamic>) {
+        setState(() {
+          _tabs = data.map((item) {
+            if (item is Map<Object?, Object?>) {
+              final Map<String, String> convertedMap = {};
+              item.forEach((key, value) {
+                if (key != null && value != null) {
+                  convertedMap[key.toString()] = value.toString();
+                }
+              });
+              return convertedMap;
+            } else {
+              return <String, String>{};
+            }
+          }).toList();
+
+          _tabController = TabController(length: _tabs.length, vsync: this)
+            ..addListener(() {
+              if (_tabController.indexIsChanging) {
+                setState(() {
+                  currentTab = _tabs[_tabController.index];
+                  _changeTab();
+                });
+              }
+            });
+        });
+      } else {
+        logger.i('Unexpected data type: ${data.runtimeType}');
+      }
+    } else {
+      logger.i('No data available.');
+    }
+  }
+
   Map<String, Set<String>> _filterMap(Map<String, List<Map<String, String>>> data, String searchString) {
     final searchItems = searchString.split('/').where((item) => item.isNotEmpty).toList();
     final filteredData = <String, Set<String>>{};
@@ -95,7 +177,6 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
 
     return filteredData;
   }
-
 
   @override
   void dispose() {
@@ -142,74 +223,6 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     }
   }
 
-
-
-  Future<void> _fetchTabs() async {
-    final firebaseApp = Firebase.app();
-    final dbInstance = FirebaseDatabase.instanceFor(
-        app: firebaseApp,
-        databaseURL: 'https://itchioclientapp-default-rtdb.europe-west1.firebasedatabase.app');
-
-    final dbRef = dbInstance.ref('/items/item_types');
-    final snapshot = await dbRef.get();
-    if (snapshot.exists) {
-      final data = snapshot.value;
-      if (data is List<dynamic>) {
-        setState(() {
-          _tabs = data.map((item) {
-            if (item is Map<Object?, Object?>) {
-              return item.map((key, value) => MapEntry(key.toString(), value.toString()));
-            }
-            return <String, String>{};
-          }).toList();
-
-          _tabController = TabController(length: _tabs.length, vsync: this)
-            ..addListener(() {
-              if (_tabController.indexIsChanging) {
-                setState(() {
-                  currentTab = _tabs[_tabController.index];
-                  _changeTab();
-                });
-              }
-            });
-        });
-      } else {
-        logger.i('Unexpected data type: ${data.runtimeType}');
-      }
-    } else {
-      logger.i('No data available.');
-    }
-  }
-
-  Future<Map<String, List<Map<String, String>>>> _fetchFilters() async {
-    final firebaseApp = Firebase.app();
-    final dbInstance = FirebaseDatabase.instanceFor(
-        app: firebaseApp,
-        databaseURL: 'https://itchioclientapp-default-rtdb.europe-west1.firebasedatabase.app');
-
-    final dbRef = dbInstance.ref('/items/filters');
-    final snapshot = await dbRef.get();
-    if (snapshot.exists) {
-      final data = snapshot.value;
-      if (data is Map<dynamic, dynamic>) {
-        return data.map((key, value) {
-          if (key is String && value is List) {
-            return MapEntry(
-                key,
-                value.map((item) => (item as Map).map((k, v) => MapEntry(k.toString(), v.toString()))).toList());
-          }
-          return MapEntry(key.toString(), <Map<String, String>>[]);
-        });
-      } else {
-        logger.i('Unexpected data type: ${data.runtimeType}');
-        return {};
-      }
-    } else {
-      logger.i('No data available.');
-      return {};
-    }
-  }
-
   Future<void> _showFilterPopup(BuildContext context, Map<String, Set<String>> existingFilters) async {
     final newSelectedFilters = Map<String, Set<String>>.from(existingFilters);
 
@@ -230,7 +243,6 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     });
   }
 
-
   void _performSearch() {
     setState(() {
       _searchPerformed = true;
@@ -240,7 +252,6 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
 
   void _changeTab() {
     setState(() {
-      _searchPerformed = true;
       tabFilteredResults = _fetchTabResults(currentTab, _selectedFilters);
     });
   }
@@ -250,6 +261,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
       searchController: _searchController,
       showSaveButton: _showSaveButton,
       filterCount: _filterCount,
+      isBookmarked: isBookmarked, // Pass the isBookmarked variable
       onSearch: _performSearch,
       onClear: () {
         _searchController.text = '';
@@ -268,6 +280,10 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
         : '';
 
     context.read<SearchBookmarkProvider>().addSearchBookmark(tab, concatenatedFilters);
+
+    setState(() {
+      isBookmarked = true;
+    });
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Search saved successfully')),
@@ -354,7 +370,6 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -371,4 +386,3 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     );
   }
 }
-
