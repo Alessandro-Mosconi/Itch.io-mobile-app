@@ -188,7 +188,6 @@ class JamsPage extends StatelessWidget {
       itemBuilder: (context, index) {
         return JamCard(
           jam: jams[index],
-          onAddToCalendar: () => _addToCalendar(context, jams[index]),
         );
       },
     );

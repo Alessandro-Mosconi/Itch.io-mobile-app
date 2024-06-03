@@ -80,7 +80,6 @@ class _FavoritePageState extends State<FavoritePage> with SingleTickerProviderSt
       itemBuilder: (context, index) {
         return JamCard(
           jam: jams[index],
-          onAddToCalendar: () => {}//_addToCalendar(context, jams[index]),
         );
       },
     );
