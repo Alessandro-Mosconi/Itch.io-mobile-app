@@ -48,7 +48,6 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     ]).then((List<dynamic> results) {
       Map<String, List<Map<String, String>>> filtersData = results[0] as Map<String, List<Map<String, String>>>;
 
-      logger.i(widget.initialTab);
       if (widget.initialTab != null) {
         final index = _tabs.indexWhere((tab) => tab['name'] == widget.initialTab!);
 

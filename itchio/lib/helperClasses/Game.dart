@@ -122,6 +122,39 @@ class Game {
 
     return '${finalPrice.toStringAsFixed(2)}$currencySymbol';
   }
+
+  Map<String, Object?> toMap() {
+    return {
+      'views_count': views_count,
+      'url': url,
+      'id': id,
+      'short_text': short_text,
+      'min_price': min_price,
+      'price': price,
+      'type': type,
+      'p_windows': p_windows,
+      'p_linux': p_linux,
+      'p_osx': p_osx,
+      'p_android': p_android,
+      'title': title,
+      'published_at': published_at,
+      'can_be_bought': can_be_bought,
+      'classification': classification,
+      'created_at': created_at,
+      'in_press_system': in_press_system,
+      'cover_url': cover_url,
+      'purchases_count': purchases_count,
+      'published': published,
+      'downloads_count': downloads_count,
+      'has_demo': has_demo,
+      'user': user?.toMap(), // Assuming User class has a toMap() method
+      'still_cover_url': still_cover_url,
+      'description': description,
+      'imageurl': imageurl,
+      'author': author,
+      'currency': currency,
+    };
+  }
 }
 
 

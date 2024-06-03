@@ -35,6 +35,20 @@ class User {
     avatar = data['img'];
     numberOfProjects = int.tryParse(data['number_of_projects'] ?? '0');
   }
+
+  Map<String, Object?> toMap() {
+    return {
+      'username': username,
+      'url': url,
+      'id': id,
+      'display_name': displayName,
+      'cover_url': coverUrl,
+      'gamer': isGamer,
+      'developer': isDeveloper,
+      'img': avatar,
+      'number_of_projects': numberOfProjects,
+    };
+  }
 }
 
 
