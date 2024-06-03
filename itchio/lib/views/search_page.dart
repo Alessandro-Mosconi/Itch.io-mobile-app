@@ -370,7 +370,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Visibility(
-                      visible: _showSaveButton && _filterCount == 0,
+                      visible: _showSaveButton,
                       child: IconButton(
                         icon: Icon(Icons.search),
                         onPressed: (){
@@ -387,7 +387,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
                         icon: Icon(Icons.close),
                         onPressed: (){
                           _searchController.text = '';
-                          _performSearch();
+                          _changeTab();
                           setState(() {
                             _showSaveButton = true;
                           });
@@ -408,7 +408,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
                       ),
                     ),
                     Visibility(
-                      visible: _showSaveButton,
+                      visible: _showSaveButton && _filterCount>0,
                       child: IconButton(
                         icon: Icon(Icons.bookmark),
                         onPressed: _saveSearch,
