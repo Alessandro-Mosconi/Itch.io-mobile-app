@@ -162,13 +162,21 @@ class Game {
       'published': published,
       'downloads_count': downloads_count,
       'has_demo': has_demo,
-      'user': user?.toMap(), // Assuming User class has a toMap() method
+      'user': user?.toMap(),
       'still_cover_url': still_cover_url,
       'description': description,
       'imageurl': imageurl,
       'author': author,
       'currency': currency,
     };
+  }
+
+  getCleanDescription(){
+    String tempDescription = description ?? '';
+    String cleanDescription = tempDescription.replaceAllMapped(RegExp(r'<img[^>]*>'), (match) {
+      return '';
+    }).trim();
+    return cleanDescription;
   }
 
   getKey(){

@@ -70,7 +70,7 @@ class GameCard extends StatelessWidget {
                         ),
                         SizedBox(height: 8),
                         Text(
-                          game.short_text ?? "No description",
+                          game.getCleanDescription() ?? "No description",
                           style: TextStyle(fontSize: 14),
                         ),
                         SizedBox(height: 8),

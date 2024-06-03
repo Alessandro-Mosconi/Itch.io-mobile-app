@@ -33,6 +33,7 @@ class FavoriteProvider with ChangeNotifier {
     if (!_favoriteGames.map((g) => g.getKey()).contains(game.getKey())) {
       _favoriteGames.add(game);
       notifyListeners();
+      prefs.remove('favorite_games');
     }
   }
 
@@ -49,6 +50,7 @@ class FavoriteProvider with ChangeNotifier {
     if (_favoriteGames.map((g) => g.getKey()).contains(game.getKey())) {
       _favoriteGames.remove(game);
       notifyListeners();
+      prefs.remove('favorite_games');
     }
   }
 
@@ -68,8 +70,8 @@ class FavoriteProvider with ChangeNotifier {
     if (!_favoriteJams.map((j) => j.getKey()).contains(jam.getKey())) {
       _favoriteJams.add(jam);
       notifyListeners();
+      prefs.remove('favorite_jams');
     }
-    prefs.remove('favorite_jams');
   }
 
   Future<void> removeFavoriteJam(Jam jam) async {
@@ -85,9 +87,8 @@ class FavoriteProvider with ChangeNotifier {
     if (_favoriteJams.map((j) => j.getKey()).contains(jam.getKey())) {
       _favoriteJams.remove(jam);
       notifyListeners();
+      prefs.remove('favorite_jams');
     }
-
-    prefs.remove('favorite_jams');
 
   }
 
