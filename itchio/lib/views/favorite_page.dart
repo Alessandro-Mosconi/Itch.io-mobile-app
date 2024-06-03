@@ -38,16 +38,7 @@ class _FavoritePageState extends State<FavoritePage> with SingleTickerProviderSt
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        appBar: AppBar(
-          title: Text('Favorites'),
-          bottom: TabBar(
-            controller: _tabController,
-            tabs: [
-              Tab(text: 'Games'),
-              Tab(text: 'Jams'),
-            ],
-          ),
-        ),
+        appBar: CustomAppBar(),
         body: Consumer<FavoriteProvider>(
           builder: (context, favoriteProvider, child) {
             return TabBarView(
