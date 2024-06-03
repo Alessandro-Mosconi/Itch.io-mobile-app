@@ -10,6 +10,7 @@ import 'services/notification_service.dart';
 import 'providers/page_provider.dart';
 import 'providers/theme_notifier.dart';
 import 'providers/favorite_provider.dart';
+import 'providers/search_bookmark_provider.dart';
 import 'views/auth_or_main_view.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -57,6 +58,9 @@ class _ProviderAppState extends State<ProviderApp> {
         ),
         ChangeNotifierProvider<FavoriteProvider>(
           create: (_) => FavoriteProvider(),
+        ),
+        ChangeNotifierProvider<SearchBookmarkProvider>(
+          create: (_) => SearchBookmarkProvider(),
         ),
       ],
       child: MyApp(),
