@@ -9,7 +9,8 @@ import 'package:provider/provider.dart';
 import 'package:logger/logger.dart';
 import 'settings_page.dart';
 import '../widgets/custom_app_bar.dart';
-import '../widgets/game_card.dart';
+import '../widgets/game_card.dart'; // Import the GameCard widget
+import '../widgets/developed_game_card.dart'; // Import the DevelopedGameCard widget
 
 class ProfilePage extends StatefulWidget {
   ProfilePage({Key? key}) : super(key: key);
@@ -215,10 +216,9 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
           return Center(child: Text("Error: ${snapshot.error}"));
         } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
           return ListView.builder(
-            shrinkWrap: true,
             itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
-              return GameCard(game: snapshot.data![index]);
+              return DevelopedGameCard(game: snapshot.data![index]);
             },
           );
         } else {
@@ -238,7 +238,6 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
           return Center(child: Text("Error: ${snapshot.error}"));
         } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
           return ListView.builder(
-            shrinkWrap: true,
             itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
               PurchaseGame purchasedGame = snapshot.data![index];
