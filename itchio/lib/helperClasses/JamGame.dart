@@ -29,4 +29,15 @@ class JamGame {
     createdAt = DateTime.parse(data['created_at']);
     fieldResponses = List<String>.from(data['field_responses'] ?? []);
   }
+  Map<String, Object?> toMap() {
+    return {
+      'rating_count': ratingCount,
+      'coolness': coolness,
+      'id': id,
+      'game': game?.toMap(),
+      'url': url,
+      'created_at': createdAt?.toIso8601String(),
+      'field_responses': fieldResponses,
+    };
+  }
 }

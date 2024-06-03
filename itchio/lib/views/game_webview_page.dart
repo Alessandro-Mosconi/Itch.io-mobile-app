@@ -3,16 +3,18 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 import 'package:provider/provider.dart';
+import '../helperClasses/Jam.dart';
 import '../providers/page_provider.dart';
 import '../providers/favorite_provider.dart';
 import '../widgets/custom_app_bar.dart';
 import '../helperClasses/Game.dart';
 
 class GameWebViewPage extends StatefulWidget {
-  final String gameUrl;
-  final Game game;
+  final String url;
+  final Game? game;
+  final Jam? jam;
 
-  GameWebViewPage({required this.gameUrl, required this.game});
+  GameWebViewPage({required this.url, this.game, this.jam});
 
   @override
   _GameWebViewPageState createState() => _GameWebViewPageState();
@@ -22,9 +24,11 @@ class _GameWebViewPageState extends State<GameWebViewPage> {
   late final WebViewController _controller;
   bool _isLoading = true;
   bool _elementsHidden = false;
+  bool isGame = true;
 
   @override
   void initState() {
+    isGame = widget.game != null;
     super.initState();
     initializeWebView();
   }
@@ -35,7 +39,7 @@ class _GameWebViewPageState extends State<GameWebViewPage> {
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0x00000000))
       ..setNavigationDelegate(createNavigationDelegate())
-      ..loadRequest(Uri.parse(widget.gameUrl));
+      ..loadRequest(Uri.parse(widget.url));
 
     configureAndroidWebView(_controller);
   }
@@ -125,42 +129,51 @@ class _GameWebViewPageState extends State<GameWebViewPage> {
 
   @override
   Widget build(BuildContext context) {
-    final favoriteProvider = Provider.of<FavoriteProvider>(context);
-    final isFavorite = favoriteProvider.isFavorite(widget.game);
+    return Scaffold(
+      appBar: CustomAppBar(
+        actions: [
+          Consumer<FavoriteProvider>(
+            builder: (context, favoriteProvider, child) {
+              final isFavorite = isGame
+                  ? favoriteProvider.isFavoriteGame(widget.game!)
+                  : favoriteProvider.isFavoriteJam(widget.jam!);
 
-    return WillPopScope(
-      onWillPop: () async {
-        Provider.of<PageProvider>(context, listen: false).clearExtraPage();
-        return false; // Prevent default back navigation
-      },
-      child: Scaffold(
-        appBar: CustomAppBar(
-          actions: [
-            IconButton(
-              icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border),
-              onPressed: () {
-                if (isFavorite) {
-                  favoriteProvider.removeFavorite(widget.game);
-                } else {
-                  favoriteProvider.addFavorite(widget.game);
-                }
-              },
-            ),
-          ],
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Provider.of<PageProvider>(context, listen: false).clearExtraPage();
+              return IconButton(
+                icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border),
+                onPressed: () {
+                  if (isGame) {
+                    if (isFavorite) {
+                      favoriteProvider.removeFavoriteGame(widget.game!);
+                    } else {
+                      favoriteProvider.addFavoriteGame(widget.game!);
+                    }
+                  } else {
+                    if (isFavorite) {
+                      favoriteProvider.removeFavoriteJam(widget.jam!);
+                    } else {
+                      favoriteProvider.addFavoriteJam(widget.jam!);
+                    }
+                  }
+                },
+              );
             },
           ),
+        ],
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Provider.of<PageProvider>(context, listen: false).clearExtraPage();
+          },
         ),
-        body: Stack(
-          children: [
-            if (_elementsHidden) WebViewWidget(controller: _controller),
-            if (_isLoading) Center(child: CircularProgressIndicator()),
-          ],
-        ),
+      ),
+      body: Stack(
+        children: [
+          if (_elementsHidden) WebViewWidget(controller: _controller),
+          if (_isLoading) Center(child: CircularProgressIndicator()),
+        ],
       ),
     );
   }
+
+
 }

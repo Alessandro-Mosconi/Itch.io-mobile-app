@@ -8,34 +8,35 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../helperClasses/Game.dart';
 import 'package:http/http.dart' as http;
 
+import '../helperClasses/Jam.dart';
+
 class FavoriteProvider with ChangeNotifier {
-  List<Game> _favorites = [];
+  List<Game> _favoriteGames = [];
+  List<Jam> _favoriteJams = [];
   final Logger logger = Logger(printer: PrettyPrinter());
 
-  List<Game> get favorites => _favorites;
+  List<Game> get favoriteGames => _favoriteGames;
+  List<Jam> get favoriteJams => _favoriteJams;
 
-  Future<void> addFavorite(Game game) async {
+  Future<void> addFavoriteGame(Game game) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString("access_token");
-    logger.i(token);
 
     final firebaseApp = Firebase.app();
     final dbInstance = FirebaseDatabase.instanceFor(app: firebaseApp, databaseURL: 'https://itchioclientapp-default-rtdb.europe-west1.firebasedatabase.app');
-
-    logger.i(token);
 
     final DatabaseReference dbRef = dbInstance.ref('/favorites/${token!}/games/${game.getKey()}');
     await dbRef.update(
         game.toMap()
     );
 
-    if (!_favorites.contains(game)) {
-      _favorites.add(game);
+    if (!_favoriteGames.map((g) => g.getKey()).contains(game.getKey())) {
+      _favoriteGames.add(game);
       notifyListeners();
     }
   }
 
-  Future<void> removeFavorite(Game game) async {
+  Future<void> removeFavoriteGame(Game game) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString("access_token");
 
@@ -45,37 +46,79 @@ class FavoriteProvider with ChangeNotifier {
     final DatabaseReference dbRef = dbInstance.ref('/favorites/${token!}/games/${game.getKey()}');
     await dbRef.remove();
 
-    if (_favorites.contains(game)) {
-      _favorites.remove(game);
+    if (_favoriteGames.map((g) => g.getKey()).contains(game.getKey())) {
+      _favoriteGames.remove(game);
       notifyListeners();
     }
   }
 
-  bool isFavorite(Game game) {
-    return _favorites.map((g) => g.getKey()).contains(game.getKey());
+  Future<void> addFavoriteJam(Jam jam) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString("access_token");
+
+    final firebaseApp = Firebase.app();
+    final dbInstance = FirebaseDatabase.instanceFor(app: firebaseApp, databaseURL: 'https://itchioclientapp-default-rtdb.europe-west1.firebasedatabase.app');
+
+
+    final DatabaseReference dbRef = dbInstance.ref('/favorites/${token!}/jams/${jam.getKey()}');
+    await dbRef.update(
+        jam.toMap()
+    );
+
+    if (!_favoriteJams.map((j) => j.getKey()).contains(jam.getKey())) {
+      _favoriteJams.add(jam);
+      notifyListeners();
+    }
+    prefs.remove('favorite_jams');
   }
 
-  Future<List<Game>> fetchFavorites() async {
+  Future<void> removeFavoriteJam(Jam jam) async {
     final prefs = await SharedPreferences.getInstance();
-    var key = "favorites";
+    final token = prefs.getString("access_token");
+
+    final firebaseApp = Firebase.app();
+    final dbInstance = FirebaseDatabase.instanceFor(app: firebaseApp, databaseURL: 'https://itchioclientapp-default-rtdb.europe-west1.firebasedatabase.app');
+
+    final DatabaseReference dbRef = dbInstance.ref('/favorites/${token!}/jams/${jam.getKey()}');
+    await dbRef.remove();
+
+    if (_favoriteJams.map((j) => j.getKey()).contains(jam.getKey())) {
+      _favoriteJams.remove(jam);
+      notifyListeners();
+    }
+
+    prefs.remove('favorite_jams');
+
+  }
+
+  bool isFavoriteGame(Game game) {
+    return _favoriteGames.map((g) => g.getKey()).contains(game.getKey());
+  }
+  bool isFavoriteJam(Jam jam) {
+    return _favoriteJams.map((j) => j.getKey()).contains(jam.getKey());
+  }
+
+  Future<List<Game>> fetchFavoriteGames() async {
+    final prefs = await SharedPreferences.getInstance();
+    var key = "favorite_games";
 
     if (prefs.getString(key) != null && checkTimestamp(prefs.getInt("${key}_timestamp"))) {
-      _favorites = await _getCachedFavorites(prefs, key);
+      _favoriteGames = await _getCachedFavoriteGames(prefs, key);
     } else {
-      _favorites = await _fetchFavoritesFromNetwork(key, prefs);
+      _favoriteGames = await _fetchFavoriteGamesFromNetwork(key, prefs);
     }
     notifyListeners();
 
-    return _favorites;
+    return _favoriteGames;
   }
 
-  Future<List<Game>> _getCachedFavorites(SharedPreferences prefs, String key) async {
-    String body = prefs.getString(key)!;
-    List<dynamic>? results = json.decode(body);
-    return results?.map((r) => Game(r)).toList() ?? [];
+  Future<List<Game>> _getCachedFavoriteGames(SharedPreferences prefs, String key) async {
+    String snapshotValue = prefs.getString(key)!;
+    List<Game> favorites = getGamesFromSnapshotValue(json.decode(snapshotValue));
+    return favorites;
   }
 
-  Future<List<Game>> _fetchFavoritesFromNetwork(String key, SharedPreferences prefs) async {
+  Future<List<Game>> _fetchFavoriteGamesFromNetwork(String key, SharedPreferences prefs) async {
 
     final token = prefs.getString("access_token");
 
@@ -87,35 +130,106 @@ class FavoriteProvider with ChangeNotifier {
     final snapshot = await dbRef.get();
     if (snapshot.exists) {
       final dynamic data = snapshot.value;
-      List<Game> favorites = [];
-      if (data is Map<Object?, Object?>) {
-        data.forEach((key, value) {
-          if (key is String && value is Map<String, dynamic>) {
-            favorites.add(Game(value));
-          } else if (key is String && value is Map<Object?, Object?>) {
-            final Map<String, dynamic> convertedValue = value.map((k, v) => MapEntry(k.toString(), v));
-            favorites.add(Game(convertedValue));
-          } else {
-            logger.e('Unexpected key/value types: key = ${key.runtimeType}, value = ${value.runtimeType}');
-          }
-        });
-      } else {
-        logger.e('Data is not a Map: ${data.runtimeType}');
+      List<Game> favorites = getGamesFromSnapshotValue(data);
+
+      if(favorites.isNotEmpty){
+        prefs.setString(key, json.encode(snapshot.value));
+        prefs.setInt("${key}_timestamp", DateTime.now().millisecondsSinceEpoch);
       }
 
       return favorites;
-      /*
-      prefs.setString(key, json.encode(snapshot.value));
-      prefs.setInt("${key}_timestamp", DateTime.now().millisecondsSinceEpoch);
-      return snapshot.value .map((r) => Game(r)).toList() ?? [];*/
     } else {
       return [];
     }
   }
 
+  Future<List<Jam>> fetchFavoriteJams() async {
+    final prefs = await SharedPreferences.getInstance();
+    var key = "favorite_jams";
+
+    if (prefs.getString(key) != null && checkTimestamp(prefs.getInt("${key}_timestamp"))) {
+      _favoriteJams = await _getCachedFavoriteJams(prefs, key);
+    } else {
+      _favoriteJams = await _fetchFavoriteJamsFromNetwork(key, prefs);
+    }
+    notifyListeners();
+
+    return _favoriteJams;
+  }
+
+  Future<List<Jam>> _getCachedFavoriteJams(SharedPreferences prefs, String key) async {
+    String snapshotValue = prefs.getString(key)!;
+    List<Jam> favorites = getJamsFromSnapshotValue(json.decode(snapshotValue));
+    return favorites;
+  }
+
+  Future<List<Jam>> _fetchFavoriteJamsFromNetwork(String key, SharedPreferences prefs) async {
+
+    final token = prefs.getString("access_token");
+
+    final firebaseApp = Firebase.app();
+    final dbInstance = FirebaseDatabase.instanceFor(app: firebaseApp, databaseURL: 'https://itchioclientapp-default-rtdb.europe-west1.firebasedatabase.app');
+
+    final DatabaseReference dbRef = dbInstance.ref('/favorites/${token!}/jams');
+
+    final snapshot = await dbRef.get();
+    if (snapshot.exists) {
+      final dynamic data = snapshot.value;
+      List<Jam> favorites = getJamsFromSnapshotValue(data);
+
+      if(favorites.isNotEmpty){
+        prefs.setString(key, json.encode(snapshot.value));
+        prefs.setInt("${key}_timestamp", DateTime.now().millisecondsSinceEpoch);
+      }
+
+      return favorites;
+    } else {
+      return [];
+    }
+  }
+
+  List<Game> getGamesFromSnapshotValue(data) {
+    List<Game> favorites = [];
+    if (data is Map<Object?, Object?>) {
+      data.forEach((key, value) {
+        if (key is String && value is Map<String, dynamic>) {
+          favorites.add(Game(value));
+        } else if (key is String && value is Map<Object?, Object?>) {
+          final Map<String, dynamic> convertedValue = value.map((k, v) => MapEntry(k.toString(), v));
+          favorites.add(Game(convertedValue));
+        } else {
+          logger.e('Unexpected key/value types: key = ${key.runtimeType}, value = ${value.runtimeType}');
+        }
+      });
+    } else {
+      logger.e('Data is not a Map: ${data.runtimeType}');
+    }
+
+    return favorites;
+  }
+
+  List<Jam> getJamsFromSnapshotValue(data) {
+    List<Jam> favorites = [];
+    if (data is Map<Object?, Object?>) {
+      data.forEach((key, value) {
+        if (key is String && value is Map<String, dynamic>) {
+          favorites.add(Jam(value));
+        } else if (key is String && value is Map<Object?, Object?>) {
+          final Map<String, dynamic> convertedValue = value.map((k, v) => MapEntry(k.toString(), v));
+          favorites.add(Jam(convertedValue));
+        } else {
+          logger.e('Unexpected key/value types: key = ${key.runtimeType}, value = ${value.runtimeType}');
+        }
+      });
+    } else {
+      logger.e('Data is not a Map: ${data.runtimeType}');
+    }
+
+    return favorites;
+  }
 
   bool checkTimestamp(int? timestamp){
-    // 172800000 = 2 days in ms
-    return (timestamp == null) || ((timestamp + 172800000) > DateTime.now().millisecondsSinceEpoch);
+    // 86400000 = 1 days in ms
+    return (timestamp == null) || ((timestamp + 86400000) > DateTime.now().millisecondsSinceEpoch);
   }
 }

@@ -62,7 +62,8 @@ class HomePage extends StatefulWidget {
 
 Future<void> initFavorites(BuildContext context) async {
   final favoriteProvider = Provider.of<FavoriteProvider>(context);
-  await favoriteProvider.fetchFavorites();
+  await favoriteProvider.fetchFavoriteGames();
+  await favoriteProvider.fetchFavoriteJams();
 }
 
 class _HomePageState extends State<HomePage> {

@@ -19,8 +19,8 @@ class GameCard extends StatelessWidget {
         if (game.url != null && game.url!.isNotEmpty) {
           Provider.of<PageProvider>(context, listen: false).setExtraPage(
             GameWebViewPage(
-              gameUrl: game.url!,
-              game: game, // Provide the required game parameter
+              url: game.url!,
+              game: game,
             ),
           );
         } else {

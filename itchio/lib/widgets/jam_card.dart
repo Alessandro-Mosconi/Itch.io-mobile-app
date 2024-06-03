@@ -47,17 +47,10 @@ class JamCard extends StatelessWidget {
 
   void _navigateToJam(BuildContext context, Jam jam) {
     if (jam.url != null && jam.url!.isNotEmpty) {
-      Game game = Game({
-        'url': jam.url,
-        'title': jam.title,
-        'short_text': 'Jam Description',
-        'coverUrl': 'https://via.placeholder.com/150',
-      });
-
       Provider.of<PageProvider>(context, listen: false).setExtraPage(
         GameWebViewPage(
-          gameUrl: 'https://itch.io${jam.url!}',
-          game: game,
+          url: 'https://itch.io${jam.url!}',
+          jam: jam,
         ),
       );
     }

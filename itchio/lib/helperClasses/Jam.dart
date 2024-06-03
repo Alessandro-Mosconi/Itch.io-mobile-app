@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:crypto/crypto.dart';
+
 import 'Game.dart';
 import 'JamGame.dart';
 
@@ -52,5 +54,27 @@ class Jam {
     jamGames = (data['detail']['jam_games'] as List<dynamic>?)
         ?.map((d) => JamGame(d as Map<String, dynamic>))
         .toList() ?? [];
+  }
+
+  Map<String, Object?> toMap() {
+    return {
+      'hue': hue,
+      'start_date': startDate?.toIso8601String(),
+      'end_date': endDate?.toIso8601String(),
+      'voting_end_date': votingEndDate?.toIso8601String(),
+      'featured': featured,
+      'id': id,
+      'title': title,
+      'highlight': highlight,
+      'joined': joined,
+      'url': url,
+      'generated_on': generatedOn,
+      'jam_games': jamGames.map((jamGame) => jamGame.toMap()).toList(),
+    };
+  }
+
+  getKey(){
+    String key = sha256.convert(utf8.encode(url!)).toString();
+    return key;
   }
 }
