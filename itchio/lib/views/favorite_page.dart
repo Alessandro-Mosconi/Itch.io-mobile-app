@@ -38,23 +38,34 @@ class _FavoritePageState extends State<FavoritePage> with SingleTickerProviderSt
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        appBar: CustomAppBar(),
+        appBar: AppBar(
+          title: CustomAppBar(),
+          bottom: TabBar(
+            controller: _tabController,
+            tabs: [
+              Tab(text: 'Games'),
+              Tab(text: 'Jams'),
+            ],
+          ),
+        ),
         body: Consumer<FavoriteProvider>(
           builder: (context, favoriteProvider, child) {
             return TabBarView(
               controller: _tabController,
               children: [
-                favoriteProvider.favoriteGames.isEmpty
-                    ? Center(child: Text('No favorite games yet'))
-                    : ListView.builder(
-                  itemCount: favoriteProvider.favoriteGames.length,
-                  itemBuilder: (context, index) {
-                    return GameCard(game: favoriteProvider.favoriteGames[index]);
-                  },
-                ),
-                favoriteProvider.favoriteJams.isEmpty
-                    ? Center(child: Text('No favorite jams yet'))
-                    : _buildJamList(favoriteProvider.favoriteJams),
+                if (favoriteProvider.favoriteGames.isEmpty)
+                  Center(child: Text('Nessun gioco preferito ancora'))
+                else
+                  ListView.builder(
+                    itemCount: favoriteProvider.favoriteGames.length,
+                    itemBuilder: (context, index) {
+                      return GameCard(game: favoriteProvider.favoriteGames[index]);
+                    },
+                  ),
+                if (favoriteProvider.favoriteJams.isEmpty)
+                  Center(child: Text('Nessuna jam preferita ancora'))
+                else
+                  _buildJamList(favoriteProvider.favoriteJams),
               ],
             );
           },
@@ -62,7 +73,6 @@ class _FavoritePageState extends State<FavoritePage> with SingleTickerProviderSt
       ),
     );
   }
-
 
   ListView _buildJamList(List<Jam> jams) {
     return ListView.builder(

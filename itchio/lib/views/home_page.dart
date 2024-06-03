@@ -10,10 +10,12 @@ import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/favorite_provider.dart';
+import '../providers/page_provider.dart';
 import '../widgets/custom_app_bar.dart';
 import 'package:http/http.dart' as http;
 
 import '../helperClasses/Game.dart';
+import 'game_webview_page.dart';
 
 final Logger logger = Logger(printer: PrettyPrinter());
 
@@ -370,7 +372,21 @@ class _CarouselCardState extends State<CarouselCard> {
                 itemCount: widget.items.length,
                 itemBuilder: (context, index) {
                   Game game = widget.items[index];
-                  return Container(
+                  return GestureDetector(
+                      onTap: () {
+                    if (game.url != null && game.url!.isNotEmpty) {
+                      Provider.of<PageProvider>(context, listen: false).setExtraPage(
+                        GameWebViewPage(
+                          url: game.url!,
+                          game: game,
+                        ),
+                      );
+                    } else {
+                      logger.i('Could not launch ${game.url}');
+                      throw 'Could not launch ${game.url}';
+                    }
+                  },
+                  child: Container(
                     width: 160,  // Increased width
                     margin: EdgeInsets.symmetric(horizontal: 8),
                     child: Column(
@@ -397,6 +413,7 @@ class _CarouselCardState extends State<CarouselCard> {
                         ),
                       ],
                     ),
+                  ),
                   );
                 },
               ),
