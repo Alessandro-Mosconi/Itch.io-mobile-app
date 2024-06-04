@@ -273,13 +273,13 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     );
   }
 
-  void _saveSearch() {
+  Future<void> _saveSearch() async {
     final tab = currentTab['name'] ?? 'games';
     final concatenatedFilters = _selectedFilters.entries.isNotEmpty
         ? '/${_selectedFilters.entries.expand((entry) => entry.value).join('/')}'
         : '';
 
-    context.read<SearchBookmarkProvider>().addSearchBookmark(tab, concatenatedFilters);
+    await context.read<SearchBookmarkProvider>().addSearchBookmark(tab, concatenatedFilters);
 
     setState(() {
       isBookmarked = true;

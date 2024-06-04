@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
@@ -138,23 +139,33 @@ class _GameWebViewPageState extends State<GameWebViewPage> {
                   ? favoriteProvider.isFavoriteGame(widget.game!)
                   : favoriteProvider.isFavoriteJam(widget.jam!);
 
-              return IconButton(
-                icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border),
-                onPressed: () {
-                  if (isGame) {
-                    if (isFavorite) {
-                      favoriteProvider.removeFavoriteGame(widget.game!);
-                    } else {
-                      favoriteProvider.addFavoriteGame(widget.game!);
-                    }
-                  } else {
-                    if (isFavorite) {
-                      favoriteProvider.removeFavoriteJam(widget.jam!);
-                    } else {
-                      favoriteProvider.addFavoriteJam(widget.jam!);
-                    }
-                  }
-                },
+              return Row(
+                children: [
+                  IconButton(
+                    icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border),
+                    onPressed: () {
+                      if (isGame) {
+                        if (isFavorite) {
+                          favoriteProvider.removeFavoriteGame(widget.game!);
+                        } else {
+                          favoriteProvider.addFavoriteGame(widget.game!);
+                        }
+                      } else {
+                        if (isFavorite) {
+                          favoriteProvider.removeFavoriteJam(widget.jam!);
+                        } else {
+                          favoriteProvider.addFavoriteJam(widget.jam!);
+                        }
+                      }
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.share),
+                    onPressed: () {
+                      Share.share('Check this ${isGame ? 'game' : 'jam'} at ${widget.url}');
+                    },
+                  ),
+                ],
               );
             },
           ),

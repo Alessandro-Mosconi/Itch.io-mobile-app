@@ -39,6 +39,12 @@ class SavedSearch {
     String key = sha256.convert(utf8.encode(typeDefault + filtersDefault)).toString();
     return key;
   }
+  static getKeyFromParameters(String type, String filters){
+    String filtersDefault = filters ?? '';
+    String typeDefault = type ?? 'games';
+    String key = sha256.convert(utf8.encode(typeDefault + filtersDefault)).toString();
+    return key;
+  }
 }
 
 
