@@ -10,14 +10,17 @@ class ResponsiveGridList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final crossAxisCount = isLandscape ? 4 : 2;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.maxWidth > 600) {
-          // Tablet layout: grid
+          // Tablet layout: grid with dynamic crossAxisCount based on orientation
           return GridView.builder(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 3 / 2,
+              crossAxisCount: crossAxisCount,
+              childAspectRatio: 1,
               crossAxisSpacing: 10,
               mainAxisSpacing: 10,
             ),
