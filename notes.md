@@ -159,3 +159,37 @@ graph LR
     end
 ```
 
+### 03 06 2024
+
+Component-Based Design:
+
+SearchBar Component: Handles the search bar with input and filter options.
+FilterPopup Component: Handles the display and selection of filters.
+FilterRowWidget Component: Displays individual filter options as chips.
+ResponsiveGridList Component: Switches between grid and list layouts based on screen width.
+Initialization:
+
+_initializePage Method: Fetches filters and tabs, then initializes the state.
+_initializeTabAndFilters Method: Sets up initial tab and filters if provided.
+_initializeSearchResults Method: Initializes the search results to default values.
+Fetching Data:
+
+_fetchFilters, _fetchTabs, _fetchSearchResults, _fetchTabResults: Methods to fetch data from the API and database.
+State Management:
+
+_filterMap Method: Converts filter strings into a map of selected filters.
+_showFilterPopup Method: Displays the filter selection dialog.
+Search and Tabs:
+
+_performSearch Method: Performs a search based on user input.
+_changeTab Method: Changes the tab and updates the results.
+_saveSearch Method: Saves the current search criteria to the database.
+UI Rendering:
+
+_buildSearchBar Method: Renders the search bar using the SearchBar component.
+_buildTabsPage Method: Renders the tabs and their content.
+_buildSearchPage Method: Renders the search results.
+_buildTabPage Method: Renders the content of each tab.
+
+
+
