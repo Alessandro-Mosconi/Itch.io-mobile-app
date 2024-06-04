@@ -106,6 +106,7 @@ class _FavoritePageState extends State<FavoritePage> with SingleTickerProviderSt
       itemBuilder: (context, index) {
         return JamCard(
           jam: jams[index],
+          isTablet: false
         );
       },
     );

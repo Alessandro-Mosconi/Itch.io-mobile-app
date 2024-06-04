@@ -173,7 +173,20 @@ class JamsPage extends StatelessWidget {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-            return _buildJamList(snapshot.data!);
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                if (constraints.maxWidth > 600) {
+                  var orientation = MediaQuery.of(context).orientation;
+                  bool isPortrait = orientation == Orientation.portrait;
+                  logger.i(isPortrait);
+
+                  return _buildJamGrid(snapshot.data!, isPortrait);
+                } else {
+                  // Phone layout: ListView
+                  return _buildJamList(snapshot.data!);
+                }
+              },
+            );
           } else {
             return Center(child: Text('No jams found'));
           }
@@ -188,7 +201,25 @@ class JamsPage extends StatelessWidget {
       itemBuilder: (context, index) {
         return JamCard(
           jam: jams[index],
+          isTablet: false,
         );
+      },
+    );
+  }
+
+  GridView _buildJamGrid(List<Jam> jams, bool isPortrait) {
+    double itemWidth = 500.0;
+
+    return GridView.builder(
+      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: itemWidth,
+        crossAxisSpacing: 8.0,
+        mainAxisSpacing: 8.0,
+        childAspectRatio: 16/9
+      ),
+      itemCount: jams.length,
+      itemBuilder: (context, index) {
+        return JamCard(jam: jams[index], isTablet: !isPortrait);
       },
     );
   }
@@ -200,4 +231,3 @@ class JamsPage extends StatelessWidget {
     return now - timestamp < cacheDuration.inMilliseconds;
   }
 }
-

@@ -1,16 +1,17 @@
 import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:logger/logger.dart';
 import '../helperClasses/Jam.dart';
-import '../helperClasses/Game.dart';
 import '../providers/page_provider.dart';
 import '../views/game_webview_page.dart';
 import 'package:provider/provider.dart';
 
 class JamCard extends StatelessWidget {
   final Jam jam;
+  final bool isTablet;
 
-  JamCard({required this.jam});
+  JamCard({required this.jam, required this.isTablet});
 
   @override
   Widget build(BuildContext context) {
@@ -27,21 +28,19 @@ class JamCard extends StatelessWidget {
                 ListTile(
                   contentPadding: EdgeInsets.all(16.0),
                   title: Text(jam.title ?? '', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-                  subtitle: JamInfo(jam: jam),
+                  subtitle: JamInfo(jam: jam, isTablet: isTablet),
                 ),
               ],
             ),
-            if(jam.endDate != null || jam.startDate != null || jam.votingEndDate != null)
-            Positioned(
-              top: 10,
-              right: 10,
-              child: IconButton(
-                icon: Icon(Icons.calendar_today),
-                onPressed: () => {
-                  _addToCalendar(context, jam)
-                },
+            if (jam.endDate != null || jam.startDate != null || jam.votingEndDate != null)
+              Positioned(
+                top: 10,
+                right: 10,
+                child: IconButton(
+                  icon: Icon(Icons.calendar_today),
+                  onPressed: () => _addToCalendar(context, jam),
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -108,12 +107,12 @@ class JamCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (jam.startDate != null && jam.endDate != null)
-        _buildEventOptionButton(
-          context,
-          'duration',
-          Colors.green,
-          "Jam duration:\n${_formatDate(jam.startDate)}\n${_formatDate(jam.endDate)}",
-        ),
+          _buildEventOptionButton(
+            context,
+            'duration',
+            Colors.green,
+            "Jam duration:\n${_formatDate(jam.startDate)}\n${_formatDate(jam.endDate)}",
+          ),
         SizedBox(height: 16),
         if (jam.votingEndDate != null)
           _buildEventOptionButton(
@@ -136,8 +135,8 @@ class JamCard extends StatelessWidget {
         Navigator.pop(context, eventType);
       },
       style: ButtonStyle(
-        backgroundColor: WidgetStateProperty.all<Color>(color),
-        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+        backgroundColor: MaterialStateProperty.all<Color>(color),
+        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0),
           ),
@@ -166,7 +165,6 @@ class JamCard extends StatelessWidget {
     );
   }
 
-
   void _navigateToJam(BuildContext context, Jam jam) {
     if (jam.url != null && jam.url!.isNotEmpty) {
       Provider.of<PageProvider>(context, listen: false).setExtraPage(
@@ -181,37 +179,72 @@ class JamCard extends StatelessWidget {
 
 class JamInfo extends StatelessWidget {
   final Jam jam;
+  final bool isTablet;
+  final Logger logger = Logger(printer: PrettyPrinter());
 
-  JamInfo({required this.jam});
+  JamInfo({required this.jam, required this.isTablet});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildInfoRow(Icons.date_range, 'Start:', jam.startDate, Colors.green),
-          SizedBox(height: 5),
-          _buildInfoRow(Icons.event, 'End:', jam.endDate, Colors.red),
-          SizedBox(height: 5),
-          _buildInfoRow(Icons.how_to_vote, 'Voting Ends:', jam.votingEndDate, Colors.blue),
-          SizedBox(height: 5),
-          _buildInfoRow(Icons.people, 'Participants:', jam.joined.toString(), Colors.orange),
-        ],
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Padding(
+          padding: const EdgeInsets.only(top: 8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (isTablet) _buildTabletLayout(
+                  context,
+                  _buildInfoRow(Icons.date_range, 'Start:', jam.startDate, Colors.green),
+                  _buildInfoRow(Icons.event, 'End:', jam.endDate, Colors.red)) else _buildPhoneLayout(
+                  context,
+                  _buildInfoRow(Icons.date_range, 'Start:', jam.startDate, Colors.green),
+                  _buildInfoRow(Icons.event, 'End:', jam.endDate, Colors.red)),
+              SizedBox(height: 5),
+              if (isTablet) _buildTabletLayout(context,
+                _buildInfoRow(Icons.how_to_vote, 'Voting Ends:', jam.votingEndDate, Colors.blue),
+                _buildInfoRow(Icons.people, 'Participants:', jam.joined.toString(), Colors.orange)
+              ) else _buildPhoneLayout(context,
+                _buildInfoRow(Icons.how_to_vote, 'Voting Ends:', jam.votingEndDate, Colors.blue),
+                _buildInfoRow(Icons.people, 'Participants:', jam.joined.toString(), Colors.orange),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
+  Widget _buildPhoneLayout(BuildContext context, Widget infoRow1 , Widget infoRow2) {
+    return Column(
+      children: [
+        infoRow1,
+        SizedBox(height: 5),
+        infoRow2,
+      ],
+    );
+  }
+
+  Widget _buildTabletLayout(BuildContext context, Widget infoRow1 , Widget infoRow2) {
+    return Row(
+      children: [
+        Expanded(child: infoRow1),
+        Expanded(child: infoRow2),
+      ],
+    );
+  }
 
   Widget _buildInfoRow(IconData icon, String label, dynamic value, Color color) {
     return Row(
       children: [
         Icon(icon, color: color),
         SizedBox(width: 5),
-        Text(
-          '$label ${_formatInfoValue(value)}',
-          style: TextStyle(color: color),
+        Flexible(
+          child: Text(
+            '$label ${_formatInfoValue(value)}',
+            style: TextStyle(color: color),
+            overflow: TextOverflow.visible,
+          ),
         ),
       ],
     );
@@ -224,6 +257,4 @@ class JamInfo extends StatelessWidget {
       return value.toString();
     }
   }
-
 }
-
