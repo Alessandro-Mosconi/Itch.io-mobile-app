@@ -42,6 +42,70 @@ exports.fetchRSSFeedAndNotify = functions.https.onRequest(async (request, respon
     }
 });
 
+exports.countTopicSubscribers = functions.https.onRequest(async (req, res) => {
+    const subscriptionsSnapshot = await admin.firestore().collection('subscriptions').get();
+    const topicCounts = {};
+  
+    subscriptionsSnapshot.forEach(doc => {
+      const topics = doc.data().topics || [];
+      topics.forEach(topic => {
+        if (!topicCounts[topic]) {
+          topicCounts[topic] = 0;
+        }
+        topicCounts[topic]++;
+      });
+    });
+  
+    // Save the topic counts in Firestore
+    await admin.firestore().collection('topicCounts').doc('counts').set(topicCounts);
+  
+    res.json(topicCounts);
+  });
+  
+
+  exports.cleanupEmptyTopics = functions.pubsub.schedule('every 24 hours').onRun(async (context) => {
+    // Retrieve the previously saved topic counts from Firestore
+    const previousCountsDoc = await admin.firestore().collection('topicCounts').doc('previousCounts').get();
+    const previousTopicCounts = previousCountsDoc.exists ? previousCountsDoc.data() : {};
+  
+    // Call countTopicSubscribers function
+    const countTopicSubscribersCallable = admin.functions().httpsCallable('countTopicSubscribers');
+    const countTopicSubscribersResult = await countTopicSubscribersCallable();
+    const newTopicCounts = countTopicSubscribersResult.data;
+  
+    // Find topics that have gone from non-zero to zero counts
+    const emptyTopics = [];
+    for (const topic in previousTopicCounts) {
+      if (previousTopicCounts[topic] > 0 && (!newTopicCounts[topic] || newTopicCounts[topic] === 0)) {
+        emptyTopics.push(topic);
+      }
+    }
+  
+    console.log('Empty topics:', emptyTopics);
+  
+    // Remove empty topics from Firestore
+    const batch = admin.firestore().batch();
+    for (const topic of emptyTopics) {
+      const topicDocRef = admin.firestore().collection('subscriptions').where('topics', 'array-contains', topic);
+      const topicDocSnapshot = await topicDocRef.get();
+      topicDocSnapshot.forEach(doc => {
+        batch.update(doc.ref, {
+          'topics': admin.firestore.FieldValue.arrayRemove(topic)
+        });
+      });
+    }
+    await batch.commit();
+  
+    // Save the new counts as the previous counts for the next run
+    await admin.firestore().collection('topicCounts').doc('previousCounts').set(newTopicCounts);
+  
+    return null;
+  });
+  
+
+
+
+
 exports.item_list = functions.https.onRequest(async (request, response) => {
 
     // Verifica che il metodo della richiesta sia POST
