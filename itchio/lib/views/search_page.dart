@@ -250,8 +250,17 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     });
   }
 
-  void _changeTab() {
+  Future<void> _changeTab() async {
+    final concatenatedFilters = _selectedFilters.entries.isNotEmpty
+        ? '/${_selectedFilters.entries.expand((entry) => entry.value).join('/')}'
+        : '';
+
+    final currentTabName = currentTab['name'] ?? 'games';
+
+    bool providerBookmarkSaved = await context.read<SearchBookmarkProvider>().isSearchBookmarked(currentTabName, concatenatedFilters);
+
     setState(() {
+      isBookmarked = providerBookmarkSaved;
       tabFilteredResults = _fetchTabResults(currentTab, _selectedFilters);
     });
   }
@@ -261,7 +270,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
       searchController: _searchController,
       showSaveButton: _showSaveButton,
       filterCount: _filterCount,
-      isBookmarked: isBookmarked, // Pass the isBookmarked variable
+      isBookmarked: isBookmarked,
       onSearch: _performSearch,
       onClear: () {
         _searchController.text = '';
@@ -279,15 +288,26 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
         ? '/${_selectedFilters.entries.expand((entry) => entry.value).join('/')}'
         : '';
 
-    await context.read<SearchBookmarkProvider>().addSearchBookmark(tab, concatenatedFilters);
+    bool providerBookmarkSaved = await context.read<SearchBookmarkProvider>().isSearchBookmarked(tab, concatenatedFilters);
 
     setState(() {
-      isBookmarked = true;
+      isBookmarked = !providerBookmarkSaved;
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Search saved successfully')),
-    );
+    if(!providerBookmarkSaved) {
+      await context.read<SearchBookmarkProvider>().addSearchBookmark(tab, concatenatedFilters);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Search saved successfully')),
+      );
+    } else {
+      await context.read<SearchBookmarkProvider>().removeSearchBookmark(tab, concatenatedFilters);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Search removed successfully')),
+      );
+    }
+
   }
 
   Widget _buildTabsPage() {

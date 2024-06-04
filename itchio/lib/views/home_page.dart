@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:itchio/helperClasses/SavedSearch.dart';
+import 'package:itchio/providers/search_bookmark_provider.dart';
 import 'package:itchio/views/search_page.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
@@ -64,8 +65,12 @@ class HomePage extends StatefulWidget {
 
 Future<void> initFavorites(BuildContext context) async {
   final favoriteProvider = Provider.of<FavoriteProvider>(context);
-  await favoriteProvider.fetchFavoriteGames();
-  await favoriteProvider.fetchFavoriteJams();
+  final searchBookmarkProvider = Provider.of<SearchBookmarkProvider>(context);
+  await Future.wait([
+    favoriteProvider.fetchFavoriteGames(),
+    favoriteProvider.fetchFavoriteJams(),
+    searchBookmarkProvider.fetchBookmarks(),
+  ]);
 }
 
 class _HomePageState extends State<HomePage> {

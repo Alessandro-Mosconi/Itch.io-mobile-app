@@ -55,4 +55,53 @@ class SearchBookmarkProvider with ChangeNotifier {
     String bookmark = '$tab$filters';
     return _searchBookmarks.contains(bookmark);
   }
+
+
+  Future<List<String>> fetchBookmarks() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    _searchBookmarks = await _fetchBookmarksFromNetwork(prefs);
+    notifyListeners();
+
+    return _searchBookmarks;
+  }
+
+  Future<List<String>> _fetchBookmarksFromNetwork(SharedPreferences prefs) async {
+
+    final token = prefs.getString("access_token");
+
+    final firebaseApp = Firebase.app();
+    final dbInstance = FirebaseDatabase.instanceFor(app: firebaseApp, databaseURL: 'https://itchioclientapp-default-rtdb.europe-west1.firebasedatabase.app');
+
+    final DatabaseReference dbRef = dbInstance.ref('/user_search/${token!}');
+
+    final snapshot = await dbRef.get();
+    if (snapshot.exists) {
+      final dynamic data = snapshot.value;
+      List<String> bookmarks = getBookmarksFromSnapshotValue(data);
+      return bookmarks;
+    } else {
+      return [];
+    }
+  }
+
+  List<String> getBookmarksFromSnapshotValue(data) {
+    List<String> bookmarks = [];
+    if (data is Map<Object?, Object?>) {
+      data.forEach((key, value) {
+        if (key is String && value is Map<String, String>) {
+          bookmarks.add(value['type']! + value['filters']!);
+        } else if (key is String && value is Map<Object?, Object?>) {
+          final Map<String, String> convertedValue = value.map((k, v) => MapEntry(k.toString(), v.toString()));
+          bookmarks.add(convertedValue['type']! + convertedValue['filters']!);
+        } else {
+          logger.e('Unexpected key/value types: key = ${key.runtimeType}, value = ${value.runtimeType}');
+        }
+      });
+    } else {
+      logger.e('Data is not a Map: ${data.runtimeType}');
+    }
+
+    return bookmarks;
+  }
 }
