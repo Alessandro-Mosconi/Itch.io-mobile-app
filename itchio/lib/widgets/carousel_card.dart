@@ -45,6 +45,8 @@ class _CarouselCardState extends State<CarouselCard> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
+      elevation: 5,
+      shadowColor: Colors.grey.withOpacity(0.2),
       child: Dismissible(
         key: Key(widget.title),
         direction: DismissDirection.horizontal,
@@ -57,18 +59,22 @@ class _CarouselCardState extends State<CarouselCard> {
   }
 
   Widget _buildCardContent(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildCardHeader(context),
-        _buildGameList(),
-      ],
+    return Padding(
+      padding: EdgeInsets.all(15),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildCardHeader(context),
+          SizedBox(height: 10),
+          _buildGameList(),
+        ],
+      ),
     );
   }
 
   Padding _buildCardHeader(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(15),
+      padding: EdgeInsets.only(bottom: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -78,16 +84,28 @@ class _CarouselCardState extends State<CarouselCard> {
               children: [
                 Text(
                   _kebabToCapitalized(widget.title),
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
                 ),
-                SizedBox(height: 8),
-                Text(widget.subtitle, style: TextStyle(fontSize: 16, color: Colors.grey[600])),
+                SizedBox(height: 4),
+                Text(
+                  widget.subtitle,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey[600],
+                  ),
+                ),
               ],
             ),
           ),
           IconButton(
             icon: Icon(
-              isNotificationEnabled ? Icons.notifications_active : Icons.notifications,
+              isNotificationEnabled
+                  ? Icons.notifications_active
+                  : Icons.notifications_none,
               color: isNotificationEnabled ? Colors.amber : Colors.grey,
             ),
             onPressed: () => _toggleNotification(widget.title, widget.subtitle),
@@ -115,7 +133,9 @@ class _CarouselCardState extends State<CarouselCard> {
     return GestureDetector(
       onTap: () {
         if (game.url != null && game.url!.isNotEmpty) {
-          Provider.of<PageProvider>(context, listen: false).setExtraPage(GameWebViewPage(url: game.url!, game: game));
+          Provider.of<PageProvider>(context, listen: false).setExtraPage(
+            GameWebViewPage(url: game.url!, game: game),
+          );
         } else {
           throw 'Could not launch ${game.url}';
         }
@@ -140,7 +160,11 @@ class _CarouselCardState extends State<CarouselCard> {
               game.title ?? '',
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
             ),
           ],
         ),
@@ -150,9 +174,13 @@ class _CarouselCardState extends State<CarouselCard> {
 
   Future<bool> _confirmDismiss(DismissDirection direction, BuildContext context) async {
     if (direction == DismissDirection.endToStart) {
-      return await _showConfirmDialog(context, "Confirm Deletion", "Are you sure you want to delete this saved search?") ?? false;
+      return await _showConfirmDialog(
+          context, "Confirm Deletion", "Are you sure you want to delete this saved search?") ??
+          false;
     } else {
-      return await _showConfirmDialog(context, "Confirm Search", "Are you sure you want to perform this search?") ?? false;
+      return await _showConfirmDialog(
+          context, "Confirm Search", "Are you sure you want to perform this search?") ??
+          false;
     }
   }
 
@@ -168,7 +196,7 @@ class _CarouselCardState extends State<CarouselCard> {
               onPressed: () => Navigator.of(context).pop(false),
               child: Text("Cancel"),
             ),
-            TextButton(
+            ElevatedButton(
               onPressed: () => Navigator.of(context).pop(true),
               child: Text("Confirm"),
             ),
@@ -243,4 +271,3 @@ class _CarouselCardState extends State<CarouselCard> {
     }).join(' ');
   }
 }
-
