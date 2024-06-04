@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../helperClasses/Game.dart';
 import '../providers/page_provider.dart';
 import '../views/game_webview_page.dart';
-import '../views/search_page.dart';
+import '../services/notification_service.dart';
 
 class CarouselCard extends StatefulWidget {
   final String title;
@@ -216,10 +216,26 @@ class _CarouselCardState extends State<CarouselCard> {
   }
 
   void _toggleNotification(String type, String filters) async {
+    String topicName = _generateTopicHash(type, filters);
+    final notificationService = Provider.of<NotificationService>(context, listen: false);
+
+    if (isNotificationEnabled) {
+      await notificationService.unsubscribeFromTopic(topicName);
+    } else {
+      await notificationService.subscribeToTopic(topicName);
+    }
+
     await changeNotifyField(type, filters, !isNotificationEnabled);
     setState(() {
       isNotificationEnabled = !isNotificationEnabled;
     });
+  }
+
+
+
+  String _generateTopicHash(String type, String filters) {
+    String typeDefault = type;
+    return sha256.convert(utf8.encode(typeDefault + filters)).toString(); //key
   }
 
   Future<void> changeNotifyField(String type, String filters, bool notify) async {
@@ -227,12 +243,11 @@ class _CarouselCardState extends State<CarouselCard> {
     final token = prefs.getString("access_token");
     final firebaseApp = Firebase.app();
     final dbInstance = FirebaseDatabase.instanceFor(app: firebaseApp, databaseURL: 'https://itchioclientapp-default-rtdb.europe-west1.firebasedatabase.app');
-    String typeDefault = type;
-    String key = sha256.convert(utf8.encode(typeDefault + filters)).toString();
+    String key = _generateTopicHash(type, filters);
     final DatabaseReference dbRef = dbInstance.ref('/user_search/${token!}/$key');
     await dbRef.update({
       "filters": filters,
-      "type": typeDefault,
+      "type": type,
       "notify": notify
     });
     String body = prefs.getString("saved_searches")!;
@@ -251,8 +266,7 @@ class _CarouselCardState extends State<CarouselCard> {
     final token = prefs.getString("access_token");
     final firebaseApp = Firebase.app();
     final dbInstance = FirebaseDatabase.instanceFor(app: firebaseApp, databaseURL: 'https://itchioclientapp-default-rtdb.europe-west1.firebasedatabase.app');
-    String typeDefault = type;
-    String key = sha256.convert(utf8.encode(typeDefault + filters)).toString();
+    String key = _generateTopicHash(type, filters);
     final DatabaseReference dbRef = dbInstance.ref('/user_search/${token!}/$key');
     await dbRef.remove();
     String body = prefs.getString("saved_searches")!;

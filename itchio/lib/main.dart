@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'firebase_options.dart';
-import 'services/oauth_service.dart';
 import 'services/notification_service.dart';
+import 'services/oauth_service.dart';
 import 'providers/page_provider.dart';
 import 'providers/theme_notifier.dart';
 import 'providers/favorite_provider.dart';
@@ -18,8 +17,6 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterL
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await NotificationService.setupNotifications(flutterLocalNotificationsPlugin);
-
   runApp(ProviderApp());
 }
 
@@ -30,11 +27,13 @@ class ProviderApp extends StatefulWidget {
 
 class _ProviderAppState extends State<ProviderApp> {
   final OAuthService _oauthService = OAuthService();
+  final NotificationService _notificationService = NotificationService(flutterLocalNotificationsPlugin);
 
   @override
   void initState() {
     super.initState();
     _oauthService.init();
+    _notificationService.setupNotifications();
   }
 
   @override
@@ -61,6 +60,9 @@ class _ProviderAppState extends State<ProviderApp> {
         ),
         ChangeNotifierProvider<SearchBookmarkProvider>(
           create: (_) => SearchBookmarkProvider(),
+        ),
+        Provider<NotificationService>(
+          create: (_) => _notificationService,
         ),
       ],
       child: MyApp(),
