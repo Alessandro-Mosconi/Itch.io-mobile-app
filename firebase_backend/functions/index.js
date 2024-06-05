@@ -4,106 +4,86 @@ const fetch = require('node-fetch');
 const cheerio = require('cheerio');
 const RSSParser = require('rss-parser');
 const axios = require('axios');
+const { topic } = require('firebase-functions/v1/pubsub');
 
 admin.initializeApp();
+const db = admin.database();
 
-exports.fetchRSSFeedAndNotify = functions.https.onRequest(async (request, response) => {
-    const rssParser = new RSSParser();
-    const rssUrl = 'https://itch.io/games/free.xml';
+exports.notifyFeed = functions.pubsub.schedule('every 2 hours').onRun(async (context) => {
+    // Retrieve the list of topics to notify
+    const topicsToNotify = await getTopics();
 
-    try {
-        const res = await fetch(rssUrl);
-        const xml = await res.text();
-        const feed = await rssParser.parseString(xml);
-
-        console.log('Fetched RSS Feed:', JSON.stringify(feed, null, 2));
-
-        if (feed.items.length > 0) {
-            const latestItem = feed.items[0]; // Assuming the first item is the latest
-            console.log('Latest News Title:', latestItem.title);
-
-            // Prepare and send a notification about the latest item
-            const message = {
-                notification: {
-                    title: 'New Game Alert!',
-                    body: `${latestItem.title} is now available on itch.io!`
-                },
-                topic: 'new-games'
-            };
-
-            await admin.messaging().send(message);
-            console.log('Notification sent for:', latestItem.title);
+    for (const topic of topicsToNotify) {
+        const newItems = await getNewItems(topic);
+        if (newItems.length > 0) {
+            await send_notification(newItems.title, topic.key, topic.type, newItems.items.length)
         }
-
-        response.json(feed);
-    } catch (error) {
-        console.error("Error fetching RSS feed or sending notification:", error);
-        response.status(500).send('Failed to fetch RSS feed or send notification');
     }
 });
 
-exports.countTopicSubscribers = functions.https.onRequest(async (req, res) => {
-    const subscriptionsSnapshot = await admin.firestore().collection('subscriptions').get();
-    const topicCounts = {};
+async function getTopics() {
+    const userSearchRef = db.ref('user_search');
+    const userSearchSnapshot = await userSearchRef.once('value');
+    const result = [];
   
-    subscriptionsSnapshot.forEach(doc => {
-      const topics = doc.data().topics || [];
-      topics.forEach(topic => {
-        if (!topicCounts[topic]) {
-          topicCounts[topic] = 0;
+    userSearchSnapshot.forEach(userSnapshot => {
+      userSnapshot.forEach(searchSnapshot => {
+        const searchData = searchSnapshot.val();
+        if (searchData.notify === true) {
+          result.push({
+            key: searchSnapshot.key,
+            type: searchData.type,
+            filters: searchData.filters,
+          });
         }
-        topicCounts[topic]++;
       });
     });
   
-    // Save the topic counts in Firestore
-    await admin.firestore().collection('topicCounts').doc('counts').set(topicCounts);
-  
-    res.json(topicCounts);
-  });
-  
+    return result;
+}
 
-  exports.cleanupEmptyTopics = functions.pubsub.schedule('every 24 hours').onRun(async (context) => {
-    // Retrieve the previously saved topic counts from Firestore
-    const previousCountsDoc = await admin.firestore().collection('topicCounts').doc('previousCounts').get();
-    const previousTopicCounts = previousCountsDoc.exists ? previousCountsDoc.data() : {};
-  
-    // Call countTopicSubscribers function
-    const countTopicSubscribersCallable = admin.functions().httpsCallable('countTopicSubscribers');
-    const countTopicSubscribersResult = await countTopicSubscribersCallable();
-    const newTopicCounts = countTopicSubscribersResult.data;
-  
-    // Find topics that have gone from non-zero to zero counts
-    const emptyTopics = [];
-    for (const topic in previousTopicCounts) {
-      if (previousTopicCounts[topic] > 0 && (!newTopicCounts[topic] || newTopicCounts[topic] === 0)) {
-        emptyTopics.push(topic);
-      }
+
+async function getNewItems(topic) {
+    // Get old items from the database (if there are any)
+    const oldItemsSnapshot = await db.ref(`searches/${topic.key}`).once('value');
+    const oldItems = oldItemsSnapshot.exists() ? oldItemsSnapshot.val() : [];
+
+    // Fetch new items (simulating this as the getSearchResult function is not defined here)
+    const newSearch = await getSearchResult(topic.type, topic.filters);
+    if (newSearch.type === 'error') {
+        return [];
     }
-  
-    console.log('Empty topics:', emptyTopics);
-  
-    // Remove empty topics from Firestore
-    const batch = admin.firestore().batch();
-    for (const topic of emptyTopics) {
-      const topicDocRef = admin.firestore().collection('subscriptions').where('topics', 'array-contains', topic);
-      const topicDocSnapshot = await topicDocRef.get();
-      topicDocSnapshot.forEach(doc => {
-        batch.update(doc.ref, {
-          'topics': admin.firestore.FieldValue.arrayRemove(topic)
-        });
-      });
+
+    const newItems = newSearch.items || [];
+
+    // Create a set of URLs from old items for fast lookup
+    const oldItemUrls = new Set(oldItems.map(item => item.url));
+
+    // Find differences between old and new items based on the URL field
+    const newUniqueItems = newItems.filter(item => !oldItemUrls.has(item.url));
+
+    // Update the database with the new items
+    await db.ref(`searches/${topic.key}`).set(newItems);
+
+    // Return the new unique items
+    return { 
+        "items": newUniqueItems,
+        "title": newSearch.title
+    };
+}
+
+
+async function send_notification(title,topicName,type,counts){
+    // Prepare and send a notification about the latest item
+    const message = {
+            notification: {
+                title: title + "Alert!",
+                body: counts + " " + type
+            },
+            topic: topicName
     }
-    await batch.commit();
-  
-    // Save the new counts as the previous counts for the next run
-    await admin.firestore().collection('topicCounts').doc('previousCounts').set(newTopicCounts);
-  
-    return null;
-  });
-  
-
-
+    await admin.messaging().send(message);
+}
 
 
 exports.item_list = functions.https.onRequest(async (request, response) => {
@@ -262,7 +242,6 @@ exports.get_saved_search_carousel = functions.https.onRequest(async (request, re
         return;
     }
 
-    const db = admin.database();
     const dataSnapshot = await db.ref('user_search/' + token).once('value');
 
     if (!dataSnapshot.exists()) {

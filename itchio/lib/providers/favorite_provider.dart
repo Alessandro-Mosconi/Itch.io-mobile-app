@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../helperClasses/Game.dart';
-import 'package:http/http.dart' as http;
 
 import '../helperClasses/Jam.dart';
 
