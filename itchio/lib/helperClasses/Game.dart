@@ -60,7 +60,7 @@ class Game {
     still_cover_url = data['still_cover_url'];
     user = data['user'] != null ? User(data['user']) : null;
     description = data['description'];
-    imageurl = data['imageurl'];
+    imageurl = data['imageurl']??data['cover_url'];
     author = data['author'];
     currency = data['currency'];
 

@@ -27,7 +27,6 @@ class PurchaseGame {
   // Not in the interface, since this is a constructor.
   purchaseFromJson(String jsonGame){
     var data = json.decode(jsonGame);
-
     PurchaseGame(data);
   }
 
@@ -39,6 +38,7 @@ class PurchaseGame {
     id = data['id'];
     download = data['download'];
     game = Game(data['game']);
+    logger.i(data['game']);
   }
 
 }
