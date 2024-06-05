@@ -35,7 +35,7 @@ class MyBottomNavigationBar extends StatelessWidget {
       ],
       currentIndex: currentIndex,
       selectedItemColor: colorScheme.primary,
-      unselectedItemColor: colorScheme.secondary,
+      unselectedItemColor: colorScheme.onBackground,
       onTap: onTap,
     );
   }
