@@ -50,7 +50,7 @@ class _CarouselCardState extends State<CarouselCard> {
       child: Dismissible(
         key: Key(widget.title),
         direction: DismissDirection.horizontal,
-        confirmDismiss: (direction) => _confirmDismiss(direction, context),
+        confirmDismiss: (direction) => _confirmDismiss(direction, context) ,
         background: _buildDismissBackground(Alignment.centerLeft, Colors.blue, Icons.search),
         secondaryBackground: _buildDismissBackground(Alignment.centerRight, Colors.red, Icons.delete),
         child: _buildCardContent(context),
@@ -175,16 +175,23 @@ class _CarouselCardState extends State<CarouselCard> {
   Future<bool> _confirmDismiss(DismissDirection direction, BuildContext context) async {
     if (direction == DismissDirection.endToStart) {
       return await _showConfirmDialog(
-          context, "Confirm Deletion", "Are you sure you want to delete this saved search?") ??
+          context, "Confirm Deletion", "Are you sure you want to delete this saved search?",
+          deleteSavedSearch) ??
           false;
     } else {
       return await _showConfirmDialog(
-          context, "Confirm Search", "Are you sure you want to perform this search?") ??
+          context, "Confirm Search", "Are you sure you want to perform this search?",_handleConfirm) ??
           false;
     }
   }
 
-  Future<bool?> _showConfirmDialog(BuildContext context, String title, String content) {
+  Future<void> _handleConfirm() async {
+    // Simulate a network request or any other async operation
+    await Future.delayed(Duration(seconds: 2));
+    print("Confirmed!");
+  }
+
+  Future<bool?> _showConfirmDialog(BuildContext context, String title, String content, Future<void> Function() onConfirm) {
     return showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -197,7 +204,10 @@ class _CarouselCardState extends State<CarouselCard> {
               child: Text("Cancel"),
             ),
             ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(true),
+              onPressed: () async {
+                await onConfirm();
+                Navigator.of(context).pop(true);
+              },
               child: Text("Confirm"),
             ),
           ],
@@ -205,6 +215,9 @@ class _CarouselCardState extends State<CarouselCard> {
       },
     );
   }
+
+
+
 
   Widget _buildDismissBackground(Alignment alignment, Color color, IconData icon) {
     return Container(
@@ -261,21 +274,40 @@ class _CarouselCardState extends State<CarouselCard> {
     prefs.setString("saved_searches", json.encode(results));
   }
 
-  Future<void> deleteSavedSearch(String type, String filters) async {
+  Future<void> deleteSavedSearch() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString("access_token");
     final firebaseApp = Firebase.app();
     final dbInstance = FirebaseDatabase.instanceFor(app: firebaseApp, databaseURL: 'https://itchioclientapp-default-rtdb.europe-west1.firebasedatabase.app');
-    String key = _generateTopicHash(type, filters);
+    String key = _generateTopicHash(widget.title, widget.subtitle);
     final DatabaseReference dbRef = dbInstance.ref('/user_search/${token!}/$key');
     await dbRef.remove();
     String body = prefs.getString("saved_searches")!;
     List<dynamic> results = json.decode(body);
     results.removeWhere((r) {
-      return r['type'] == type && r['filters'] == filters;
+      return r['type'] == widget.title && r['filters'] == widget.subtitle;
     });
     prefs.setString("saved_searches", json.encode(results));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Search saved successfully')),
+    );
   }
+
+  /*
+  Future<void> goToSearch() async {
+    Navigator.of(context).pop(false);
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SearchPage(
+          initialTab: widget.title,
+          initialFilters: widget.subtitle,
+        ),
+      ),
+    );
+  }
+
+   */
 
   String _kebabToCapitalized(String kebab) {
     List<String> words = kebab.split('-');
