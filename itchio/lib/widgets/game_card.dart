@@ -39,7 +39,7 @@ class GameCard extends StatelessWidget {
         ),
         elevation: 8,
         shadowColor: Colors.grey.withOpacity(0.5),
-        color: Colors.white,  // Change this line to make the background white
+        color: theme.canvasColor,  // Change this line to make the background white
         child: Padding(
           padding: EdgeInsets.all(20),
           child: Column(

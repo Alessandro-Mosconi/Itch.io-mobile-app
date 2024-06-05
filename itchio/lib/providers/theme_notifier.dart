@@ -60,13 +60,13 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
           brightness: Brightness.light,
           primaryColor: Colors.black,
           secondaryHeaderColor: Colors.white,
-          backgroundColor: Colors.black,
+          backgroundColor: Colors.white,
           scaffoldBackgroundColor: Colors.white,
           cardColor: Colors.black,
           textTheme: TextTheme(
-            bodyText1: TextStyle(color: Colors.white),
-            bodyText2: TextStyle(color: Colors.white),
-            headline6: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            bodyText1: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+            bodyText2: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+            headline6: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
           ),
         );
       default:
@@ -103,7 +103,7 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
           brightness: Brightness.dark,
           primaryColor: Colors.blueGrey,
           secondaryHeaderColor: Colors.deepPurple,
-          backgroundColor: Colors.blueGrey[500],
+          backgroundColor: Colors.blueGrey[900],
           scaffoldBackgroundColor: Colors.blueGrey[900],
           cardColor: Colors.blueGrey[800],
           textTheme: TextTheme(
@@ -121,8 +121,8 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
           scaffoldBackgroundColor: Colors.black,
           cardColor: Colors.black,
           textTheme: TextTheme(
-            bodyText1: TextStyle(color: Colors.white),
-            bodyText2: TextStyle(color: Colors.white),
+            bodyText1: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            bodyText2: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             headline6: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
         );

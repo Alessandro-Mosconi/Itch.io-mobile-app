@@ -15,19 +15,25 @@ class JamCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return GestureDetector(
       onTap: () => _navigateToJam(context, jam),
       child: Card(
-        margin: EdgeInsets.all(8.0),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
-        elevation: 5,
+        margin: EdgeInsets.all(15),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        elevation: 8,
+        shadowColor: Colors.grey.withOpacity(0.5),
+        color: theme.canvasColor,
         child: Stack(
           children: [
             Column(
               children: [
                 ListTile(
-                  contentPadding: EdgeInsets.all(16.0),
-                  title: Text(jam.title ?? '', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                  contentPadding: EdgeInsets.all(20),
+                  title: Text(jam.title ?? '', style: theme.textTheme.headline5),
                   subtitle: JamInfo(jam: jam, isTablet: isTablet),
                 ),
               ],
@@ -37,7 +43,7 @@ class JamCard extends StatelessWidget {
                 top: 10,
                 right: 10,
                 child: IconButton(
-                  icon: Icon(Icons.calendar_today),
+                  icon: Icon(Icons.calendar_today, color: theme.iconTheme.color),
                   onPressed: () => _addToCalendar(context, jam),
                 ),
               ),
@@ -56,7 +62,7 @@ class JamCard extends StatelessWidget {
   }
 
   Event _createEvent(Jam jam, String result) {
-    String eventTitle = jam.title ?? 'Jam senza titolo';
+    String eventTitle = jam.title ?? 'Untitled Jam';
     DateTime startDate;
     DateTime endDate;
 
@@ -91,10 +97,11 @@ class JamCard extends StatelessWidget {
   }
 
   AlertDialog _buildEventOptionDialog(BuildContext context, Jam jam) {
+    final theme = Theme.of(context);
     return AlertDialog(
       title: Text(
         "Choose the event to save",
-        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+        style: theme.textTheme.headline6,
       ),
       content: _buildEventOptionContent(context, jam),
       actions: [_buildCancelButton(context)],
@@ -102,6 +109,7 @@ class JamCard extends StatelessWidget {
   }
 
   Column _buildEventOptionContent(BuildContext context, Jam jam) {
+    final theme = Theme.of(context);
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -110,7 +118,7 @@ class JamCard extends StatelessWidget {
           _buildEventOptionButton(
             context,
             'duration',
-            Colors.green,
+            theme.primaryColor,
             "Jam duration:\n${_formatDate(jam.startDate)}\n${_formatDate(jam.endDate)}",
           ),
         SizedBox(height: 16),
@@ -118,7 +126,7 @@ class JamCard extends StatelessWidget {
           _buildEventOptionButton(
             context,
             'votingEndDate',
-            Colors.blue,
+            theme.colorScheme.secondary,
             "Voting end:\n${_formatDate(jam.votingEndDate)}",
           ),
       ],
@@ -154,13 +162,14 @@ class JamCard extends StatelessWidget {
   }
 
   TextButton _buildCancelButton(BuildContext context) {
+    final theme = Theme.of(context);
     return TextButton(
       onPressed: () {
         Navigator.pop(context, '');
       },
       child: Text(
         "Cancel",
-        style: TextStyle(fontSize: 16, color: Colors.black),
+        style: theme.textTheme.button,
       ),
     );
   }
@@ -186,6 +195,7 @@ class JamInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return LayoutBuilder(
       builder: (context, constraints) {
         return Padding(
@@ -193,21 +203,31 @@ class JamInfo extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (isTablet) _buildTabletLayout(
+              if (isTablet)
+                _buildTabletLayout(
                   context,
-                  _buildInfoRow(Icons.date_range, 'Start:', jam.startDate, Colors.green),
-                  _buildInfoRow(Icons.event, 'End:', jam.endDate, Colors.red)) else _buildPhoneLayout(
+                  _buildInfoRow(Icons.date_range, 'Start:', jam.startDate, theme.primaryColor),
+                  _buildInfoRow(Icons.event, 'End:', jam.endDate, theme.errorColor),
+                )
+              else
+                _buildPhoneLayout(
                   context,
-                  _buildInfoRow(Icons.date_range, 'Start:', jam.startDate, Colors.green),
-                  _buildInfoRow(Icons.event, 'End:', jam.endDate, Colors.red)),
+                  _buildInfoRow(Icons.date_range, 'Start:', jam.startDate, theme.primaryColor),
+                  _buildInfoRow(Icons.event, 'End:', jam.endDate, theme.errorColor),
+                ),
               SizedBox(height: 5),
-              if (isTablet) _buildTabletLayout(context,
-                _buildInfoRow(Icons.how_to_vote, 'Voting Ends:', jam.votingEndDate, Colors.blue),
-                _buildInfoRow(Icons.people, 'Participants:', jam.joined.toString(), Colors.orange)
-              ) else _buildPhoneLayout(context,
-                _buildInfoRow(Icons.how_to_vote, 'Voting Ends:', jam.votingEndDate, Colors.blue),
-                _buildInfoRow(Icons.people, 'Participants:', jam.joined.toString(), Colors.orange),
-              ),
+              if (isTablet)
+                _buildTabletLayout(
+                  context,
+                  _buildInfoRow(Icons.how_to_vote, 'Voting Ends:', jam.votingEndDate, theme.colorScheme.secondary),
+                  _buildInfoRow(Icons.people, 'Participants:', jam.joined.toString(), theme.colorScheme.primary),
+                )
+              else
+                _buildPhoneLayout(
+                  context,
+                  _buildInfoRow(Icons.how_to_vote, 'Voting Ends:', jam.votingEndDate, theme.colorScheme.secondary),
+                  _buildInfoRow(Icons.people, 'Participants:', jam.joined.toString(), theme.colorScheme.primary),
+                ),
             ],
           ),
         );
@@ -215,7 +235,7 @@ class JamInfo extends StatelessWidget {
     );
   }
 
-  Widget _buildPhoneLayout(BuildContext context, Widget infoRow1 , Widget infoRow2) {
+  Widget _buildPhoneLayout(BuildContext context, Widget infoRow1, Widget infoRow2) {
     return Column(
       children: [
         infoRow1,
@@ -225,7 +245,7 @@ class JamInfo extends StatelessWidget {
     );
   }
 
-  Widget _buildTabletLayout(BuildContext context, Widget infoRow1 , Widget infoRow2) {
+  Widget _buildTabletLayout(BuildContext context, Widget infoRow1, Widget infoRow2) {
     return Row(
       children: [
         Expanded(child: infoRow1),

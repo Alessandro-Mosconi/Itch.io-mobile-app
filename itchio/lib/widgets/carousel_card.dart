@@ -96,7 +96,6 @@ class _CarouselCardState extends State<CarouselCard> {
         direction: DismissDirection.horizontal,
         confirmDismiss: (direction) => _confirmDismiss(direction, context),
         background: _buildDismissBackground(Alignment.centerLeft, theme.primaryColor, Icons.search),
-        secondaryBackground: _buildDismissBackground(Alignment.centerRight, Colors.red, Icons.delete),
         child: _buildCardContent(context),
       ),
     );
