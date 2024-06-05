@@ -41,7 +41,12 @@ class _FavoritePageState extends State<FavoritePage> with SingleTickerProviderSt
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: CustomAppBar(),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          elevation: 0,
+          title: CustomAppBar(
+            leading: null, // If you have a leading widget, set it here
+            actions: [], // If you have actions, set them here
+          ),
           bottom: TabBar(
             controller: _tabController,
             tabs: [
@@ -73,7 +78,7 @@ class _FavoritePageState extends State<FavoritePage> with SingleTickerProviderSt
 
   GridView _buildGameGrid(List<Game> games, BuildContext context) {
     double aspectRatio = _getChildAspectRatio(context);
-    int crossAxisCount = MediaQuery.of(context).size.width > 600 ? 3 : 1; //# columns
+    int crossAxisCount = MediaQuery.of(context).size.width > 600 ? 3 : 1;
 
     return GridView.builder(
       padding: EdgeInsets.all(8),
@@ -92,7 +97,7 @@ class _FavoritePageState extends State<FavoritePage> with SingleTickerProviderSt
 
   GridView _buildJamGrid(List<Jam> jams, BuildContext context) {
     double aspectRatio = _getChildAspectRatio(context);
-    int crossAxisCount = MediaQuery.of(context).size.width > 600 ? 3 : 1; //# columns
+    int crossAxisCount = MediaQuery.of(context).size.width > 600 ? 3 : 1;
 
     return GridView.builder(
       padding: EdgeInsets.all(8),
@@ -106,7 +111,7 @@ class _FavoritePageState extends State<FavoritePage> with SingleTickerProviderSt
       itemBuilder: (context, index) {
         return JamCard(
           jam: jams[index],
-          isTablet: false
+          isTablet: false,
         );
       },
     );
