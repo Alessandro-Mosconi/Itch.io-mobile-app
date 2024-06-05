@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'package:crypto/crypto.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -32,27 +34,68 @@ class CarouselCard extends StatefulWidget {
 
 class _CarouselCardState extends State<CarouselCard> {
   bool isNotificationEnabled = false;
+  late ScrollController _scrollController;
+  late Timer _scrollTimer;
+  final Random _random = Random();
 
   @override
   void initState() {
     super.initState();
     isNotificationEnabled = widget.notify;
+    _scrollController = ScrollController();
+    _startAutoScroll();
+  }
+
+  @override
+  void dispose() {
+    _scrollTimer.cancel();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _startAutoScroll() {
+    _scrollTimer = Timer.periodic(Duration(seconds: 4), (timer) async {
+      if (_scrollController.hasClients) {
+        final maxScroll = _scrollController.position.maxScrollExtent;
+        final currentScroll = _scrollController.offset;
+        final delta = 200.0; // Adjust the scroll amount as needed
+
+        if (currentScroll + delta >= maxScroll) {
+          await _scrollController.animateTo(
+            0.0,
+            duration: Duration(seconds: 3),
+            curve: Curves.easeInOut,
+          );
+        } else {
+          await _scrollController.animateTo(
+            currentScroll + delta,
+            duration: Duration(seconds: 3),
+            curve: Curves.easeInOut,
+          );
+        }
+
+        // Introduce a random delay between 1 and 5 seconds
+        final randomDelay = Duration(seconds: _random.nextInt(5) + 1);
+        await Future.delayed(randomDelay);
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Card(
       margin: EdgeInsets.all(15),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
-      elevation: 5,
-      shadowColor: Colors.grey.withOpacity(0.2),
+      elevation: 8,
+      shadowColor: Colors.grey.withOpacity(0.5),
       child: Dismissible(
         key: Key(widget.title),
         direction: DismissDirection.horizontal,
-        confirmDismiss: (direction) => _confirmDismiss(direction, context) ,
-        background: _buildDismissBackground(Alignment.centerLeft, Colors.blue, Icons.search),
+        confirmDismiss: (direction) => _confirmDismiss(direction, context),
+        background: _buildDismissBackground(Alignment.centerLeft, theme.primaryColor, Icons.search),
         secondaryBackground: _buildDismissBackground(Alignment.centerRight, Colors.red, Icons.delete),
         child: _buildCardContent(context),
       ),
@@ -60,13 +103,14 @@ class _CarouselCardState extends State<CarouselCard> {
   }
 
   Widget _buildCardContent(BuildContext context) {
+    final theme = Theme.of(context);
     return Padding(
-      padding: EdgeInsets.all(15),
+      padding: EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildCardHeader(context),
-          SizedBox(height: 10),
+          SizedBox(height: 20),
           _buildGameList(),
         ],
       ),
@@ -74,6 +118,7 @@ class _CarouselCardState extends State<CarouselCard> {
   }
 
   Padding _buildCardHeader(BuildContext context) {
+    final theme = Theme.of(context);
     return Padding(
       padding: EdgeInsets.only(bottom: 8.0),
       child: Row(
@@ -85,19 +130,12 @@ class _CarouselCardState extends State<CarouselCard> {
               children: [
                 Text(
                   _kebabToCapitalized(widget.title),
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
+                  style: theme.textTheme.headline5,
                 ),
                 SizedBox(height: 4),
                 Text(
                   widget.subtitle,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                  ),
+                  style: theme.textTheme.bodyText2,
                 ),
               ],
             ),
@@ -107,7 +145,7 @@ class _CarouselCardState extends State<CarouselCard> {
               isNotificationEnabled
                   ? Icons.notifications_active
                   : Icons.notifications_none,
-              color: isNotificationEnabled ? Colors.amber : Colors.grey,
+              color: isNotificationEnabled ? theme.primaryColor : theme.iconTheme.color,
             ),
             onPressed: () => _toggleNotification(widget.title, widget.subtitle),
           ),
@@ -118,8 +156,9 @@ class _CarouselCardState extends State<CarouselCard> {
 
   SizedBox _buildGameList() {
     return SizedBox(
-      height: 200,
+      height: 250,
       child: ListView.builder(
+        controller: _scrollController,
         scrollDirection: Axis.horizontal,
         itemCount: widget.items.length,
         itemBuilder: (context, index) {
@@ -131,6 +170,7 @@ class _CarouselCardState extends State<CarouselCard> {
   }
 
   GestureDetector _buildGameItem(BuildContext context, Game game) {
+    final theme = Theme.of(context);
     return GestureDetector(
       onTap: () {
         if (game.url != null && game.url!.isNotEmpty) {
@@ -142,8 +182,8 @@ class _CarouselCardState extends State<CarouselCard> {
         }
       },
       child: Container(
-        width: 160,
-        margin: EdgeInsets.symmetric(horizontal: 8),
+        width: 250,
+        margin: EdgeInsets.symmetric(horizontal: 5), //between items
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -152,8 +192,8 @@ class _CarouselCardState extends State<CarouselCard> {
               child: Image.network(
                 game.imageurl ?? '',
                 fit: BoxFit.cover,
-                width: 160,
-                height: 140,
+                width: 250,
+                height: 200,
               ),
             ),
             SizedBox(height: 8),
@@ -161,11 +201,7 @@ class _CarouselCardState extends State<CarouselCard> {
               game.title ?? '',
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-              ),
+              style: theme.textTheme.bodyText1,
             ),
           ],
         ),
@@ -181,15 +217,9 @@ class _CarouselCardState extends State<CarouselCard> {
           false;
     } else {
       return await _showConfirmDialog(
-          context, "Confirm Search", "Are you sure you want to perform this search?",_goToSearch) ??
+          context, "Confirm Search", "Are you sure you want to perform this search?", _goToSearch) ??
           false;
     }
-  }
-
-  Future<void> _handleConfirm() async {
-    // Simulate a network request or any other async operation
-    await Future.delayed(Duration(seconds: 2));
-    print("Confirmed!");
   }
 
   Future<bool?> _showConfirmDialog(BuildContext context, String title, String content, Future<void> Function() onConfirm) {
@@ -217,9 +247,6 @@ class _CarouselCardState extends State<CarouselCard> {
     );
   }
 
-
-
-
   Widget _buildDismissBackground(Alignment alignment, Color color, IconData icon) {
     return Container(
       alignment: alignment,
@@ -245,11 +272,9 @@ class _CarouselCardState extends State<CarouselCard> {
     });
   }
 
-
-
   String _generateTopicHash(String type, String filters) {
     String typeDefault = type;
-    return sha256.convert(utf8.encode(typeDefault + filters)).toString(); //key
+    return sha256.convert(utf8.encode(typeDefault + filters)).toString(); // key
   }
 
   Future<void> changeNotifyField(String type, String filters, bool notify) async {
@@ -290,10 +315,9 @@ class _CarouselCardState extends State<CarouselCard> {
     });
     prefs.setString("saved_searches", json.encode(results));
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Search saved successfully')),
+      SnackBar(content: Text('Search deleted successfully')),
     );
   }
-
 
   Future<void> _goToSearch() async {
     Navigator.of(context).pop(false);
@@ -308,3 +332,4 @@ class _CarouselCardState extends State<CarouselCard> {
     }).join(' ');
   }
 }
+

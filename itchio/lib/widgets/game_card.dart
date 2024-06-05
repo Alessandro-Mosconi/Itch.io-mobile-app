@@ -14,6 +14,7 @@ class GameCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth >= 600;
 
@@ -33,6 +34,7 @@ class GameCard extends StatelessWidget {
       },
       child: Card(
         margin: EdgeInsets.all(8),
+        color: theme.cardColor,
         child: Padding(
           padding: EdgeInsets.all(8),
           child: SingleChildScrollView(
@@ -50,14 +52,14 @@ class GameCard extends StatelessWidget {
                 SizedBox(height: 8),
                 Text(
                   game.title ?? "Default Title",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: theme.textTheme.headline6,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 SizedBox(height: 8),
                 Text(
                   game.getCleanDescription() ?? "No description",
-                  style: TextStyle(fontSize: 14),
+                  style: theme.textTheme.bodyText2,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -65,13 +67,13 @@ class GameCard extends StatelessWidget {
                 Row(
                   children: [
                     if (game.p_windows ?? false)
-                      Icon(CustomIcon.windows, size: 16, color: Colors.grey),
+                      Icon(CustomIcon.windows, size: 16, color: theme.iconTheme.color),
                     if (game.p_osx ?? false)
-                      Icon(Icons.apple, size: 24, color: Colors.grey),
+                      Icon(Icons.apple, size: 24, color: theme.iconTheme.color),
                     if (game.p_linux ?? false)
-                      Icon(CustomIcon.linux, size: 16, color: Colors.grey),
+                      Icon(CustomIcon.linux, size: 16, color: theme.iconTheme.color),
                     if (game.p_android ?? false)
-                      Icon(Icons.android, size: 24, color: Colors.grey),
+                      Icon(Icons.android, size: 24, color: theme.iconTheme.color),
                   ],
                 ),
               ],

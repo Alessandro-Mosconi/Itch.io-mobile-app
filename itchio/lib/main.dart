@@ -77,23 +77,9 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       title: 'Itch.io',
-      theme: ThemeData(
-        brightness: Brightness.light,
-        colorScheme: ColorScheme.light(
-          primary: Colors.black,
-          onPrimary: Colors.white,
-          secondary: Colors.grey,
-        ),
-      ),
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        colorScheme: ColorScheme.dark(
-          primary: Colors.white,
-          onPrimary: Colors.black,
-          secondary: Colors.grey,
-        ),
-      ),
-      themeMode: themeNotifier.currentTheme,
+      theme: themeNotifier.getLightThemeData(themeNotifier.currentTheme),
+      darkTheme: themeNotifier.getDarkThemeData(themeNotifier.currentTheme),
+      themeMode: themeNotifier.themeMode,
       home: AuthOrHomePage(),
     );
   }

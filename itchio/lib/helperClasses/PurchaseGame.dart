@@ -38,7 +38,6 @@ class PurchaseGame {
     id = data['id'];
     download = data['download'];
     game = Game(data['game']);
-    logger.i(data['game']);
   }
 
 }

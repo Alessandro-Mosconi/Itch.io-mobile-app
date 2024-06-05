@@ -20,7 +20,6 @@ class SavedSearchList extends StatelessWidget {
           notify: search.notify ?? false,
           onUpdateSavedSearches: (bool hasChanges) {
             if (hasChanges) {
-              // Trigger a state update in the parent widget
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 content: Text("Saved searches updated"),
               ));
