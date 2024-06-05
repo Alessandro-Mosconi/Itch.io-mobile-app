@@ -45,122 +45,6 @@ class JamsPage extends StatelessWidget {
     }
   }
 
-  Future<String> _showEventOptionDialog(BuildContext context, Jam jam) async {
-    return showDialog<String>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return _buildEventOptionDialog(context, jam);
-      },
-    ).then((value) => value ?? '');
-  }
-
-  AlertDialog _buildEventOptionDialog(BuildContext context, Jam jam) {
-    return AlertDialog(
-      title: Text(
-        "Choose the event to save",
-        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
-      ),
-      content: _buildEventOptionContent(context, jam),
-      actions: [_buildCancelButton(context)],
-    );
-  }
-
-  Column _buildEventOptionContent(BuildContext context, Jam jam) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _buildEventOptionButton(
-          context,
-          'duration',
-          Colors.green,
-          "Jam duration:\n${_formatDate(jam.startDate)}\n${_formatDate(jam.endDate)}",
-        ),
-        SizedBox(height: 16),
-        _buildEventOptionButton(
-          context,
-          'votingEndDate',
-          Colors.blue,
-          "Voting end:\n${_formatDate(jam.votingEndDate)}",
-        ),
-      ],
-    );
-  }
-
-  String _formatDate(DateTime? date) {
-    return date != null ? DateFormat('dd/MM/yyyy HH:mm').format(date) : 'n/a';
-  }
-
-  ElevatedButton _buildEventOptionButton(BuildContext context, String eventType, Color color, String text) {
-    return ElevatedButton(
-      onPressed: () {
-        Navigator.pop(context, eventType);
-      },
-      style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all<Color>(color),
-        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-        ),
-      ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 16),
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 16, color: Colors.white),
-        ),
-      ),
-    );
-  }
-
-  TextButton _buildCancelButton(BuildContext context) {
-    return TextButton(
-      onPressed: () {
-        Navigator.pop(context, '');
-      },
-      child: Text(
-        "Cancel",
-        style: TextStyle(fontSize: 16, color: Colors.black),
-      ),
-    );
-  }
-
-  void _addToCalendar(BuildContext context, Jam jam) async {
-    final result = await _showEventOptionDialog(context, jam);
-    if (result.isEmpty) return;
-
-    Event event = _createEvent(jam, result);
-    Add2Calendar.addEvent2Cal(event);
-  }
-
-  Event _createEvent(Jam jam, String result) {
-    String eventTitle = jam.title ?? 'Jam senza titolo';
-    DateTime startDate;
-    DateTime endDate;
-
-    if (result == 'duration') {
-      startDate = jam.startDate ?? DateTime.now();
-      endDate = jam.endDate ?? DateTime.now().add(Duration(hours: 1));
-    } else {
-      eventTitle = "Ending vote $eventTitle";
-      startDate = jam.votingEndDate ?? DateTime.now();
-      endDate = jam.votingEndDate ?? DateTime.now();
-    }
-
-    return Event(
-      title: eventTitle,
-      description: 'Event description',
-      location: 'Event location',
-      startDate: startDate,
-      endDate: endDate,
-      iosParams: IOSParams(reminder: Duration(hours: 1)),
-      androidParams: AndroidParams(emailInvites: []),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -178,8 +62,6 @@ class JamsPage extends StatelessWidget {
                 if (constraints.maxWidth > 600) {
                   var orientation = MediaQuery.of(context).orientation;
                   bool isPortrait = orientation == Orientation.portrait;
-                  logger.i(isPortrait);
-
                   return _buildJamGrid(snapshot.data!, isPortrait);
                 } else {
                   // Phone layout: ListView
