@@ -28,8 +28,12 @@ async function notifyFeedCore() {
 
     for (const topic of topicsToNotify) {
         const newItems = await getNewItems(topic);
-        if (newItems.length > 0) {
+        if (newItems.items.length > 0) {
+            console.log("sono dentro")
             await send_notification(newItems.title, topic.key, topic.type, newItems.items.length)
+        }
+        else{
+            console.log("sono fuori")
         }
     }
 }
@@ -78,6 +82,7 @@ async function getNewItems(topic) {
     await db.ref(`searches/${topic.key}`).set(newItems.map(item => JSON.parse(JSON.stringify(item))));
     
     // Return the new unique items
+
     return { 
         "items": newUniqueItems,
         "title": newSearch.content.title
@@ -86,6 +91,7 @@ async function getNewItems(topic) {
 
 
 async function send_notification(title,topicName,type,counts){
+    console.log("mi preparo a mandare")
     // Prepare and send a notification about the latest item
     const message = {
             notification: {
