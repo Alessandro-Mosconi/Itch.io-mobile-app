@@ -95,8 +95,8 @@ async function send_notification(title,topicName,type,counts){
     // Prepare and send a notification about the latest item
     const message = {
             notification: {
-                title: title + "Alert!",
-                body: counts + " " + type
+                title: title + " Alert!",
+                body: "There are " + counts + " new " + type
             },
             topic: topicName
     }

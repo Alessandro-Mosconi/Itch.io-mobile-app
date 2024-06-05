@@ -11,8 +11,42 @@ import '../helperClasses/Jam.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/jam_card.dart';
 
-class JamsPage extends StatelessWidget {
+class JamsPage extends StatefulWidget {
+  @override
+  _JamsPageState createState() => _JamsPageState();
+}
+
+class _JamsPageState extends State<JamsPage> {
   final Logger logger = Logger(printer: PrettyPrinter());
+  TextEditingController _searchController = TextEditingController();
+  List<Jam> _allJams = [];
+  List<Jam> _filteredJams = [];
+  bool _isSearching = false;
+
+  // Filter variables
+  DateTime? _startDateAfterFilter;
+  DateTime? _startDateBeforeFilter;
+  DateTime? _endDateAfterFilter;
+  DateTime? _endDateBeforeFilter;
+  DateTime? _votingEndDateAfterFilter;
+  DateTime? _votingEndDateBeforeFilter;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchJams(false).then((jams) {
+      setState(() {
+        _allJams = jams;
+        _filteredJams = jams;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   Future<List<Jam>> fetchJams(bool? includeDetails) async {
     includeDetails ??= false;
@@ -45,35 +79,115 @@ class JamsPage extends StatelessWidget {
     }
   }
 
+  bool checkTimestamp(int? timestamp) {
+    if (timestamp == null) return false;
+    final cacheDuration = Duration(hours: 24);
+    final now = DateTime.now().millisecondsSinceEpoch;
+    return now - timestamp < cacheDuration.inMilliseconds;
+  }
+
+  void _applyFilters() {
+    setState(() {
+      _filteredJams = _allJams.where((jam) {
+        bool matchesSearch = jam.title!.toLowerCase().contains(_searchController.text.toLowerCase());
+        bool matchesStartDate = (_startDateAfterFilter == null || (jam.startDate != null && jam.startDate!.isAfter(_startDateAfterFilter!))) &&
+            (_startDateBeforeFilter == null || (jam.startDate != null && jam.startDate!.isBefore(_startDateBeforeFilter!)));
+        bool matchesEndDate = (_endDateAfterFilter == null || (jam.endDate != null && jam.endDate!.isAfter(_endDateAfterFilter!))) &&
+            (_endDateBeforeFilter == null || (jam.endDate != null && jam.endDate!.isBefore(_endDateBeforeFilter!)));
+        bool matchesVotingEndDate = (_votingEndDateAfterFilter == null || (jam.votingEndDate != null && jam.votingEndDate!.isAfter(_votingEndDateAfterFilter!))) &&
+            (_votingEndDateBeforeFilter == null || (jam.votingEndDate != null && jam.votingEndDate!.isBefore(_votingEndDateBeforeFilter!)));
+        return matchesSearch && matchesStartDate && matchesEndDate && matchesVotingEndDate;
+      }).toList();
+    });
+  }
+
+  Future<void> _selectDate(BuildContext context, ValueChanged<DateTime> onDateSelected) async {
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null) onDateSelected(picked);
+  }
+
+  void _clearFilters() {
+    setState(() {
+      _searchController.clear();
+      _startDateAfterFilter = null;
+      _startDateBeforeFilter = null;
+      _endDateAfterFilter = null;
+      _endDateBeforeFilter = null;
+      _votingEndDateAfterFilter = null;
+      _votingEndDateBeforeFilter = null;
+    });
+    _applyFilters();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(),
-      body: FutureBuilder<List<Jam>>(
-        future: fetchJams(false),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-            return LayoutBuilder(
-              builder: (context, constraints) {
-                if (constraints.maxWidth > 600) {
-                  var orientation = MediaQuery.of(context).orientation;
-                  bool isPortrait = orientation == Orientation.portrait;
-                  return _buildJamGrid(snapshot.data!, isPortrait);
-                } else {
-                  // Phone layout: ListView
-                  return _buildJamList(snapshot.data!);
-                }
-              },
-            );
-          } else {
-            return Center(child: Text('No jams found'));
-          }
-        },
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Search for jams...',
+                      suffixIcon: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.search),
+                            onPressed: _applyFilters,
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.clear),
+                            onPressed: _clearFilters,
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.filter_list),
+                            onPressed: () => _showFilterDialog(context),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: _isSearching
+                ? Center(child: CircularProgressIndicator())
+                : _buildJamListOrGrid(),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildJamListOrGrid() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (_filteredJams.isEmpty) {
+          return Center(child: Text('No jams found'));
+        }
+
+        if (constraints.maxWidth > 600) {
+          var orientation = MediaQuery.of(context).orientation;
+          bool isPortrait = orientation == Orientation.portrait;
+          return _buildJamGrid(_filteredJams, isPortrait);
+        } else {
+          // Phone layout: ListView
+          return _buildJamList(_filteredJams);
+        }
+      },
     );
   }
 
@@ -97,7 +211,7 @@ class JamsPage extends StatelessWidget {
         maxCrossAxisExtent: itemWidth,
         crossAxisSpacing: 8.0,
         mainAxisSpacing: 8.0,
-        childAspectRatio: 16/9
+        childAspectRatio: 16 / 9,
       ),
       itemCount: jams.length,
       itemBuilder: (context, index) {
@@ -106,10 +220,95 @@ class JamsPage extends StatelessWidget {
     );
   }
 
-  bool checkTimestamp(int? timestamp) {
-    if (timestamp == null) return false;
-    final cacheDuration = Duration(hours: 24);
-    final now = DateTime.now().millisecondsSinceEpoch;
-    return now - timestamp < cacheDuration.inMilliseconds;
+  void _showFilterDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Filter Jams'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: Text("Start Date After"),
+                trailing: IconButton(
+                  icon: Icon(Icons.calendar_today),
+                  onPressed: () => _selectDate(context, (date) {
+                    setState(() {
+                      _startDateAfterFilter = date;
+                      _applyFilters();
+                    });
+                  }),
+                ),
+              ),
+              ListTile(
+                title: Text("Start Date Before"),
+                trailing: IconButton(
+                  icon: Icon(Icons.calendar_today),
+                  onPressed: () => _selectDate(context, (date) {
+                    setState(() {
+                      _startDateBeforeFilter = date;
+                      _applyFilters();
+                    });
+                  }),
+                ),
+              ),
+              ListTile(
+                title: Text("End Date After"),
+                trailing: IconButton(
+                  icon: Icon(Icons.calendar_today),
+                  onPressed: () => _selectDate(context, (date) {
+                    setState(() {
+                      _endDateAfterFilter = date;
+                      _applyFilters();
+                    });
+                  }),
+                ),
+              ),
+              ListTile(
+                title: Text("End Date Before"),
+                trailing: IconButton(
+                  icon: Icon(Icons.calendar_today),
+                  onPressed: () => _selectDate(context, (date) {
+                    setState(() {
+                      _endDateBeforeFilter = date;
+                      _applyFilters();
+                    });
+                  }),
+                ),
+              ),
+              ListTile(
+                title: Text("Voting End Date After"),
+                trailing: IconButton(
+                  icon: Icon(Icons.calendar_today),
+                  onPressed: () => _selectDate(context, (date) {
+                    setState(() {
+                      _votingEndDateAfterFilter = date;
+                      _applyFilters();
+                    });
+                  }),
+                ),
+              ),
+              ListTile(
+                title: Text("Voting End Date Before"),
+                trailing: IconButton(
+                  icon: Icon(Icons.calendar_today),
+                  onPressed: () => _selectDate(context, (date) {
+                    setState(() {
+                      _votingEndDateBeforeFilter = date;
+                      _applyFilters();
+                    });
+                  }),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: _clearFilters,
+                child: Text('Clear Filters'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
