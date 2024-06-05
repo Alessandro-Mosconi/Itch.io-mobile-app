@@ -40,7 +40,7 @@ class GameCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Container(
-                  height: isTablet ? 150 : 100,
+                  height: isTablet ? 300 : 200,
                   width: double.infinity,
                   child: Image.network(
                     game.imageurl ?? "https://via.placeholder.com/150",

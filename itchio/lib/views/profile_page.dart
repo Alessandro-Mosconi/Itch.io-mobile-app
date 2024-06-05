@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'dart:math';
 import '../helperClasses/User.dart';
 import '../helperClasses/Game.dart';
 import '../helperClasses/PurchaseGame.dart';
@@ -82,6 +83,13 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
     }
   }
 
+  bool isTablet(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final diagonal = sqrt((size.width * size.width) + (size.height * size.height));
+    final isTablet = diagonal > 1100.0; // Adjust this value based on your definition of a tablet
+    return isTablet;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -135,6 +143,65 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
         SizedBox(height: 20),
         buildUserTags(user),
         SizedBox(height: 20),
+        Expanded(
+          child: isTablet(context) ? buildTabletLayout() : buildTabLayout(),
+        ),
+      ],
+    );
+  }
+
+  Widget buildTabletLayout() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0), // Adjust the padding as needed
+      child: Row(
+        children: [
+          Expanded(
+            flex: 1,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: Column(
+                children: [
+                  Center(
+                    child: Text(
+                      'Developed Games',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  SizedBox(height: 10), // Space between title and content
+                  Expanded(child: buildGamesSection(developedGames)),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(width: 40), // Increase the gap between the columns
+          Expanded(
+            flex: 1,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: Column(
+                children: [
+                  Center(
+                    child: Text(
+                      'Purchased Games',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  SizedBox(height: 10), // Space between title and content
+                  Expanded(child: buildPurchasedGamesSection(purchasedGames)),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+
+  Widget buildTabLayout() {
+    return Column(
+      children: [
         TabBar(
           controller: _tabController,
           tabs: [
@@ -208,23 +275,23 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
 
   Widget buildGamesSection(Future<List<Game>>? gamesFuture) {
     return FutureBuilder<List<Game>>(
-      future: gamesFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text("Error: ${snapshot.error}"));
-        } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-          return ListView.builder(
-            itemCount: snapshot.data!.length,
-            itemBuilder: (context, index) {
-              return DevelopedGameCard(game: snapshot.data![index]);
-            },
-          );
-        } else {
-          return Center(child: Text("No games found"));
-        }
-      },
+        future: gamesFuture,
+        builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return Center(child: CircularProgressIndicator());
+      } else if (snapshot.hasError) {
+        return Center(child: Text("Error: ${snapshot.error}"));
+      } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+        return ListView.builder(
+          itemCount: snapshot.data!.length,
+          itemBuilder: (context, index) {
+            return DevelopedGameCard(game: snapshot.data![index]);
+          },
+        );
+      } else {
+        return Center(child: Text("No games found"));
+      }
+        },
     );
   }
 
@@ -253,3 +320,4 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
     );
   }
 }
+
