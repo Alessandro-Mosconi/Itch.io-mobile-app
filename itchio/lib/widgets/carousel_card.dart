@@ -9,6 +9,7 @@ import '../helperClasses/Game.dart';
 import '../providers/page_provider.dart';
 import '../views/game_webview_page.dart';
 import '../services/notification_service.dart';
+import '../views/search_page.dart';
 
 class CarouselCard extends StatefulWidget {
   final String title;
@@ -180,7 +181,7 @@ class _CarouselCardState extends State<CarouselCard> {
           false;
     } else {
       return await _showConfirmDialog(
-          context, "Confirm Search", "Are you sure you want to perform this search?",_handleConfirm) ??
+          context, "Confirm Search", "Are you sure you want to perform this search?",_goToSearch) ??
           false;
     }
   }
@@ -293,21 +294,11 @@ class _CarouselCardState extends State<CarouselCard> {
     );
   }
 
-  /*
-  Future<void> goToSearch() async {
-    Navigator.of(context).pop(false);
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => SearchPage(
-          initialTab: widget.title,
-          initialFilters: widget.subtitle,
-        ),
-      ),
-    );
-  }
 
-   */
+  Future<void> _goToSearch() async {
+    Navigator.of(context).pop(false);
+    Provider.of<PageProvider>(context, listen: false).setSelectedIndex(1);
+  }
 
   String _kebabToCapitalized(String kebab) {
     List<String> words = kebab.split('-');

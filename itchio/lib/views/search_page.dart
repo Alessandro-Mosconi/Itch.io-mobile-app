@@ -49,29 +49,29 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   Future<void> _initializePage() async {
     try {
       await Future.wait([_fetchFilters(), _fetchTabs()]);
-      _initializeTabAndFilters();
+      await _initializeTabAndFilters();
       _initializeSearchResults();
     } catch (e) {
       logger.e('Failed to initialize page: $e');
     }
   }
 
-  void _initializeTabAndFilters() {
+  Future<void> _initializeTabAndFilters() async {
     if (widget.initialTab != null) {
       final index = _tabs.indexWhere((tab) => tab['name'] == widget.initialTab);
       if (index != -1) {
         currentTab = _tabs[index];
         _tabController.index = index;
-        ;
       }
     }
 
     if (widget.initialFilters != null) {
-      final filtersData = _fetchFilters();
-      _selectedFilters = _filterMap(filtersData as Map<String, List<Map<String, String>>>, widget.initialFilters!);
+      final filtersData = await _fetchFilters();
+      _selectedFilters = _filterMap(filtersData, widget.initialFilters!);
       _filterCount = widget.initialFilters!.split('/').length - 1;
     }
   }
+
 
   void _initializeSearchResults() {
     setState(() {
