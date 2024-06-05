@@ -33,51 +33,57 @@ class GameCard extends StatelessWidget {
         }
       },
       child: Card(
-        margin: EdgeInsets.all(8),
-        color: theme.cardColor,
+        margin: EdgeInsets.all(15),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        elevation: 8,
+        shadowColor: Colors.grey.withOpacity(0.5),
+        color: Colors.white,  // Change this line to make the background white
         child: Padding(
-          padding: EdgeInsets.all(8),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Container(
-                  height: isTablet ? 300 : 200,
-                  width: double.infinity,
+          padding: EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Container(
+                height: isTablet ? 300 : 200,
+                width: double.infinity,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
                   child: Image.network(
                     game.imageurl ?? "https://via.placeholder.com/150",
                     fit: BoxFit.cover,
                   ),
                 ),
-                SizedBox(height: 8),
-                Text(
-                  game.title ?? "Default Title",
-                  style: theme.textTheme.headline6,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: 8),
-                Text(
-                  game.getCleanDescription() ?? "No description",
-                  style: theme.textTheme.bodyText2,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: 8),
-                Row(
-                  children: [
-                    if (game.p_windows ?? false)
-                      Icon(CustomIcon.windows, size: 16, color: theme.iconTheme.color),
-                    if (game.p_osx ?? false)
-                      Icon(Icons.apple, size: 24, color: theme.iconTheme.color),
-                    if (game.p_linux ?? false)
-                      Icon(CustomIcon.linux, size: 16, color: theme.iconTheme.color),
-                    if (game.p_android ?? false)
-                      Icon(Icons.android, size: 24, color: theme.iconTheme.color),
-                  ],
-                ),
-              ],
-            ),
+              ),
+              SizedBox(height: 20),
+              Text(
+                game.title ?? "Default Title",
+                style: theme.textTheme.headline5,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(height: 8),
+              Text(
+                game.getCleanDescription() ?? "No description",
+                style: theme.textTheme.bodyText2,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(height: 20),
+              Row(
+                children: [
+                  if (game.p_windows ?? false)
+                    Icon(CustomIcon.windows, size: 16, color: theme.iconTheme.color),
+                  if (game.p_osx ?? false)
+                    Icon(Icons.apple, size: 24, color: theme.iconTheme.color),
+                  if (game.p_linux ?? false)
+                    Icon(CustomIcon.linux, size: 16, color: theme.iconTheme.color),
+                  if (game.p_android ?? false)
+                    Icon(Icons.android, size: 24, color: theme.iconTheme.color),
+                ],
+              ),
+            ],
           ),
         ),
       ),
