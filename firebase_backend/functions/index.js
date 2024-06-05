@@ -9,8 +9,21 @@ const { topic } = require('firebase-functions/v1/pubsub');
 admin.initializeApp();
 const db = admin.database();
 
-exports.notifyFeed = functions.pubsub.schedule('every 2 hours').onRun(async (context) => {
+// Scheduled trigger
+exports.notifyFeedScheduled = functions.pubsub.schedule('every 2 hours').onRun(async (context) => {
+    await notifyFeedCore();
+});
+
+
+// HTTPS trigger
+exports.notifyFeedHttp = functions.https.onRequest(async (req, res) => {
+    await notifyFeedCore();
+    res.send('Notification feed processed.');
+});
+
+async function notifyFeedCore() {
     // Retrieve the list of topics to notify
+    console.log("é partita")
     const topicsToNotify = await getTopics();
 
     for (const topic of topicsToNotify) {
@@ -19,13 +32,13 @@ exports.notifyFeed = functions.pubsub.schedule('every 2 hours').onRun(async (con
             await send_notification(newItems.title, topic.key, topic.type, newItems.items.length)
         }
     }
-});
+}
 
 async function getTopics() {
     const userSearchRef = db.ref('user_search');
     const userSearchSnapshot = await userSearchRef.once('value');
     const result = [];
-  
+
     userSearchSnapshot.forEach(userSnapshot => {
       userSnapshot.forEach(searchSnapshot => {
         const searchData = searchSnapshot.val();
@@ -38,7 +51,6 @@ async function getTopics() {
         }
       });
     });
-  
     return result;
 }
 
@@ -47,28 +59,28 @@ async function getNewItems(topic) {
     // Get old items from the database (if there are any)
     const oldItemsSnapshot = await db.ref(`searches/${topic.key}`).once('value');
     const oldItems = oldItemsSnapshot.exists() ? oldItemsSnapshot.val() : [];
-
+ 
     // Fetch new items (simulating this as the getSearchResult function is not defined here)
     const newSearch = await getSearchResult(topic.type, topic.filters);
+
     if (newSearch.type === 'error') {
         return [];
     }
 
-    const newItems = newSearch.items || [];
+    const newItems = newSearch.content.items || [];
 
     // Create a set of URLs from old items for fast lookup
-    const oldItemUrls = new Set(oldItems.map(item => item.url));
+    const oldItemUrls = new Set(oldItems.map(item => item.link));
 
     // Find differences between old and new items based on the URL field
-    const newUniqueItems = newItems.filter(item => !oldItemUrls.has(item.url));
-
+    const newUniqueItems = newItems.filter(item =>!oldItemUrls.has(item.link));
     // Update the database with the new items
-    await db.ref(`searches/${topic.key}`).set(newItems);
-
+    await db.ref(`searches/${topic.key}`).set(newItems.map(item => JSON.parse(JSON.stringify(item))));
+    
     // Return the new unique items
     return { 
         "items": newUniqueItems,
-        "title": newSearch.title
+        "title": newSearch.content.title
     };
 }
 
@@ -83,6 +95,7 @@ async function send_notification(title,topicName,type,counts){
             topic: topicName
     }
     await admin.messaging().send(message);
+    console.log(message)
 }
 
 
@@ -419,6 +432,7 @@ async function getSearchResult(type, filters) {
         }
     }
 
+
     // Restituisci un oggetto JSON con i risultati
     return {
         type: 'success',
@@ -432,6 +446,7 @@ async function getSearchResult(type, filters) {
     };
 
 }
+
 async function getJamDetail(id) {
     try {
         const response = await axios.get(`https://itch.io/jam/${id}/entries.json`);
