@@ -62,6 +62,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
       if (index != -1) {
         currentTab = _tabs[index];
         _tabController.index = index;
+        ;
       }
     }
 
@@ -143,14 +144,12 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
             }
           }).toList();
 
-          _tabController = TabController(length: _tabs.length, vsync: this)
-            ..addListener(() {
-              if (_tabController.indexIsChanging) {
-                setState(() {
-                  currentTab = _tabs[_tabController.index];
-                  _changeTab();
-                });
-              }
+          _tabController = TabController(length: _tabs.length, vsync: this);
+          _tabController.addListener(() async {
+              setState(() {
+                currentTab = _tabs[_tabController.index];
+                _changeTab();
+              });
             });
         });
       } else {
@@ -204,9 +203,6 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
         : '';
 
     final currentTabName = currentTab['name'] ?? 'games';
-
-    // Print the request details
-    logger.i('Requesting tab results with Type: $currentTabName, Filters: $concatenatedFilters');
 
     final response = await http.post(
       Uri.parse('https://us-central1-itchioclientapp.cloudfunctions.net/item_list'),
