@@ -6,6 +6,7 @@ import '../customIcons/custom_icon_icons.dart';
 import '../views/game_webview_page.dart';
 import '../providers/page_provider.dart';
 
+
 class GameCard extends StatelessWidget {
   final Game game;
   final Logger logger = Logger(printer: PrettyPrinter());
@@ -17,6 +18,8 @@ class GameCard extends StatelessWidget {
     final theme = Theme.of(context);
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth >= 600;
+
+    String priceText = game.getFormatPriceWithCurrency();
 
     return GestureDetector(
       onTap: () {
@@ -73,14 +76,34 @@ class GameCard extends StatelessWidget {
               SizedBox(height: 20),
               Row(
                 children: [
-                  if (game.p_windows ?? false)
-                    Icon(CustomIcon.windows, size: 16, color: theme.iconTheme.color),
-                  if (game.p_osx ?? false)
-                    Icon(Icons.apple, size: 24, color: theme.iconTheme.color),
-                  if (game.p_linux ?? false)
-                    Icon(CustomIcon.linux, size: 16, color: theme.iconTheme.color),
-                  if (game.p_android ?? false)
-                    Icon(Icons.android, size: 24, color: theme.iconTheme.color),
+                  Row(
+                    children: [
+                      if (game.p_windows ?? false)
+                        Icon(CustomIcon.windows, size: 16, color: theme.iconTheme.color),
+                      if (game.p_osx ?? false)
+                        Icon(Icons.apple, size: 24, color: theme.iconTheme.color),
+                      if (game.p_linux ?? false)
+                        Icon(CustomIcon.linux, size: 16, color: theme.iconTheme.color),
+                      if (game.p_android ?? false)
+                        Icon(Icons.android, size: 24, color: theme.iconTheme.color),
+                    ],
+                  ),
+                  Spacer(), // Push the price chip to the right
+                  Container(
+                    padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.withOpacity(0.2), // Use a fixed background color
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      priceText,
+                      style: TextStyle(
+                        color: Colors.blue, // Use a fixed text color
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16, // Increase font size
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ],

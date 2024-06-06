@@ -43,11 +43,10 @@ class Game {
     short_text = data['short_text'];
     min_price = data['min_price'];
     type = data['type'];
-    p_windows = data.containsKey('p_windows') ? data['p_windows'] : (data['platforms']?.contains('windows') ?? false);
-    p_osx = data.containsKey('p_osx') ? data['p_osx'] : (data['platforms']?.contains('osx') ?? false);
-    p_android = data.containsKey('p_android') ? data['p_android'] : (data['platforms']?.contains('android') ?? false);
-    p_linux = data.containsKey('p_linux') ? data['p_linux'] : (data['platforms']?.contains('linux') ?? false);
-    p_windows = data.containsKey('p_windows') ? data['p_windows'] : (data['platforms']?.contains('windows') ?? false);
+    p_windows = data.containsKey('p_windows') ? data['p_windows'] : (data['platforms'] != null && data['platforms'] is List && (data['platforms'] as List).contains('windows'));
+    p_osx = data.containsKey('p_osx') ? data['p_osx'] : (data['platforms'] != null && data['platforms'] is List && (data['platforms'] as List).contains('osx'));
+    p_android = data.containsKey('p_android') ? data['p_android'] : (data['platforms'] != null && data['platforms'] is List && (data['platforms'] as List).contains('android'));
+    p_linux = data.containsKey('p_linux') ? data['p_linux'] : (data['platforms'] != null && data['platforms'] is List && (data['platforms'] as List).contains('linux'));
     title = data['title'];
     published_at = data['published_at'];
     can_be_bought = data['can_be_bought'];
