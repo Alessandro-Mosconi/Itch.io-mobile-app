@@ -32,13 +32,17 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
           brightness: Brightness.light,
           primaryColor: Colors.orange,
           secondaryHeaderColor: Colors.blue,
-          backgroundColor: Colors.lightGreen[100],
           scaffoldBackgroundColor: Colors.lightGreen[100],
           cardColor: Colors.orange[200],
-          textTheme: TextTheme(
-            bodyText1: TextStyle(color: Colors.orange[900]),
-            bodyText2: TextStyle(color: Colors.orange[800]),
-            headline6: TextStyle(color: Colors.orange[700], fontWeight: FontWeight.bold),
+          textTheme: const TextTheme(
+            bodyLarge: TextStyle(color: Colors.orange, fontWeight: FontWeight.w700),
+            bodyMedium: TextStyle(color: Colors.orange, fontWeight: FontWeight.w500),
+            headlineSmall: TextStyle(color: Colors.orange, fontWeight: FontWeight.w900),
+          ),
+          colorScheme: ColorScheme.light(
+            background: Colors.lightGreen[100]!,
+            primary: Colors.orange,
+            secondary: Colors.blue,
           ),
         );
       case 'abyss':
@@ -46,13 +50,17 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
           brightness: Brightness.light,
           primaryColor: Colors.blueGrey,
           secondaryHeaderColor: Colors.deepPurple,
-          backgroundColor: Colors.white,
           scaffoldBackgroundColor: Colors.white,
           cardColor: Colors.blueGrey[100],
-          textTheme: TextTheme(
-            bodyText1: TextStyle(color: Colors.blueGrey[900]),
-            bodyText2: TextStyle(color: Colors.blueGrey[800]),
-            headline6: TextStyle(color: Colors.blueGrey[700], fontWeight: FontWeight.bold),
+          textTheme: const TextTheme(
+            bodyLarge: TextStyle(color: Colors.blueGrey, fontWeight: FontWeight.w700),
+            bodyMedium: TextStyle(color: Colors.blueGrey, fontWeight: FontWeight.w500),
+            headlineSmall: TextStyle(color: Colors.blueGrey, fontWeight: FontWeight.w900),
+          ),
+          colorScheme: ColorScheme.light(
+            background: Colors.white,
+            primary: Colors.blueGrey,
+            secondary: Colors.deepPurple,
           ),
         );
       case 'hardContrast':
@@ -60,23 +68,32 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
           brightness: Brightness.light,
           primaryColor: Colors.black,
           secondaryHeaderColor: Colors.white,
-          backgroundColor: Colors.white,
           scaffoldBackgroundColor: Colors.white,
           cardColor: Colors.black,
-          textTheme: TextTheme(
-            bodyText1: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-            bodyText2: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-            headline6: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          textTheme: const TextTheme(
+            bodyLarge: TextStyle(color: Colors.black, fontWeight: FontWeight.w900),
+            bodyMedium: TextStyle(color: Colors.black, fontWeight: FontWeight.w700),
+            headlineSmall: TextStyle(color: Colors.black, fontWeight: FontWeight.w900),
+          ),
+          colorScheme: ColorScheme.light(
+            background: Colors.white,
+            primary: Colors.black,
+            secondary: Colors.white,
           ),
         );
       default:
         return ThemeData.light().copyWith(
           cardColor: Colors.white,
           primaryColor: Colors.black,
-          textTheme: TextTheme(
-            bodyText1: TextStyle(color: Colors.black),
-            bodyText2: TextStyle(color: Colors.black54),
-            headline6: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          textTheme: const TextTheme(
+            bodyLarge: TextStyle(color: Colors.black),
+            bodyMedium: TextStyle(color: Colors.black54),
+            headlineSmall: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          ),
+          colorScheme: ColorScheme.light(
+            background: Colors.white,
+            primary: Colors.black,
+            secondary: Colors.black54,
           ),
         );
     }
@@ -89,13 +106,17 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
           brightness: Brightness.dark,
           primaryColor: Colors.orange,
           secondaryHeaderColor: Colors.blue,
-          backgroundColor: Colors.black,
           scaffoldBackgroundColor: Colors.black,
           cardColor: Colors.orange[800],
-          textTheme: TextTheme(
-            bodyText1: TextStyle(color: Colors.orange[100]),
-            bodyText2: TextStyle(color: Colors.orange[200]),
-            headline6: TextStyle(color: Colors.orange[50], fontWeight: FontWeight.bold),
+          textTheme: const TextTheme(
+            bodyLarge: TextStyle(color: Colors.orange, fontWeight: FontWeight.w700),
+            bodyMedium: TextStyle(color: Colors.orange, fontWeight: FontWeight.w500),
+            headlineSmall: TextStyle(color: Colors.orange, fontWeight: FontWeight.w900),
+          ),
+          colorScheme: ColorScheme.dark(
+            background: Colors.black,
+            primary: Colors.orange,
+            secondary: Colors.blue,
           ),
         );
       case 'abyss':
@@ -103,13 +124,17 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
           brightness: Brightness.dark,
           primaryColor: Colors.blueGrey,
           secondaryHeaderColor: Colors.deepPurple,
-          backgroundColor: Colors.blueGrey[900],
           scaffoldBackgroundColor: Colors.blueGrey[900],
           cardColor: Colors.blueGrey[800],
-          textTheme: TextTheme(
-            bodyText1: TextStyle(color: Colors.blueGrey[100]),
-            bodyText2: TextStyle(color: Colors.blueGrey[200]),
-            headline6: TextStyle(color: Colors.blueGrey[50], fontWeight: FontWeight.bold),
+          textTheme: const TextTheme(
+            bodyLarge: TextStyle(color: Colors.blueGrey, fontWeight: FontWeight.w700),
+            bodyMedium: TextStyle(color: Colors.blueGrey, fontWeight: FontWeight.w500),
+            headlineSmall: TextStyle(color: Colors.blueGrey, fontWeight: FontWeight.w900),
+          ),
+          colorScheme: ColorScheme.dark(
+            background: Colors.blueGrey[900]!,
+            primary: Colors.blueGrey,
+            secondary: Colors.deepPurple,
           ),
         );
       case 'hardContrast':
@@ -117,23 +142,32 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
           brightness: Brightness.dark,
           primaryColor: Colors.black,
           secondaryHeaderColor: Colors.white,
-          backgroundColor: Colors.black,
           scaffoldBackgroundColor: Colors.black,
           cardColor: Colors.black,
-          textTheme: TextTheme(
-            bodyText1: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            bodyText2: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            headline6: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          textTheme: const TextTheme(
+            bodyLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
+            bodyMedium: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+            headlineSmall: TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
+          ),
+          colorScheme: ColorScheme.dark(
+            background: Colors.black,
+            primary: Colors.black,
+            secondary: Colors.white,
           ),
         );
       default:
         return ThemeData.dark().copyWith(
           cardColor: Colors.grey[900],
           primaryColor: Colors.white,
-          textTheme: TextTheme(
-            bodyText1: TextStyle(color: Colors.white),
-            bodyText2: TextStyle(color: Colors.white70),
-            headline6: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          textTheme: const TextTheme(
+            bodyLarge: TextStyle(color: Colors.white),
+            bodyMedium: TextStyle(color: Colors.white70),
+            headlineSmall: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          colorScheme: ColorScheme.dark(
+            background: Colors.black,
+            primary: Colors.white,
+            secondary: Colors.white70,
           ),
         );
     }

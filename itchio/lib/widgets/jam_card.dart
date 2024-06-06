@@ -33,7 +33,7 @@ class JamCard extends StatelessWidget {
               children: [
                 ListTile(
                   contentPadding: EdgeInsets.all(20),
-                  title: Text(jam.title ?? '', style: theme.textTheme.headline5),
+                  title: Text(jam.title ?? '', style: theme.textTheme.headlineSmall),
                   subtitle: JamInfo(jam: jam, isTablet: isTablet),
                 ),
               ],
@@ -101,7 +101,7 @@ class JamCard extends StatelessWidget {
     return AlertDialog(
       title: Text(
         "Choose the event to save",
-        style: theme.textTheme.headline6,
+        style: theme.textTheme.headlineSmall,
       ),
       content: _buildEventOptionContent(context, jam),
       actions: [_buildCancelButton(context)],
@@ -169,7 +169,7 @@ class JamCard extends StatelessWidget {
       },
       child: Text(
         "Cancel",
-        style: theme.textTheme.button,
+        style: theme.textTheme.labelLarge,
       ),
     );
   }
@@ -207,13 +207,13 @@ class JamInfo extends StatelessWidget {
                 _buildTabletLayout(
                   context,
                   _buildInfoRow(Icons.date_range, 'Start:', jam.startDate, theme.primaryColor),
-                  _buildInfoRow(Icons.event, 'End:', jam.endDate, theme.errorColor),
+                  _buildInfoRow(Icons.event, 'End:', jam.endDate, theme.colorScheme.error),
                 )
               else
                 _buildPhoneLayout(
                   context,
                   _buildInfoRow(Icons.date_range, 'Start:', jam.startDate, theme.primaryColor),
-                  _buildInfoRow(Icons.event, 'End:', jam.endDate, theme.errorColor),
+                  _buildInfoRow(Icons.event, 'End:', jam.endDate, theme.colorScheme.error),
                 ),
               SizedBox(height: 5),
               if (isTablet)

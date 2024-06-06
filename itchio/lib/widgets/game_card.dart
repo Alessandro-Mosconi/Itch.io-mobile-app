@@ -59,14 +59,14 @@ class GameCard extends StatelessWidget {
               SizedBox(height: 20),
               Text(
                 game.title ?? "Default Title",
-                style: theme.textTheme.headline5,
+                style: theme.textTheme.headlineSmall,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
               SizedBox(height: 8),
               Text(
                 game.getCleanDescription() ?? "No description",
-                style: theme.textTheme.bodyText2,
+                style: theme.textTheme.bodyMedium,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),

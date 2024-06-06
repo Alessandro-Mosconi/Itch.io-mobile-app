@@ -95,7 +95,16 @@ class _CarouselCardState extends State<CarouselCard> {
         key: Key(widget.title),
         direction: DismissDirection.horizontal,
         confirmDismiss: (direction) => _confirmDismiss(direction, context),
-        background: _buildDismissBackground(Alignment.centerLeft, theme.primaryColor, Icons.search),
+        background: _buildDismissBackground(
+          Alignment.centerLeft,
+          theme.colorScheme.secondary,
+          Icons.search,
+        ),
+        secondaryBackground: _buildDismissBackground(
+          Alignment.centerRight,
+          theme.colorScheme.error,
+          Icons.delete,
+        ),
         child: _buildCardContent(context),
       ),
     );
@@ -129,12 +138,12 @@ class _CarouselCardState extends State<CarouselCard> {
               children: [
                 Text(
                   _kebabToCapitalized(widget.title),
-                  style: theme.textTheme.headline5,
+                  style: theme.textTheme.headlineSmall,
                 ),
                 SizedBox(height: 4),
                 Text(
                   widget.subtitle,
-                  style: theme.textTheme.bodyText2,
+                  style: theme.textTheme.bodyMedium,
                 ),
               ],
             ),
@@ -182,7 +191,7 @@ class _CarouselCardState extends State<CarouselCard> {
       },
       child: Container(
         width: 250,
-        margin: EdgeInsets.symmetric(horizontal: 5), //between items
+        margin: EdgeInsets.symmetric(horizontal: 5), // between items
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -196,17 +205,20 @@ class _CarouselCardState extends State<CarouselCard> {
               ),
             ),
             SizedBox(height: 8),
-            Text(
-              game.title ?? '',
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.bodyText1,
+            Flexible(
+              child: Text(
+                game.title ?? '',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodyLarge,
+              ),
             ),
           ],
         ),
       ),
     );
   }
+
 
   Future<bool> _confirmDismiss(DismissDirection direction, BuildContext context) async {
     if (direction == DismissDirection.endToStart) {
