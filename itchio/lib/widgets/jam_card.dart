@@ -18,6 +18,7 @@ class JamCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return GestureDetector(
+      key: Key('jam_card_gesture_detector'),
       onTap: () => _navigateToJam(context, jam),
       child: Card(
         margin: EdgeInsets.all(15),
