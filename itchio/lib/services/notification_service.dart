@@ -56,7 +56,6 @@ class NotificationService {
 
   Future<void> subscribeToTopic(String topic) async {
     await FirebaseMessaging.instance.subscribeToTopic(topic);
-    logger.i("hi!");
   }
 
   Future<void> unsubscribeFromTopic(String topic) async {
