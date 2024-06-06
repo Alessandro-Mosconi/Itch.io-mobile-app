@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:badges/badges.dart' as badges; // Alias this import
+import 'package:badges/badges.dart' as badges;
 
 class SearchBar extends StatelessWidget {
   final TextEditingController searchController;

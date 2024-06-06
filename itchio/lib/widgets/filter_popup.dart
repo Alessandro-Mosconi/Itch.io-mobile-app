@@ -44,13 +44,13 @@ class FilterPopup extends StatelessWidget {
               ),
             ),
             actions: <Widget>[
-              TextButton(
+            ElevatedButton(
                 child: Text('Confirm'),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
               ),
-              TextButton(
+              ElevatedButton(
                 child: Text('Close'),
                 onPressed: () {
                   Navigator.of(context).pop();
