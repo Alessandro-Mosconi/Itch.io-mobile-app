@@ -91,11 +91,11 @@ async function getNewItems(topic) {
 
 
 async function send_notification(title,topicName,type,counts){
-    console.log("mi preparo a mandare")
+    let trimmedTitle = title.slice(0, - ' - itch.io'.length);
     // Prepare and send a notification about the latest item
     const message = {
             notification: {
-                title: title + " Alert!",
+                title: trimmedTitle + " Alert!",
                 body: "There are " + counts + " new " + type
             },
             topic: topicName
