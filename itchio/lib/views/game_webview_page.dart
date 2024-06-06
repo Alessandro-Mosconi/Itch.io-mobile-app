@@ -4,11 +4,11 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 import 'package:provider/provider.dart';
-import '../helperClasses/Jam.dart';
+import '../models/jam.dart';
 import '../providers/page_provider.dart';
 import '../providers/favorite_provider.dart';
 import '../widgets/custom_app_bar.dart';
-import '../helperClasses/Game.dart';
+import '../models/game.dart';
 
 class GameWebViewPage extends StatefulWidget {
   final String url;

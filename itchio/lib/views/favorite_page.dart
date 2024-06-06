@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../helperClasses/Game.dart';
-import '../helperClasses/Jam.dart';
+import '../models/game.dart';
+import '../models/jam.dart';
 import '../providers/favorite_provider.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/game_card.dart';

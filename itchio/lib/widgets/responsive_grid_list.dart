@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:itchio/widgets/game_card.dart';
-import '../helperClasses/Game.dart';
+import '../models/game.dart';
 
 class ResponsiveGridList extends StatelessWidget {
   final List<Game> games;

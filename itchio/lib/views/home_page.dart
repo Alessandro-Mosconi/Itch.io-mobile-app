@@ -3,7 +3,7 @@ import 'package:crypto/crypto.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:itchio/helperClasses/SavedSearch.dart';
+import 'package:itchio/models/saved_search.dart';
 import 'package:itchio/providers/search_bookmark_provider.dart';
 import 'package:itchio/widgets/saved_search_list.dart'; // Ensure this import is correct
 import 'package:logger/logger.dart';

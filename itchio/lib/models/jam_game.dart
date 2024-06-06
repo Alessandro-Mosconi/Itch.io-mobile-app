@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'Game.dart';
+import 'game.dart';
 
 class JamGame {
   int? ratingCount;

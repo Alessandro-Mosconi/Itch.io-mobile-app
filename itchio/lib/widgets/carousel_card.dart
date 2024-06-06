@@ -7,7 +7,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../helperClasses/Game.dart';
+import '../models/game.dart';
 import '../providers/page_provider.dart';
 import '../views/game_webview_page.dart';
 import '../services/notification_service.dart';

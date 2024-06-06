@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:itchio/helperClasses/User.dart';
+import 'package:itchio/models/User.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uni_links/uni_links.dart';
 import 'dart:async';
@@ -9,7 +9,7 @@ import 'package:logger/logger.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 
-import 'Game.dart';
+import 'game.dart';
 
 class PurchaseGame {
   final Logger logger = Logger(

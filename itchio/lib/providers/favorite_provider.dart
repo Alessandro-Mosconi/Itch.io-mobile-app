@@ -5,9 +5,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../helperClasses/Game.dart';
-
-import '../helperClasses/Jam.dart';
+import '../models/game.dart';
+import '../models/jam.dart';
 
 class FavoriteProvider with ChangeNotifier {
   List<Game> _favoriteGames = [];

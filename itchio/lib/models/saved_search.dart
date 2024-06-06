@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
-import 'package:itchio/helperClasses/Game.dart';
+import 'package:itchio/models/game.dart';
 
 class SavedSearch {
   String? type;

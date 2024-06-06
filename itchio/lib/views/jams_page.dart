@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import '../helperClasses/Jam.dart';
+import '../models/jam.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/jam_card.dart';
 import 'package:badges/badges.dart' as badges;

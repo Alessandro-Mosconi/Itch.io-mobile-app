@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:logger/logger.dart';
-import '../helperClasses/Game.dart';
+import '../models/game.dart';
 import '../customIcons/custom_icon_icons.dart';
 import '../views/game_webview_page.dart';
 import '../providers/page_provider.dart';

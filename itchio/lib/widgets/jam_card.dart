@@ -2,7 +2,7 @@ import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
-import '../helperClasses/Jam.dart';
+import '../models/jam.dart';
 import '../providers/page_provider.dart';
 import '../views/game_webview_page.dart';
 import 'package:provider/provider.dart';

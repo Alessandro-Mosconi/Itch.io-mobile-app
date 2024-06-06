@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../helperClasses/SavedSearch.dart';
+import '../models/saved_search.dart';
 import 'carousel_card.dart';
 
 class SavedSearchList extends StatelessWidget {

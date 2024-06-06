@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 
-import 'Game.dart';
-import 'JamGame.dart';
+import 'game.dart';
+import 'jam_game.dart';
 
 class Jam {
   int? hue;
