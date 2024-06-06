@@ -40,7 +40,7 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
             headlineSmall: TextStyle(color: Colors.orange, fontWeight: FontWeight.w900),
           ),
           colorScheme: ColorScheme.light(
-            background: Colors.lightGreen[100]!,
+            background: Colors.white!,
             primary: Colors.orange,
             secondary: Colors.blue,
           ),

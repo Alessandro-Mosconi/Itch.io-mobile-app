@@ -23,7 +23,8 @@ class DevelopedGameCard extends StatelessWidget {
               children: <Widget>[
                 _buildStatColumn("Views", game.views_count ?? 0, Colors.red),
                 _buildStatColumn("Downloads", game.downloads_count ?? 0, Colors.green),
-                _buildStatColumn("Purchases", game.purchases_count ?? 0, Colors.blue),
+                if (game.purchases_count != 0)
+                  _buildStatColumn("Purchases", game.purchases_count ?? 0, Colors.blue),
               ],
             ),
           ],
@@ -31,6 +32,7 @@ class DevelopedGameCard extends StatelessWidget {
       ),
     );
   }
+
 
   Widget _buildStatColumn(String label, int count, Color color) {
     return Column(
