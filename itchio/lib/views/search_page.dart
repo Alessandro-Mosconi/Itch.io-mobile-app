@@ -48,6 +48,8 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
 
   Future<void> _initializePage() async {
     try {
+      searchResults = Future.value({"games": [], "users": []});
+      tabFilteredResults = Future.value({"items": [], "title": ""});
       await Future.wait([_fetchFilters(), _fetchTabs()]);
       await _initializeTabAndFilters();
       _initializeSearchResults();
