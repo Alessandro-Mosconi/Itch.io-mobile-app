@@ -23,17 +23,12 @@ exports.notifyFeedHttp = functions.https.onRequest(async (req, res) => {
 
 async function notifyFeedCore() {
     // Retrieve the list of topics to notify
-    console.log("é partita")
     const topicsToNotify = await getTopics();
 
     for (const topic of topicsToNotify) {
         const newItems = await getNewItems(topic);
         if (newItems.items.length > 0) {
-            console.log("sono dentro")
-            await send_notification(newItems.title, topic.key, topic.type, newItems.items.length)
-        }
-        else{
-            console.log("sono fuori")
+            await send_notification(newItems.title, topic.key,  newItems.items.length, topic.type, topic.filters)
         }
     }
 }
@@ -90,7 +85,7 @@ async function getNewItems(topic) {
 }
 
 
-async function send_notification(title,topicName,type,counts){
+async function send_notification(title, topicName, counts, type, filters){
     let trimmedTitle = title.slice(0, - ' - itch.io'.length);
     // Prepare and send a notification about the latest item
     const message = {
@@ -98,10 +93,13 @@ async function send_notification(title,topicName,type,counts){
                 title: trimmedTitle + " Alert!",
                 body: "There are " + counts + " new " + type
             },
+            data: {
+                'type': type,
+                'filters': filters
+            },
             topic: topicName
     }
     await admin.messaging().send(message);
-    console.log(message)
 }
 
 
@@ -158,7 +156,6 @@ exports.search = functions.https.onRequest(async (request, response) => {
     // Encode the search query
     const search = encodeURIComponent(searchQuery);
     const filteredUrl = searchUrl + search;
-    console.log(filteredUrl);
 
     let gamesData = [];
     let usersData = [];
