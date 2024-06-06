@@ -34,6 +34,7 @@ class SettingsPage extends StatelessWidget {
     onChanged: (value) {
     themeNotifier.setThemeMode(value as ThemeMode);
     },
+      key: Key('systemThemeRadio'),
     ),
     ),
     ListTile(
@@ -45,6 +46,7 @@ class SettingsPage extends StatelessWidget {
         onChanged: (value) {
           themeNotifier.setThemeMode(value as ThemeMode);
         },
+        key: const Key('lightModeRadio'),
       ),
     ),
       ListTile(
@@ -56,6 +58,7 @@ class SettingsPage extends StatelessWidget {
           onChanged: (value) {
             themeNotifier.setThemeMode(value as ThemeMode);
           },
+          key: const Key('darkModeRadio'),
         ),
       ),
       Divider(),
@@ -82,6 +85,7 @@ class SettingsPage extends StatelessWidget {
           onChanged: (value) {
             themeNotifier.setTheme(value as String);
           },
+          key: const Key('fluxokiThemeRadio'), //to test
         ),
       ),
       ListTile(
