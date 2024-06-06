@@ -126,7 +126,7 @@ class _FavoritePageState extends State<FavoritePage> with SingleTickerProviderSt
     } else if (width > 600) {
       return orientation == Orientation.landscape ? 0.95 : 1.2;
     } else {
-      return 0.9;
+      return 1.5;
     }
   }
 }
