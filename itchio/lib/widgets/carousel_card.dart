@@ -331,8 +331,7 @@ class _CarouselCardState extends State<CarouselCard> {
   }
 
   Future<void> _goToSearch() async {
-    Navigator.of(context).pop(false);
-    Provider.of<PageProvider>(context, listen: false).setSelectedIndex(1);
+    Provider.of<PageProvider>(context, listen: false).navigateToIndexWithPage(1, SearchPage(initialTab: widget.title, initialFilters: widget.subtitle));
   }
 
   String _kebabToCapitalized(String kebab) {

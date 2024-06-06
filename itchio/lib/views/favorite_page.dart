@@ -77,7 +77,7 @@ class _FavoritePageState extends State<FavoritePage> with SingleTickerProviderSt
   }
 
   GridView _buildGameGrid(List<Game> games, BuildContext context) {
-    double aspectRatio = _getChildAspectRatio(context);
+    double aspectRatio = _getChildAspectRatio(context, true);
     int crossAxisCount = MediaQuery.of(context).size.width > 600 ? 3 : 1;
 
     return GridView.builder(
@@ -96,7 +96,7 @@ class _FavoritePageState extends State<FavoritePage> with SingleTickerProviderSt
   }
 
   GridView _buildJamGrid(List<Jam> jams, BuildContext context) {
-    double aspectRatio = _getChildAspectRatio(context);
+    double aspectRatio = _getChildAspectRatio(context, false);
     int crossAxisCount = MediaQuery.of(context).size.width > 600 ? 3 : 1;
 
     return GridView.builder(
@@ -117,7 +117,7 @@ class _FavoritePageState extends State<FavoritePage> with SingleTickerProviderSt
     );
   }
 
-  double _getChildAspectRatio(BuildContext context) {
+  double _getChildAspectRatio(BuildContext context, bool isGame) {
     double width = MediaQuery.of(context).size.width;
     Orientation orientation = MediaQuery.of(context).orientation;
 
@@ -126,7 +126,7 @@ class _FavoritePageState extends State<FavoritePage> with SingleTickerProviderSt
     } else if (width > 600) {
       return orientation == Orientation.landscape ? 0.95 : 1.2;
     } else {
-      return 1.5;
+      return isGame ? 0.9 :1.5;
     }
   }
 }

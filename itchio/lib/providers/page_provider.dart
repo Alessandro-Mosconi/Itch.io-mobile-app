@@ -22,6 +22,11 @@ class PageProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void navigateToIndexWithPage(int index, Widget page) {
+    setSelectedIndex(index);
+    setExtraPage(page);
+  }
+
   void clearExtraPage() {
     _extraPage = null;
     _isExtraPageVisible = false;
