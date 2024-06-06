@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
-  String _currentTheme = 'device';
+  String _currentTheme = 'standard'; // Default theme set to 'standard'
   ThemeMode _themeMode = ThemeMode.system;
 
   ThemeNotifier() {
@@ -38,9 +38,10 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
             bodyLarge: TextStyle(color: Colors.orange, fontWeight: FontWeight.w700),
             bodyMedium: TextStyle(color: Colors.orange, fontWeight: FontWeight.w500),
             headlineSmall: TextStyle(color: Colors.orange, fontWeight: FontWeight.w900),
+            labelLarge: TextStyle(color: Colors.orange), // Explicitly set text color
           ),
           colorScheme: ColorScheme.light(
-            background: Colors.white!,
+            background: Colors.white,
             primary: Colors.orange,
             secondary: Colors.blue,
           ),
@@ -56,6 +57,7 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
             bodyLarge: TextStyle(color: Colors.blueGrey, fontWeight: FontWeight.w700),
             bodyMedium: TextStyle(color: Colors.blueGrey, fontWeight: FontWeight.w500),
             headlineSmall: TextStyle(color: Colors.blueGrey, fontWeight: FontWeight.w900),
+            labelLarge: TextStyle(color: Colors.blueGrey), // Explicitly set text color
           ),
           colorScheme: ColorScheme.light(
             background: Colors.white,
@@ -74,6 +76,7 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
             bodyLarge: TextStyle(color: Colors.black, fontWeight: FontWeight.w900),
             bodyMedium: TextStyle(color: Colors.black, fontWeight: FontWeight.w700),
             headlineSmall: TextStyle(color: Colors.black, fontWeight: FontWeight.w900),
+            labelLarge: TextStyle(color: Colors.black), // Explicitly set text color
           ),
           colorScheme: ColorScheme.light(
             background: Colors.white,
@@ -89,6 +92,7 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
             bodyLarge: TextStyle(color: Colors.black),
             bodyMedium: TextStyle(color: Colors.black54),
             headlineSmall: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+            labelLarge: TextStyle(color: Colors.black), // Explicitly set text color
           ),
           colorScheme: ColorScheme.light(
             background: Colors.white,
@@ -112,6 +116,7 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
             bodyLarge: TextStyle(color: Colors.orange, fontWeight: FontWeight.w700),
             bodyMedium: TextStyle(color: Colors.orange, fontWeight: FontWeight.w500),
             headlineSmall: TextStyle(color: Colors.orange, fontWeight: FontWeight.w900),
+            labelLarge: TextStyle(color: Colors.orange), // Explicitly set text color
           ),
           colorScheme: ColorScheme.dark(
             background: Colors.black,
@@ -130,6 +135,7 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
             bodyLarge: TextStyle(color: Colors.blueGrey, fontWeight: FontWeight.w700),
             bodyMedium: TextStyle(color: Colors.blueGrey, fontWeight: FontWeight.w500),
             headlineSmall: TextStyle(color: Colors.blueGrey, fontWeight: FontWeight.w900),
+            labelLarge: TextStyle(color: Colors.blueGrey), // Explicitly set text color
           ),
           colorScheme: ColorScheme.dark(
             background: Colors.blueGrey[900]!,
@@ -148,6 +154,7 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
             bodyLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
             bodyMedium: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
             headlineSmall: TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
+            labelLarge: TextStyle(color: Colors.white), // Explicitly set text color
           ),
           colorScheme: ColorScheme.dark(
             background: Colors.black,
@@ -163,6 +170,7 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
             bodyLarge: TextStyle(color: Colors.white),
             bodyMedium: TextStyle(color: Colors.white70),
             headlineSmall: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            labelLarge: TextStyle(color: Colors.white), // Explicitly set text color
           ),
           colorScheme: ColorScheme.dark(
             background: Colors.black,
@@ -187,8 +195,8 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
 
   void setTheme(String theme) {
     _currentTheme = theme;
-    _themeMode = ThemeMode.system;
     notifyListeners();
+    _setStatusBarAndNavigationBarColors();
   }
 
   void setThemeMode(ThemeMode mode) {
