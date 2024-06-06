@@ -367,7 +367,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
         } else if (snapshot.hasData) {
           final data = snapshot.data!;
           final items = (data['items'] as List).map((game) => Game(game)).toList();
-          final title = data['title'] as String;
+          final title = data['title'].replaceAll(" - itch.io", "") as String;
 
           return Column(
             children: [
