@@ -3,30 +3,52 @@ import 'package:uni_links/uni_links.dart';
 import 'dart:async';
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:logger/logger.dart';
-import 'package:flutter/foundation.dart'; //needed for ChangeNotifier
+import 'package:flutter/foundation.dart'; // needed for ChangeNotifier
 import 'package:url_launcher/url_launcher.dart';
 
-
+typedef GetInitialLink = Future<String?> Function();
+typedef LinkStream = Stream<String?> Function();
 
 class OAuthService extends ChangeNotifier {
-  final Logger logger = Logger(
-    printer: PrettyPrinter(),
-  );
-
+  late Logger logger;
   late SharedPreferences prefs;
+  final GetInitialLink getInitialLink;
+  final LinkStream linkStream;
+
   StreamSubscription? _sub;
   String? _accessToken; // Added to store the access token
+
+  OAuthService({
+    SharedPreferences? sharedPreferences,
+    Logger? customLogger,
+    GetInitialLink? getInitialLink,
+    LinkStream? linkStream,
+  })  : getInitialLink = getInitialLink ?? getInitialLinkImpl,
+        linkStream = linkStream ?? linkStreamImpl {
+    if (sharedPreferences != null) {
+      prefs = sharedPreferences;
+    } else {
+      _initSharedPreferences();
+    }
+    logger = customLogger ?? Logger(printer: PrettyPrinter());
+  }
 
   // Getter for access token to be used by widgets
   String? get accessToken => _accessToken;
 
+  Future<void> _initSharedPreferences() async {
+    prefs = await SharedPreferences.getInstance();
+  }
+
   Future<void> init() async {
+    if (prefs == null) {
+      await _initSharedPreferences();
+    }
     await initSharedPreferences();
     await initUniLinks();
   }
 
   Future<void> initSharedPreferences() async {
-    prefs = await SharedPreferences.getInstance();
     _accessToken = prefs.getString("access_token"); // Load the access token at initialization
   }
 
@@ -40,7 +62,7 @@ class OAuthService extends ChangeNotifier {
       logger.e('Failed to get initial link.');
     }
 
-    _sub = linkStream.listen((String? link) {
+    _sub = linkStream().listen((String? link) {
       if (link != null) {
         handleLink(link);
       }
@@ -66,10 +88,10 @@ class OAuthService extends ChangeNotifier {
     }
   }
 
-  void startOAuth() async {
+  Future<void> startOAuth() async {
     final Uri url = Uri.parse('https://itch.io/user/oauth?client_id=8277d34bebbf51289c9a9d2e77cea871&scope=profile&response_type=token&redirect_uri=itchio-app%3A%2F%2Foauth-callback');
 
-    logger.i(url);
+    logger.i(url.toString());
     if (!await launchUrl(url)) {
       throw Exception('Could not launch $url');
     }
@@ -81,7 +103,7 @@ class OAuthService extends ChangeNotifier {
     notifyListeners(); // Notify listeners about the change
   }
 
-  void saveAccessTokenToSharedPreferences(String accessToken) async {
+  Future<void> saveAccessTokenToSharedPreferences(String accessToken) async {
     await prefs.setString('access_token', accessToken);
   }
 
@@ -95,11 +117,12 @@ class OAuthService extends ChangeNotifier {
     notifyListeners(); // Notify listeners about the change
   }
 
+  @override
   void dispose() {
     _sub?.cancel();
     super.dispose(); // Call dispose on ChangeNotifier to clean up any listeners
   }
 }
 
-
-
+Future<String?> getInitialLinkImpl() => getInitialLink();
+Stream<String?> linkStreamImpl() => linkStream;
