@@ -22,6 +22,7 @@ class GameCard extends StatelessWidget {
     String priceText = game.getFormatPriceWithCurrency();
 
     return GestureDetector(
+      key: Key('game_card_gesture_detector'),
       onTap: () {
         if (game.url != null && game.url!.isNotEmpty) {
           Provider.of<PageProvider>(context, listen: false).setExtraPage(
@@ -32,7 +33,7 @@ class GameCard extends StatelessWidget {
           );
         } else {
           logger.i('Could not launch ${game.url}');
-          throw 'Could not launch ${game.url}';
+          //throw 'Could not launch ${game.url}';
         }
       },
       child: Card(
