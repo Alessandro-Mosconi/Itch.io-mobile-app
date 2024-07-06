@@ -8,6 +8,8 @@ import '../widgets/game_card.dart';
 import '../widgets/jam_card.dart';
 
 class FavoritePage extends StatefulWidget {
+  const FavoritePage({super.key});
+
   @override
   _FavoritePageState createState() => _FavoritePageState();
 }
@@ -43,13 +45,13 @@ class _FavoritePageState extends State<FavoritePage> with SingleTickerProviderSt
         appBar: AppBar(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           elevation: 0,
-          title: CustomAppBar(
+          title: const CustomAppBar(
             leading: null, // If you have a leading widget, set it here
             actions: [], // If you have actions, set them here
           ),
           bottom: TabBar(
             controller: _tabController,
-            tabs: [
+            tabs: const [
               Tab(text: 'Games'),
               Tab(text: 'Jams'),
             ],
@@ -61,11 +63,11 @@ class _FavoritePageState extends State<FavoritePage> with SingleTickerProviderSt
               controller: _tabController,
               children: [
                 if (favoriteProvider.favoriteGames.isEmpty)
-                  Center(child: Text('Nessun gioco preferito ancora'))
+                  const Center(child: Text('Nessun gioco preferito ancora'))
                 else
                   _buildGameGrid(favoriteProvider.favoriteGames, context),
                 if (favoriteProvider.favoriteJams.isEmpty)
-                  Center(child: Text('Nessuna jam preferita ancora'))
+                  const Center(child: Text('Nessuna jam preferita ancora'))
                 else
                   _buildJamGrid(favoriteProvider.favoriteJams, context),
               ],
@@ -81,7 +83,7 @@ class _FavoritePageState extends State<FavoritePage> with SingleTickerProviderSt
     int crossAxisCount = MediaQuery.of(context).size.width > 600 ? 3 : 1;
 
     return GridView.builder(
-      padding: EdgeInsets.all(8),
+      padding: const EdgeInsets.all(8),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: crossAxisCount,
         crossAxisSpacing: 8,
@@ -100,7 +102,7 @@ class _FavoritePageState extends State<FavoritePage> with SingleTickerProviderSt
     int crossAxisCount = MediaQuery.of(context).size.width > 600 ? 3 : 1;
 
     return GridView.builder(
-      padding: EdgeInsets.all(8),
+      padding: const EdgeInsets.all(8),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: crossAxisCount,
         crossAxisSpacing: 8,

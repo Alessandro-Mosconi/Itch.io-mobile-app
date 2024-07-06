@@ -11,7 +11,7 @@ class GameCard extends StatelessWidget {
   final Game game;
   final Logger logger = Logger(printer: PrettyPrinter());
 
-  GameCard({Key? key, required this.game}) : super(key: key);
+  GameCard({super.key, required this.game});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class GameCard extends StatelessWidget {
     String priceText = game.getFormatPriceWithCurrency();
 
     return GestureDetector(
-      key: Key('game_card_gesture_detector'),
+      key: const Key('game_card_gesture_detector'),
       onTap: () {
         if (game.url != null && game.url!.isNotEmpty) {
           Provider.of<PageProvider>(context, listen: false).setExtraPage(
@@ -37,7 +37,7 @@ class GameCard extends StatelessWidget {
         }
       },
       child: Card(
-        margin: EdgeInsets.all(15),
+        margin: const EdgeInsets.all(15),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15),
         ),
@@ -45,11 +45,11 @@ class GameCard extends StatelessWidget {
         shadowColor: Colors.grey.withOpacity(0.5),
         color: theme.canvasColor,  // Change this line to make the background white
         child: Padding(
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Container(
+              SizedBox(
                 height: isTablet ? 300 : 200,
                 width: double.infinity,
                 child: ClipRRect(
@@ -60,21 +60,21 @@ class GameCard extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Text(
                 game.title ?? "Default Title",
                 style: theme.textTheme.headlineSmall,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 game.getCleanDescription() ?? "No description",
                 style: theme.textTheme.bodyMedium,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Row(
                 children: [
                   Row(
@@ -89,16 +89,16 @@ class GameCard extends StatelessWidget {
                         Icon(Icons.android, size: 24, color: theme.iconTheme.color),
                     ],
                   ),
-                  Spacer(), // Push the price chip to the right
+                  const Spacer(), // Push the price chip to the right
                   Container(
-                    padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                    padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                     decoration: BoxDecoration(
                       color: Colors.blue.withOpacity(0.2), // Use a fixed background color
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       priceText,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.blue, // Use a fixed text color
                         fontWeight: FontWeight.bold,
                         fontSize: 16, // Increase font size

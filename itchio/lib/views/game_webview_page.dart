@@ -15,7 +15,7 @@ class GameWebViewPage extends StatefulWidget {
   final Game? game;
   final Jam? jam;
 
-  GameWebViewPage({required this.url, this.game, this.jam});
+  const GameWebViewPage({super.key, required this.url, this.game, this.jam});
 
   @override
   _GameWebViewPageState createState() => _GameWebViewPageState();
@@ -71,7 +71,7 @@ class _GameWebViewPageState extends State<GameWebViewPage> {
       },
       onPageFinished: (String url) async {
         await _controller.runJavaScript(_hideUnwantedElementsScript);
-        await Future.delayed(Duration(milliseconds: 500));
+        await Future.delayed(const Duration(milliseconds: 500));
         setState(() {
           _isLoading = false;
           _elementsHidden = true;
@@ -160,7 +160,7 @@ class _GameWebViewPageState extends State<GameWebViewPage> {
                     },
                   ),
                   IconButton(
-                    icon: Icon(Icons.share),
+                    icon: const Icon(Icons.share),
                     onPressed: () {
                       Share.share('Check this ${isGame ? 'game' : 'jam'} at ${widget.url}');
                     },
@@ -171,7 +171,7 @@ class _GameWebViewPageState extends State<GameWebViewPage> {
           ),
         ],
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Provider.of<PageProvider>(context, listen: false).clearExtraPage();
           },
@@ -180,7 +180,7 @@ class _GameWebViewPageState extends State<GameWebViewPage> {
       body: Stack(
         children: [
           if (_elementsHidden) WebViewWidget(controller: _controller),
-          if (_isLoading) Center(child: CircularProgressIndicator()),
+          if (_isLoading) const Center(child: CircularProgressIndicator()),
         ],
       ),
     );

@@ -17,10 +17,12 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterL
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(ProviderApp());
+  runApp(const ProviderApp());
 }
 
 class ProviderApp extends StatefulWidget {
+  const ProviderApp({super.key});
+
   @override
   _ProviderAppState createState() => _ProviderAppState();
 }
@@ -65,12 +67,14 @@ class _ProviderAppState extends State<ProviderApp> {
           create: (_) => _notificationService,
         ),
       ],
-      child: MyApp(),
+      child: const MyApp(),
     );
   }
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     final themeNotifier = Provider.of<ThemeNotifier>(context);

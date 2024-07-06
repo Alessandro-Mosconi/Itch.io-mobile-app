@@ -10,6 +10,8 @@ class AuthOrHomePage extends StatelessWidget {
   final Logger logger = Logger(
     printer: PrettyPrinter(),
   );
+
+  AuthOrHomePage({super.key});
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<OAuthService>(context, listen: false);
@@ -18,7 +20,7 @@ class AuthOrHomePage extends StatelessWidget {
       future: authService.init(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Scaffold(
+          return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         } else if (snapshot.hasError) {
@@ -27,9 +29,9 @@ class AuthOrHomePage extends StatelessWidget {
           );
         } else {
           if (authService.accessToken == null) {
-            return AuthPage();
+            return const AuthPage();
           } else {
-            return MainView();
+            return const MainView();
           }
         }
       },

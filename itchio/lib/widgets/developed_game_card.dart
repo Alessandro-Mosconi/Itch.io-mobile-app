@@ -5,19 +5,19 @@ import 'game_card.dart';
 class DevelopedGameCard extends StatelessWidget {
   final Game game;
 
-  DevelopedGameCard({Key? key, required this.game}) : super(key: key);
+  const DevelopedGameCard({super.key, required this.game});
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.all(8),
+      margin: const EdgeInsets.all(8),
       child: Padding(
-        padding: EdgeInsets.all(8),
+        padding: const EdgeInsets.all(8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             GameCard(game: game),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: <Widget>[
@@ -51,8 +51,8 @@ class DevelopedGameCard extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(height: 8),
-        Text(label, style: TextStyle(fontSize: 14)),
+        const SizedBox(height: 8),
+        Text(label, style: const TextStyle(fontSize: 14)),
       ],
     );
   }

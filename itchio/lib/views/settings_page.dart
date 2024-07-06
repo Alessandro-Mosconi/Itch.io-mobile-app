@@ -4,6 +4,8 @@ import '../services/oauth_service.dart';
 import '../providers/theme_notifier.dart';
 
 class SettingsPage extends StatelessWidget {
+  const SettingsPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     final OAuthService authService = Provider.of<OAuthService>(context, listen: false);
@@ -12,7 +14,7 @@ class SettingsPage extends StatelessWidget {
 
     return Scaffold(
         appBar: AppBar(
-        title: Text('Settings'),
+        title: const Text('Settings'),
     backgroundColor: theme.scaffoldBackgroundColor, // Use the scaffold background color
     elevation: 0, // Optional: remove shadow for a flat look
     ),
@@ -22,24 +24,24 @@ class SettingsPage extends StatelessWidget {
     child: Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-    Text(
+    const Text(
     'Theme Mode',
     ),
     ListTile(
-    title: Text('Device Theme'),
-    leading: Icon(Icons.devices),
+    title: const Text('Device Theme'),
+    leading: const Icon(Icons.devices),
     trailing: Radio(
     value: ThemeMode.system,
     groupValue: themeNotifier.themeMode,
     onChanged: (value) {
     themeNotifier.setThemeMode(value as ThemeMode);
     },
-      key: Key('systemThemeRadio'),
+      key: const Key('systemThemeRadio'),
     ),
     ),
     ListTile(
-      title: Text('Light Mode'),
-      leading: Icon(Icons.wb_sunny),
+      title: const Text('Light Mode'),
+      leading: const Icon(Icons.wb_sunny),
       trailing: Radio(
         value: ThemeMode.light,
         groupValue: themeNotifier.themeMode,
@@ -50,8 +52,8 @@ class SettingsPage extends StatelessWidget {
       ),
     ),
       ListTile(
-        title: Text('Dark Mode'),
-        leading: Icon(Icons.nights_stay),
+        title: const Text('Dark Mode'),
+        leading: const Icon(Icons.nights_stay),
         trailing: Radio(
           value: ThemeMode.dark,
           groupValue: themeNotifier.themeMode,
@@ -61,13 +63,13 @@ class SettingsPage extends StatelessWidget {
           key: const Key('darkModeRadio'),
         ),
       ),
-      Divider(),
-      Text(
+      const Divider(),
+      const Text(
         'Theme Selection',
       ),
       ListTile(
-        title: Text('Standard Theme'),
-        leading: Icon(Icons.brightness_1, color: Colors.grey),
+        title: const Text('Standard Theme'),
+        leading: const Icon(Icons.brightness_1, color: Colors.grey),
         trailing: Radio(
           value: 'standard',
           groupValue: themeNotifier.currentTheme,
@@ -77,8 +79,8 @@ class SettingsPage extends StatelessWidget {
         ),
       ),
       ListTile(
-        title: Text('Fluxoki Theme'),
-        leading: Icon(Icons.brightness_1, color: Colors.orange),
+        title: const Text('Fluxoki Theme'),
+        leading: const Icon(Icons.brightness_1, color: Colors.orange),
         trailing: Radio(
           value: 'fluxoki',
           groupValue: themeNotifier.currentTheme,
@@ -89,8 +91,8 @@ class SettingsPage extends StatelessWidget {
         ),
       ),
       ListTile(
-        title: Text('Abyss Theme'),
-        leading: Icon(Icons.brightness_1, color: Colors.blueGrey),
+        title: const Text('Abyss Theme'),
+        leading: const Icon(Icons.brightness_1, color: Colors.blueGrey),
         trailing: Radio(
           value: 'abyss',
           groupValue: themeNotifier.currentTheme,
@@ -99,10 +101,10 @@ class SettingsPage extends StatelessWidget {
           },
         ),
       ),
-      Divider(),
+      const Divider(),
       ListTile(
-        leading: Icon(Icons.logout, color: Colors.red),
-        title: Text('Logout'),
+        leading: const Icon(Icons.logout, color: Colors.red),
+        title: const Text('Logout'),
         onTap: () {
           authService.logout();
           Navigator.pop(context); // Close the settings page

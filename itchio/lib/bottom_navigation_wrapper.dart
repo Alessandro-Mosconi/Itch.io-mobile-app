@@ -6,7 +6,7 @@ class BottomNavigationWrapper extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
 
-  BottomNavigationWrapper({
+  const BottomNavigationWrapper({super.key, 
     required this.child,
     required this.currentIndex,
     required this.onTap,

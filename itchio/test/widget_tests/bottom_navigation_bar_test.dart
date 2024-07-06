@@ -4,7 +4,7 @@ import 'package:itchio/widgets/bottom_navigation_bar.dart';
 
 void main() {
   testWidgets('MyBottomNavigationBar constructs correctly', (WidgetTester tester) async {
-    final onTapMock = (int index) {};
+    onTapMock(int index) {}
 
     await tester.pumpWidget(
       MaterialApp(
@@ -21,7 +21,7 @@ void main() {
   });
 
   testWidgets('MyBottomNavigationBar has correct items', (WidgetTester tester) async {
-    final onTapMock = (int index) {};
+    onTapMock(int index) {}
 
     await tester.pumpWidget(
       MaterialApp(
@@ -47,7 +47,7 @@ void main() {
   });
 
   testWidgets('MyBottomNavigationBar sets currentIndex correctly', (WidgetTester tester) async {
-    final onTapMock = (int index) {};
+    onTapMock(int index) {}
 
     await tester.pumpWidget(
       MaterialApp(
@@ -65,14 +65,14 @@ void main() {
   });
 
   testWidgets('MyBottomNavigationBar uses correct color scheme', (WidgetTester tester) async {
-    final onTapMock = (int index) {};
+    onTapMock(int index) {}
 
     await tester.pumpWidget(
       MaterialApp(
         theme: ThemeData(
-          colorScheme: ColorScheme.light(
+          colorScheme: const ColorScheme.light(
             primary: Colors.blue,
-            onBackground: Colors.grey,
+            onSurface: Colors.grey,
           ),
         ),
         home: Scaffold(
@@ -91,9 +91,9 @@ void main() {
 
   testWidgets('MyBottomNavigationBar onTap callback works', (WidgetTester tester) async {
     int tappedIndex = -1;
-    final onTapMock = (int index) {
+    onTapMock(int index) {
       tappedIndex = index;
-    };
+    }
 
     await tester.pumpWidget(
       MaterialApp(

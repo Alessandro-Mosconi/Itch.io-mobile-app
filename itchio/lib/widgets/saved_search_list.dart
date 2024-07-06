@@ -5,7 +5,7 @@ import 'carousel_card.dart';
 class SavedSearchList extends StatelessWidget {
   final List<SavedSearch> savedSearches;
 
-  SavedSearchList({required this.savedSearches});
+  const SavedSearchList({super.key, required this.savedSearches});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,7 @@ class SavedSearchList extends StatelessWidget {
           notify: search.notify ?? false,
           onUpdateSavedSearches: (bool hasChanges) {
             if (hasChanges) {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                 content: Text("Saved searches updated"),
               ));
             }

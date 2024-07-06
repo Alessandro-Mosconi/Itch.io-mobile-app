@@ -41,9 +41,6 @@ class OAuthService extends ChangeNotifier {
   }
 
   Future<void> init() async {
-    if (prefs == null) {
-      await _initSharedPreferences();
-    }
     await initSharedPreferences();
     await initUniLinks();
   }

@@ -30,33 +30,33 @@ void main() {
 
   group('SettingsPage Tests', () {
     testWidgets('Settings page builds and displays essential UI components', (WidgetTester tester) async {
-      await tester.pumpWidget(createTestWidget(SettingsPage()));
+      await tester.pumpWidget(createTestWidget(const SettingsPage()));
       await tester.pumpAndSettle();
       expect(find.text('Settings'), findsOneWidget);
     });
 
     testWidgets('Interactions with theme mode radio buttons', (WidgetTester tester) async {
-      await tester.pumpWidget(createTestWidget(SettingsPage()));
+      await tester.pumpWidget(createTestWidget(const SettingsPage()));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byKey(Key('darkModeRadio')));
+      await tester.tap(find.byKey(const Key('darkModeRadio')));
       await tester.pump();
 
       verify(mockThemeNotifier.setThemeMode(ThemeMode.dark)).called(1);
     });
 
     testWidgets('Ensure state is maintained when selecting themes', (WidgetTester tester) async {
-      await tester.pumpWidget(createTestWidget(SettingsPage()));
+      await tester.pumpWidget(createTestWidget(const SettingsPage()));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byKey(Key('fluxokiThemeRadio')));
+      await tester.tap(find.byKey(const Key('fluxokiThemeRadio')));
       await tester.pump();
 
       verify(mockThemeNotifier.setTheme('fluxoki')).called(1);
     });
 
     testWidgets('Response to logout tap', (WidgetTester tester) async {
-      await tester.pumpWidget(createTestWidget(SettingsPage()));
+      await tester.pumpWidget(createTestWidget(const SettingsPage()));
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('Logout'));

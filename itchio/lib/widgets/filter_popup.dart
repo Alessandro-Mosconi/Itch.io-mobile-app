@@ -6,7 +6,7 @@ class FilterPopup extends StatelessWidget {
   final void Function(Map<String, Set<String>>) onFiltersChanged;
   final Future<Map<String, List<Map<String, String>>>> fetchFilters;
 
-  FilterPopup({
+  const FilterPopup({super.key, 
     required this.selectedFilters,
     required this.onFiltersChanged,
     required this.fetchFilters,
@@ -18,7 +18,7 @@ class FilterPopup extends StatelessWidget {
       future: fetchFilters,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           return Center(child: Text("Error: ${snapshot.error}"));
         } else if (snapshot.hasData) {
@@ -36,7 +36,7 @@ class FilterPopup extends StatelessWidget {
           }).toList();
 
           return AlertDialog(
-            title: Text('Filter'),
+            title: const Text('Filter'),
             content: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,13 +45,13 @@ class FilterPopup extends StatelessWidget {
             ),
             actions: <Widget>[
             ElevatedButton(
-                child: Text('Confirm'),
+                child: const Text('Confirm'),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
               ),
               ElevatedButton(
-                child: Text('Close'),
+                child: const Text('Close'),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
@@ -59,7 +59,7 @@ class FilterPopup extends StatelessWidget {
             ],
           );
         } else {
-          return Center(child: Text("No data available"));
+          return const Center(child: Text("No data available"));
         }
       },
     );

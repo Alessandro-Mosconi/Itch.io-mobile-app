@@ -2,17 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:itchio/models/game.dart';
 import 'package:itchio/providers/page_provider.dart';
-import 'package:itchio/services/notification_service.dart';
 import 'package:itchio/widgets/carousel_card.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 import 'package:provider/provider.dart';
 
 
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:provider/provider.dart';
 
 void main() {
   group('CarouselCard Tests', () {
@@ -69,7 +63,7 @@ void main() {
         expect(dismissibleFinder, findsOneWidget);
 
         // Trigger dismiss in one direction (e.g., right)
-        await tester.drag(dismissibleFinder, Offset(-1000, 0));
+        await tester.drag(dismissibleFinder, const Offset(-1000, 0));
         await tester.pumpAndSettle();
 
         var cancelButtonFinder = find.widgetWithText(TextButton, 'Cancel');
@@ -83,7 +77,7 @@ void main() {
         expect(find.text('Cancel'), findsNothing);
         expect(find.text('Confirm'), findsNothing);
 
-        await tester.drag(dismissibleFinder, Offset(-1000, 0));
+        await tester.drag(dismissibleFinder, const Offset(-1000, 0));
         await tester.pumpAndSettle();
 
         var confirmButtonFinder = find.widgetWithText(ElevatedButton, 'Confirm');
@@ -122,7 +116,7 @@ void main() {
         expect(dismissibleFinder, findsOneWidget);
 
         // Trigger dismiss in one direction (e.g., right)
-        await tester.drag(dismissibleFinder, Offset(1000, 0));
+        await tester.drag(dismissibleFinder, const Offset(1000, 0));
         await tester.pumpAndSettle();
 
         var cancelButtonFinder = find.widgetWithText(TextButton, 'Cancel');
@@ -136,7 +130,7 @@ void main() {
         expect(find.text('Cancel'), findsNothing);
         expect(find.text('Confirm'), findsNothing);
 
-        await tester.drag(dismissibleFinder, Offset(1000, 0));
+        await tester.drag(dismissibleFinder, const Offset(1000, 0));
         await tester.pumpAndSettle();
 
         var confirmButtonFinder = find.widgetWithText(ElevatedButton, 'Confirm');
@@ -211,7 +205,7 @@ void main() {
 
         final initialScrollOffset = tester.getTopLeft(find.byType(ListView)).dx;
 
-        await tester.drag(find.byType(ListView), Offset(-100, 0));
+        await tester.drag(find.byType(ListView), const Offset(-100, 0));
         await tester.pump();
 
         final newScrollOffset = tester.getTopLeft(find.byType(ListView)).dx;
@@ -255,7 +249,7 @@ Game getGame(String title) {
     'author': 'Example Author',
     'currency': 'USD',
   };
-  return new Game(gameData);
+  return Game(gameData);
 }
 
 Map<String, dynamic> getUser() {

@@ -1,28 +1,27 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 import '../models/jam.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/jam_card.dart';
 import 'package:badges/badges.dart' as badges;
 
 class JamsPage extends StatefulWidget {
+  const JamsPage({super.key});
+
   @override
   _JamsPageState createState() => _JamsPageState();
 }
 
 class _JamsPageState extends State<JamsPage> {
   final Logger logger = Logger(printer: PrettyPrinter());
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   List<Jam> _allJams = [];
   List<Jam> _filteredJams = [];
-  bool _isSearching = false;
+  final bool _isSearching = false;
   int _activeFiltersCount = 0;
 
   DateTime? _startDateAfterFilter;
@@ -82,7 +81,7 @@ class _JamsPageState extends State<JamsPage> {
 
   bool checkTimestamp(int? timestamp) {
     if (timestamp == null) return false;
-    final cacheDuration = Duration(hours: 24);
+    const cacheDuration = Duration(hours: 24);
     final now = DateTime.now().millisecondsSinceEpoch;
     return now - timestamp < cacheDuration.inMilliseconds;
   }
@@ -118,7 +117,7 @@ class _JamsPageState extends State<JamsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(),
+      appBar: const CustomAppBar(),
       body: Column(
         children: [
           Padding(
@@ -134,20 +133,20 @@ class _JamsPageState extends State<JamsPage> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
-                            icon: Icon(Icons.search),
+                            icon: const Icon(Icons.search),
                             onPressed: _applyFilters,
                           ),
                           IconButton(
-                            icon: Icon(Icons.clear),
+                            icon: const Icon(Icons.clear),
                             onPressed: _clearFilters,
                           ),
                           IconButton(
                             icon: badges.Badge(
                               showBadge: _activeFiltersCount > 0,
-                              badgeContent: Text('$_activeFiltersCount', style: TextStyle(color: Colors.white)),
-                              badgeStyle: badges.BadgeStyle(),
-                              badgeAnimation: badges.BadgeAnimation.slide(),
-                              child: Icon(Icons.filter_list),
+                              badgeContent: Text('$_activeFiltersCount', style: const TextStyle(color: Colors.white)),
+                              badgeStyle: const badges.BadgeStyle(),
+                              badgeAnimation: const badges.BadgeAnimation.slide(),
+                              child: const Icon(Icons.filter_list),
                             ),
                             onPressed: () => _showFilterDialog(context),
                           ),
@@ -161,7 +160,7 @@ class _JamsPageState extends State<JamsPage> {
           ),
           Expanded(
             child: _isSearching
-                ? Center(child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator())
                 : _buildJamListOrGrid(),
           ),
         ],
@@ -173,7 +172,7 @@ class _JamsPageState extends State<JamsPage> {
     return LayoutBuilder(
       builder: (context, constraints) {
         if (_filteredJams.isEmpty) {
-          return Center(child: Text('No jams found'));
+          return const Center(child: Text('No jams found'));
         }
 
         if (constraints.maxWidth > 600) {
@@ -231,8 +230,8 @@ class _JamsPageState extends State<JamsPage> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text('Filter Jams'),
-              content: Container(
+              title: const Text('Filter Jams'),
+              content: SizedBox(
                 width: MediaQuery.of(context).size.width,
                 child: MediaQuery.of(context).size.width > 600
                     ? GridView.count(
@@ -440,13 +439,13 @@ class _JamsPageState extends State<JamsPage> {
                     _applyFilters();
                     Navigator.of(context).pop();
                   },
-                  child: Text('Confirm'),
+                  child: const Text('Confirm'),
                 ),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: Text('Close'),
+                  child: const Text('Close'),
                 ),
               ],
             );
@@ -461,20 +460,20 @@ class _JamsPageState extends State<JamsPage> {
     return ListTile(
       title: Text(
         title,
-        style: TextStyle(fontWeight: FontWeight.bold),
+        style: const TextStyle(fontWeight: FontWeight.bold),
       ),
-      subtitle: selectedDate != null ? Text(selectedDate.toIso8601String().split('T')[0]) : Text("Not selected"),
+      subtitle: selectedDate != null ? Text(selectedDate.toIso8601String().split('T')[0]) : const Text("Not selected"),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           IconButton(
-            icon: Icon(Icons.calendar_today),
+            icon: const Icon(Icons.calendar_today),
             onPressed: () => _selectDate(context, (date) {
               onDateSelected(date);
             }),
           ),
           IconButton(
-            icon: Icon(Icons.clear),
+            icon: const Icon(Icons.clear),
             onPressed: () {
               onDelete();
             },

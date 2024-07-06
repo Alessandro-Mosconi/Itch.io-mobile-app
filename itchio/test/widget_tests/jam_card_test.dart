@@ -1,16 +1,11 @@
-import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart' as intl;
 
-import 'package:itchio/main.dart';
 import 'package:itchio/models/jam.dart';
 import 'package:itchio/providers/page_provider.dart';
-import 'package:itchio/views/game_webview_page.dart';
 import 'package:itchio/widgets/jam_card.dart';
 import 'package:logger/logger.dart';
-import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -71,7 +66,7 @@ void main() {
     final votingEndButtonFinderAfter = find.widgetWithText(ElevatedButton, "Voting end:\n${_formatDate(jam.votingEndDate)}");
     expect(votingEndButtonFinderAfter, findsNothing);
 
-    await tester.tap(find.byKey(Key('jam_card_gesture_detector')));
+    await tester.tap(find.byKey(const Key('jam_card_gesture_detector')));
 
     await tester.pumpAndSettle();
     //TODO da verificare davvero
@@ -156,7 +151,7 @@ void main() {
 
     //TEST TAP ON JAM
 
-    await tester.tap(find.byKey(Key('jam_card_gesture_detector')));
+    await tester.tap(find.byKey(const Key('jam_card_gesture_detector')));
 
     await tester.pumpAndSettle();
     //TODO da verificare davvero

@@ -1,7 +1,4 @@
 import 'dart:convert';
-import 'package:crypto/crypto.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:itchio/models/saved_search.dart';
 import 'package:itchio/providers/search_bookmark_provider.dart';
@@ -10,7 +7,6 @@ import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/favorite_provider.dart';
-import '../providers/page_provider.dart';
 import '../widgets/custom_app_bar.dart';
 import 'package:http/http.dart' as http;
 
@@ -48,6 +44,8 @@ Future<List<SavedSearch>> fetchSavedSearch() async {
 }
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -66,16 +64,16 @@ class _HomePageState extends State<HomePage> {
     initFavorites(context);
 
     return Scaffold(
-      appBar: CustomAppBar(),
+      appBar: const CustomAppBar(),
       body: FutureBuilder<List<SavedSearch>>(
         future: futureSavedSearches,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Failed to load saved search results'));
+            return const Center(child: Text('Failed to load saved search results'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No saved searches found'));
+            return const Center(child: Text('No saved searches found'));
           } else {
             return SavedSearchList(savedSearches: snapshot.data!);
           }

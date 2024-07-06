@@ -11,17 +11,17 @@ class JamCard extends StatelessWidget {
   final Jam jam;
   final bool isTablet;
 
-  JamCard({required this.jam, required this.isTablet});
+  const JamCard({super.key, required this.jam, required this.isTablet});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return GestureDetector(
-      key: Key('jam_card_gesture_detector'),
+      key: const Key('jam_card_gesture_detector'),
       onTap: () => _navigateToJam(context, jam),
       child: Card(
-        margin: EdgeInsets.all(15),
+        margin: const EdgeInsets.all(15),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15),
         ),
@@ -33,7 +33,7 @@ class JamCard extends StatelessWidget {
             Column(
               children: [
                 ListTile(
-                  contentPadding: EdgeInsets.all(20),
+                  contentPadding: const EdgeInsets.all(20),
                   title: Text(jam.title ?? '', style: theme.textTheme.headlineSmall),
                   subtitle: JamInfo(jam: jam, isTablet: isTablet),
                 ),
@@ -82,8 +82,8 @@ class JamCard extends StatelessWidget {
       location: 'Event location',
       startDate: startDate,
       endDate: endDate,
-      iosParams: IOSParams(reminder: Duration(hours: 1)),
-      androidParams: AndroidParams(emailInvites: []),
+      iosParams: const IOSParams(reminder: Duration(hours: 1)),
+      androidParams: const AndroidParams(emailInvites: []),
     );
   }
 
@@ -122,7 +122,7 @@ class JamCard extends StatelessWidget {
             theme.primaryColor,
             "Jam duration:\n${_formatDate(jam.startDate)}\n${_formatDate(jam.endDate)}",
           ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         if (jam.votingEndDate != null)
           _buildEventOptionButton(
             context,
@@ -144,19 +144,19 @@ class JamCard extends StatelessWidget {
         Navigator.pop(context, eventType);
       },
       style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all<Color>(color),
-        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+        backgroundColor: WidgetStateProperty.all<Color>(color),
+        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0),
           ),
         ),
       ),
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 16),
+        padding: const EdgeInsets.symmetric(vertical: 16),
         child: Text(
           text,
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 16, color: Colors.white),
+          style: const TextStyle(fontSize: 16, color: Colors.white),
         ),
       ),
     );
@@ -192,7 +192,7 @@ class JamInfo extends StatelessWidget {
   final bool isTablet;
   final Logger logger = Logger(printer: PrettyPrinter());
 
-  JamInfo({required this.jam, required this.isTablet});
+  JamInfo({super.key, required this.jam, required this.isTablet});
 
   @override
   Widget build(BuildContext context) {
@@ -216,7 +216,7 @@ class JamInfo extends StatelessWidget {
                   _buildInfoRow(Icons.date_range, 'Start:', jam.startDate, theme.primaryColor),
                   _buildInfoRow(Icons.event, 'End:', jam.endDate, theme.colorScheme.error),
                 ),
-              SizedBox(height: 5),
+              const SizedBox(height: 5),
               if (isTablet)
                 _buildTabletLayout(
                   context,
@@ -240,7 +240,7 @@ class JamInfo extends StatelessWidget {
     return Column(
       children: [
         infoRow1,
-        SizedBox(height: 5),
+        const SizedBox(height: 5),
         infoRow2,
       ],
     );
@@ -259,7 +259,7 @@ class JamInfo extends StatelessWidget {
     return Row(
       children: [
         Icon(icon, color: color),
-        SizedBox(width: 5),
+        const SizedBox(width: 5),
         Flexible(
           child: Text(
             '$label ${_formatInfoValue(value)}',

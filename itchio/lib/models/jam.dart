@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 
-import 'game.dart';
 import 'jam_game.dart';
 
 class Jam {

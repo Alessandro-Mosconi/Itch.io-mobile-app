@@ -4,15 +4,17 @@ import 'package:provider/provider.dart';
 import '../services/oauth_service.dart';
 
 class AuthPage extends StatelessWidget {
+  const AuthPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     final OAuthService authService = Provider.of<OAuthService>(context, listen: false);
 
-    final logoAsset = 'assets/logo-black-new.svg';
+    const logoAsset = 'assets/logo-black-new.svg';
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Itch.io Login'),
+        title: const Text('Itch.io Login'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(32.0),
@@ -26,17 +28,17 @@ class AuthPage extends StatelessWidget {
                 height: 150, // Increased the height for a larger logo
               ),
             ),
-            SizedBox(height: 40),
-            Container(
+            const SizedBox(height: 40),
+            SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () async {
                   authService.startOAuth();
                 },
-                icon: Icon(Icons.login, size: 32), // Made the icon bigger
-                label: Text('Login with Itch.io', style: TextStyle(fontSize: 18)),
+                icon: const Icon(Icons.login, size: 32), // Made the icon bigger
+                label: const Text('Login with Itch.io', style: TextStyle(fontSize: 18)),
                 style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),

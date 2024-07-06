@@ -40,8 +40,8 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
             headlineSmall: TextStyle(color: Colors.orange, fontWeight: FontWeight.w900),
             labelLarge: TextStyle(color: Colors.orange), // Explicitly set text color
           ),
-          colorScheme: ColorScheme.light(
-            background: Colors.white,
+          colorScheme: const ColorScheme.light(
+            surface: Colors.white,
             primary: Colors.orange,
             secondary: Colors.blue,
           ),
@@ -59,8 +59,8 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
             headlineSmall: TextStyle(color: Colors.blueGrey, fontWeight: FontWeight.w900),
             labelLarge: TextStyle(color: Colors.blueGrey), // Explicitly set text color
           ),
-          colorScheme: ColorScheme.light(
-            background: Colors.white,
+          colorScheme: const ColorScheme.light(
+            surface: Colors.white,
             primary: Colors.blueGrey,
             secondary: Colors.deepPurple,
           ),
@@ -78,8 +78,8 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
             headlineSmall: TextStyle(color: Colors.black, fontWeight: FontWeight.w900),
             labelLarge: TextStyle(color: Colors.black), // Explicitly set text color
           ),
-          colorScheme: ColorScheme.light(
-            background: Colors.white,
+          colorScheme: const ColorScheme.light(
+            surface: Colors.white,
             primary: Colors.black,
             secondary: Colors.white,
           ),
@@ -94,8 +94,8 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
             headlineSmall: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
             labelLarge: TextStyle(color: Colors.black), // Explicitly set text color
           ),
-          colorScheme: ColorScheme.light(
-            background: Colors.white,
+          colorScheme: const ColorScheme.light(
+            surface: Colors.white,
             primary: Colors.black,
             secondary: Colors.black54,
           ),
@@ -118,8 +118,8 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
             headlineSmall: TextStyle(color: Colors.orange, fontWeight: FontWeight.w900),
             labelLarge: TextStyle(color: Colors.orange), // Explicitly set text color
           ),
-          colorScheme: ColorScheme.dark(
-            background: Colors.black,
+          colorScheme: const ColorScheme.dark(
+            surface: Colors.black,
             primary: Colors.orange,
             secondary: Colors.blue,
           ),
@@ -138,7 +138,7 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
             labelLarge: TextStyle(color: Colors.blueGrey), // Explicitly set text color
           ),
           colorScheme: ColorScheme.dark(
-            background: Colors.blueGrey[900]!,
+            surface: Colors.blueGrey[900]!,
             primary: Colors.blueGrey,
             secondary: Colors.deepPurple,
           ),
@@ -156,8 +156,8 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
             headlineSmall: TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
             labelLarge: TextStyle(color: Colors.white), // Explicitly set text color
           ),
-          colorScheme: ColorScheme.dark(
-            background: Colors.black,
+          colorScheme: const ColorScheme.dark(
+            surface: Colors.black,
             primary: Colors.black,
             secondary: Colors.white,
           ),
@@ -172,8 +172,8 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
             headlineSmall: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             labelLarge: TextStyle(color: Colors.white), // Explicitly set text color
           ),
-          colorScheme: ColorScheme.dark(
-            background: Colors.black,
+          colorScheme: const ColorScheme.dark(
+            surface: Colors.black,
             primary: Colors.white,
             secondary: Colors.white70,
           ),

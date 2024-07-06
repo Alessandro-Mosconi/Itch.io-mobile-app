@@ -6,7 +6,7 @@ class FilterRowWidget extends StatefulWidget {
   final Set<String> selectedFilters;
   final void Function(Set<String>) onFiltersChanged;
 
-  FilterRowWidget({
+  const FilterRowWidget({super.key, 
     required this.label,
     required this.options,
     required this.selectedFilters,
@@ -38,7 +38,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
             children: widget.options.map((option) {
               final isSelected = _selectedFilters.contains(option['name']);
               return Padding(
-                padding: EdgeInsets.only(right: 8.0),
+                padding: const EdgeInsets.only(right: 8.0),
                 child: FilterChip(
                   label: Text(option['label']!),
                   selected: isSelected,

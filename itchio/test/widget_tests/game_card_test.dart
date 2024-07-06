@@ -1,18 +1,11 @@
-import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart' as intl;
 import 'package:itchio/customIcons/custom_icon_icons.dart';
 
-import 'package:itchio/main.dart';
 import 'package:itchio/models/game.dart';
 import 'package:itchio/providers/page_provider.dart';
-import 'package:itchio/views/game_webview_page.dart';
 import 'package:itchio/widgets/game_card.dart';
 import 'package:logger/logger.dart';
-import 'package:mockito/mockito.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 import 'package:provider/provider.dart';
 
@@ -20,7 +13,7 @@ class MyApp extends StatelessWidget {
 
   final bool isUrlInvalid;
 
-  MyApp(this.isUrlInvalid);
+  const MyApp(this.isUrlInvalid, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +37,7 @@ void main() {
 
     Game game = getGame(false);
 
-    await mockNetworkImagesFor(() => tester.pumpWidget(MyApp(false)));
+    await mockNetworkImagesFor(() => tester.pumpWidget(const MyApp(false)));
 
     expect(find.text(game.title!), findsOneWidget);
     expect(find.text(game.getCleanDescription()!), findsOneWidget);
@@ -63,7 +56,7 @@ void main() {
 
     //TEST TAP ON JAM
 
-    await tester.tap(find.byKey(Key('game_card_gesture_detector')));
+    await tester.tap(find.byKey(const Key('game_card_gesture_detector')));
 
     await tester.pumpAndSettle();
     //TODO da verificare davvero
@@ -75,7 +68,7 @@ void main() {
 
     Game game = getGame(true);
 
-    await mockNetworkImagesFor(() => tester.pumpWidget(MyApp(true)));
+    await mockNetworkImagesFor(() => tester.pumpWidget(const MyApp(true)));
 
     expect(find.text(game.title!), findsOneWidget);
     expect(find.text(game.getCleanDescription()!), findsOneWidget);
@@ -93,7 +86,7 @@ void main() {
 
 
     //TEST TAP ON JAM
-    await tester.tap(find.byKey(Key('game_card_gesture_detector')));
+    await tester.tap(find.byKey(const Key('game_card_gesture_detector')));
     await tester.pumpAndSettle();
 
 
@@ -142,7 +135,7 @@ Game getGame(bool isUrlInvalid) {
     'author': 'Example Author',
     'currency': 'USD',
   };
-  return new Game(gameData);
+  return Game(gameData);
 }
 
 Map<String, dynamic> getUser() {

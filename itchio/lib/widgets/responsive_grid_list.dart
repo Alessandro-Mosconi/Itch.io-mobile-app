@@ -6,7 +6,7 @@ class ResponsiveGridList extends StatelessWidget {
   final List<Game> games;
   final bool isSearch;
 
-  ResponsiveGridList({required this.games, this.isSearch = false});
+  const ResponsiveGridList({super.key, required this.games, this.isSearch = false});
 
   @override
   Widget build(BuildContext context) {

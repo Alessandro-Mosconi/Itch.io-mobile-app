@@ -24,7 +24,7 @@ class NotificationService {
 
   Future<void> initializeLocalNotifications() async {
     const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/itch');
-    final InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
+    const InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 

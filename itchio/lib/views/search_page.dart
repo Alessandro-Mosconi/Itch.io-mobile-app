@@ -3,10 +3,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:crypto/crypto.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/responsive_grid_list.dart';
 import '../models/game.dart';
@@ -19,7 +17,7 @@ class SearchPage extends StatefulWidget {
   final String? initialTab;
   final String? initialFilters;
 
-  SearchPage({this.initialTab, this.initialFilters});
+  const SearchPage({super.key, this.initialTab, this.initialFilters});
 
   @override
   _SearchPageState createState() => _SearchPageState();
@@ -255,7 +253,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
 
     final currentTabName = currentTab['name'] ?? 'games';
 
-    bool providerBookmarkSaved = await context.read<SearchBookmarkProvider>().isSearchBookmarked(currentTabName, concatenatedFilters);
+    bool providerBookmarkSaved = context.read<SearchBookmarkProvider>().isSearchBookmarked(currentTabName, concatenatedFilters);
 
     setState(() {
       isBookmarked = providerBookmarkSaved;
@@ -286,7 +284,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
         ? '/${_selectedFilters.entries.expand((entry) => entry.value).join('/')}'
         : '';
 
-    bool providerBookmarkSaved = await context.read<SearchBookmarkProvider>().isSearchBookmarked(tab, concatenatedFilters);
+    bool providerBookmarkSaved = context.read<SearchBookmarkProvider>().isSearchBookmarked(tab, concatenatedFilters);
 
     setState(() {
       isBookmarked = !providerBookmarkSaved;
@@ -296,13 +294,13 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
       await context.read<SearchBookmarkProvider>().addSearchBookmark(tab, concatenatedFilters);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Search saved successfully')),
+        const SnackBar(content: Text('Search saved successfully')),
       );
     } else {
       await context.read<SearchBookmarkProvider>().removeSearchBookmark(tab, concatenatedFilters);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Search removed successfully')),
+        const SnackBar(content: Text('Search removed successfully')),
       );
     }
 
@@ -310,7 +308,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
 
   Widget _buildTabsPage() {
     if (_tabs.isEmpty) {
-      return Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator());
     } else {
       return Column(
         children: [
@@ -338,7 +336,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
       future: searchResults,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           logger.e('FutureBuilder Error: ${snapshot.error}');
           return Center(child: Text("Error: ${snapshot.error}"));
@@ -349,7 +347,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
 
           return ResponsiveGridList(games: games, isSearch: true);
         } else {
-          return Center(child: Text("No results found"));
+          return const Center(child: Text("No results found"));
         }
       },
     );
@@ -360,7 +358,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
       future: tabFilteredResults,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           logger.e('FutureBuilder Error: ${snapshot.error}');
           return Center(child: Text("Error: ${snapshot.error}"));
@@ -373,8 +371,8 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
             children: [
               if (items.isNotEmpty)
                 Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 ),
               Expanded(
                 child: ResponsiveGridList(games: items),
@@ -382,7 +380,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
             ],
           );
         } else {
-          return Center(child: Text("No results found"));
+          return const Center(child: Text("No results found"));
         }
       },
     );
@@ -391,7 +389,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(),
+      appBar: const CustomAppBar(),
       body: Column(
         children: [
           _buildSearchBar(),

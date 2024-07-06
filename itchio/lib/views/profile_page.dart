@@ -14,7 +14,7 @@ import '../widgets/game_card.dart'; // Import the GameCard widget
 import '../widgets/developed_game_card.dart'; // Import the DevelopedGameCard widget
 
 class ProfilePage extends StatefulWidget {
-  ProfilePage({Key? key}) : super(key: key);
+  const ProfilePage({super.key});
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -96,11 +96,11 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
       appBar: CustomAppBar(
         actions: [
           IconButton(
-            icon: Icon(Icons.settings),
+            icon: const Icon(Icons.settings),
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => SettingsPage()),
+                MaterialPageRoute(builder: (context) => const SettingsPage()),
               );
             },
           ),
@@ -112,7 +112,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
             return Center(
               child: ElevatedButton(
                 onPressed: authService.startOAuth,
-                child: Text('Authenticate'),
+                child: const Text('Authenticate'),
               ),
             );
           } else {
@@ -120,13 +120,13 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
               future: user,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
                   return Center(child: Text("Error: ${snapshot.error}"));
                 } else if (snapshot.hasData) {
                   return buildUserProfile(snapshot.data!);
                 } else {
-                  return Center(child: Text("Loading profile..."));
+                  return const Center(child: Text("Loading profile..."));
                 }
               },
             );
@@ -140,9 +140,9 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
     return Column(
       children: <Widget>[
         _buildProfileHeader(user),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         buildUserTags(user),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         Expanded(
           child: isTablet(context) ? buildTabletLayout() : buildTabLayout(),
         ),
@@ -161,32 +161,32 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
               padding: const EdgeInsets.symmetric(horizontal: 10.0),
               child: Column(
                 children: [
-                  Center(
+                  const Center(
                     child: Text(
                       'Developed Games',
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  SizedBox(height: 10), // Space between title and content
+                  const SizedBox(height: 10), // Space between title and content
                   Expanded(child: buildGamesSection(developedGames)),
                 ],
               ),
             ),
           ),
-          SizedBox(width: 40), // Increase the gap between the columns
+          const SizedBox(width: 40), // Increase the gap between the columns
           Expanded(
             flex: 1,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10.0),
               child: Column(
                 children: [
-                  Center(
+                  const Center(
                     child: Text(
                       'Purchased Games',
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  SizedBox(height: 10), // Space between title and content
+                  const SizedBox(height: 10), // Space between title and content
                   Expanded(child: buildPurchasedGamesSection(purchasedGames)),
                 ],
               ),
@@ -204,7 +204,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
       children: [
         TabBar(
           controller: _tabController,
-          tabs: [
+          tabs: const [
             Tab(text: "Developed Games"),
             Tab(text: "Purchased Games"),
           ],
@@ -227,17 +227,17 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
       children: [
         Text(
           user.displayName ?? "",
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         CircleAvatar(
           radius: 60,
           backgroundImage: NetworkImage(user.coverUrl ?? ""),
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         Text(
           "@${user.username ?? ""}",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey),
         ),
       ],
     );
@@ -261,14 +261,14 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
 
   Widget buildTag(String label, Color color) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Text(
         label,
-        style: TextStyle(color: Colors.white),
+        style: const TextStyle(color: Colors.white),
       ),
     );
   }
@@ -278,7 +278,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
         future: gamesFuture,
         builder: (context, snapshot) {
       if (snapshot.connectionState == ConnectionState.waiting) {
-        return Center(child: CircularProgressIndicator());
+        return const Center(child: CircularProgressIndicator());
       } else if (snapshot.hasError) {
         return Center(child: Text("Error: ${snapshot.error}"));
       } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
@@ -289,7 +289,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
           },
         );
       } else {
-        return Center(child: Text("No games found"));
+        return const Center(child: Text("No games found"));
       }
         },
     );
@@ -300,7 +300,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
       future: gamesFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           return Center(child: Text("Error: ${snapshot.error}"));
         } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
@@ -310,11 +310,11 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
               PurchaseGame purchasedGame = snapshot.data![index];
               return purchasedGame.game != null
                   ? GameCard(game: purchasedGame.game!)
-                  : SizedBox.shrink();
+                  : const SizedBox.shrink();
             },
           );
         } else {
-          return Center(child: Text("No games found"));
+          return const Center(child: Text("No games found"));
         }
       },
     );

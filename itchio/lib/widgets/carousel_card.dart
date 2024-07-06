@@ -20,7 +20,7 @@ class CarouselCard extends StatefulWidget {
   final bool notify;
   final Function(bool) onUpdateSavedSearches;
 
-  CarouselCard({
+  const CarouselCard({super.key, 
     required this.title,
     required this.subtitle,
     required this.items,
@@ -54,22 +54,22 @@ class _CarouselCardState extends State<CarouselCard> {
   }
 
   void _startAutoScroll() {
-    _scrollTimer = Timer.periodic(Duration(seconds: 4), (timer) async {
+    _scrollTimer = Timer.periodic(const Duration(seconds: 4), (timer) async {
       if (_scrollController.hasClients) {
         final maxScroll = _scrollController.position.maxScrollExtent;
         final currentScroll = _scrollController.offset;
-        final delta = 200.0; // Adjust the scroll amount as needed
+        const delta = 200.0; // Adjust the scroll amount as needed
 
         if (currentScroll + delta >= maxScroll) {
           await _scrollController.animateTo(
             0.0,
-            duration: Duration(seconds: 3),
+            duration: const Duration(seconds: 3),
             curve: Curves.easeInOut,
           );
         } else {
           await _scrollController.animateTo(
             currentScroll + delta,
-            duration: Duration(seconds: 3),
+            duration: const Duration(seconds: 3),
             curve: Curves.easeInOut,
           );
         }
@@ -85,7 +85,7 @@ class _CarouselCardState extends State<CarouselCard> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Card(
-      margin: EdgeInsets.all(15),
+      margin: const EdgeInsets.all(15),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
@@ -113,12 +113,12 @@ class _CarouselCardState extends State<CarouselCard> {
   Widget _buildCardContent(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildCardHeader(context),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           _buildGameList(),
         ],
       ),
@@ -128,7 +128,7 @@ class _CarouselCardState extends State<CarouselCard> {
   Padding _buildCardHeader(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: EdgeInsets.only(bottom: 8.0),
+      padding: const EdgeInsets.only(bottom: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -140,7 +140,7 @@ class _CarouselCardState extends State<CarouselCard> {
                   _kebabToCapitalized(widget.title),
                   style: theme.textTheme.headlineSmall,
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   widget.subtitle,
                   style: theme.textTheme.bodyMedium,
@@ -191,7 +191,7 @@ class _CarouselCardState extends State<CarouselCard> {
       },
       child: Container(
         width: 250,
-        margin: EdgeInsets.symmetric(horizontal: 5), // between items
+        margin: const EdgeInsets.symmetric(horizontal: 5), // between items
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -204,7 +204,7 @@ class _CarouselCardState extends State<CarouselCard> {
                 height: 200,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Flexible(
               child: Text(
                 game.title ?? '',
@@ -243,14 +243,14 @@ class _CarouselCardState extends State<CarouselCard> {
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: Text("Cancel"),
+              child: const Text("Cancel"),
             ),
             ElevatedButton(
               onPressed: () async {
                 await onConfirm();
                 Navigator.of(context).pop(true);
               },
-              child: Text("Confirm"),
+              child: const Text("Confirm"),
             ),
           ],
         );
@@ -261,7 +261,7 @@ class _CarouselCardState extends State<CarouselCard> {
   Widget _buildDismissBackground(Alignment alignment, Color color, IconData icon) {
     return Container(
       alignment: alignment,
-      padding: EdgeInsets.only(left: 20.0, right: 20.0),
+      padding: const EdgeInsets.only(left: 20.0, right: 20.0),
       color: color,
       child: Icon(icon, color: Colors.white),
     );
@@ -326,7 +326,7 @@ class _CarouselCardState extends State<CarouselCard> {
     });
     prefs.setString("saved_searches", json.encode(results));
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Search deleted successfully')),
+      const SnackBar(content: Text('Search deleted successfully')),
     );
   }
 

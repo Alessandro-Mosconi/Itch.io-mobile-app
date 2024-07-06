@@ -4,7 +4,7 @@ class MyBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
 
-  MyBottomNavigationBar({required this.currentIndex, required this.onTap});
+  const MyBottomNavigationBar({super.key, required this.currentIndex, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +35,7 @@ class MyBottomNavigationBar extends StatelessWidget {
       ],
       currentIndex: currentIndex,
       selectedItemColor: colorScheme.primary,
-      unselectedItemColor: colorScheme.onBackground,
+      unselectedItemColor: colorScheme.onSurface,
       onTap: onTap,
     );
   }

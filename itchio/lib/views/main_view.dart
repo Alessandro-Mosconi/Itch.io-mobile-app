@@ -9,17 +9,19 @@ import '../views/favorite_page.dart';
 import '../views/profile_page.dart';
 import 'jams_page.dart';
 class MainView extends StatefulWidget {
+  const MainView({super.key});
+
   @override
   _MainViewState createState() => _MainViewState();
 }
 
 class _MainViewState extends State<MainView> {
   final List<Widget> _widgetOptions = <Widget>[
-    HomePage(),
-    SearchPage(),
-    JamsPage(),
-    FavoritePage(),
-    ProfilePage(),
+    const HomePage(),
+    const SearchPage(),
+    const JamsPage(),
+    const FavoritePage(),
+    const ProfilePage(),
   ];
 
   @override

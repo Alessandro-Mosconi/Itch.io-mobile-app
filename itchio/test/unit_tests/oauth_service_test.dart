@@ -2,11 +2,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:itchio/services/oauth_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:logger/logger.dart';
 import 'dart:async';
-import 'package:url_launcher/url_launcher.dart'; // import url_launcher
-import 'package:flutter/widgets.dart'; // Ensure WidgetsFlutterBinding is available
+// import url_launcher
+// Ensure WidgetsFlutterBinding is available
 import '../mocks.dart';
 
 void main() {

@@ -11,7 +11,7 @@ class SearchBar extends StatelessWidget {
   final VoidCallback onFilter;
   final VoidCallback onSaveSearch;
 
-  SearchBar({
+  const SearchBar({super.key, 
     required this.searchController,
     required this.showSaveButton,
     required this.filterCount,
@@ -25,7 +25,7 @@ class SearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(8.0),
       child: Row(
         children: [
           Expanded(
@@ -39,14 +39,14 @@ class SearchBar extends StatelessWidget {
                     Visibility(
                       visible: showSaveButton,
                       child: IconButton(
-                        icon: Icon(Icons.search),
+                        icon: const Icon(Icons.search),
                         onPressed: onSearch,
                       ),
                     ),
                     Visibility(
                       visible: !showSaveButton,
                       child: IconButton(
-                        icon: Icon(Icons.clear),
+                        icon: const Icon(Icons.clear),
                         onPressed: onClear,
                       ),
                     ),
@@ -55,10 +55,10 @@ class SearchBar extends StatelessWidget {
                       child: IconButton(
                         icon: badges.Badge(
                           showBadge: filterCount > 0,
-                          badgeContent: Text('$filterCount', style: TextStyle(color: Colors.white)),
-                          badgeStyle: badges.BadgeStyle(),
-                          badgeAnimation: badges.BadgeAnimation.slide(),
-                          child: Icon(Icons.filter_list),
+                          badgeContent: Text('$filterCount', style: const TextStyle(color: Colors.white)),
+                          badgeStyle: const badges.BadgeStyle(),
+                          badgeAnimation: const badges.BadgeAnimation.slide(),
+                          child: const Icon(Icons.filter_list),
                         ),
                         onPressed: onFilter,
                       ),
