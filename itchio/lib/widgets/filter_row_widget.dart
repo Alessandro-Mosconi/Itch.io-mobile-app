@@ -42,6 +42,9 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
                   onSelected: (selected) {
                     setState(() {
                       if (selected) {
+                        if(widget.filter.isAlternative ?? false){
+                          selectedOptions = new Set();
+                        }
                         selectedOptions.add(option.name ?? '');
                       } else {
                         selectedOptions.remove(option.name ?? '');
