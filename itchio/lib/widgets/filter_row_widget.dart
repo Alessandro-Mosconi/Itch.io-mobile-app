@@ -17,7 +17,7 @@ class FilterRowWidget extends StatefulWidget {
 }
 
 class _FilterRowWidgetState extends State<FilterRowWidget> {
-  late Set<String> selectedOptions;
+  late Set<String> selectedOptions = new Set();
 
   @override
   void initState() {

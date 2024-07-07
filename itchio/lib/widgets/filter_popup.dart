@@ -4,20 +4,30 @@ import 'filter_row_widget.dart';
 
 class FilterPopup extends StatelessWidget {
   final List<Filter> selectedFilters;
-  final void Function(Set<String>) onFiltersChanged;
 
   const FilterPopup({
     super.key,
-    required this.selectedFilters,
-    required this.onFiltersChanged,
+    required this.selectedFilters
   });
 
+  List<Filter> updateFilters(Filter filter) {
+    return selectedFilters.map((f) {
+      if(f.name == filter.name){
+        return filter;
+      } else {
+        return f;
+      }
+    }).toList();
+  }
   @override
   Widget build(BuildContext context) {
     final filterRows = selectedFilters.map((filter) => FilterRowWidget(
           filter: filter,
           onFiltersChanged: (selectedOptions) {
-            onFiltersChanged(selectedOptions);
+            filter.options.forEach((option) {
+              option.isSelected = selectedOptions.contains(option.name);
+            });
+            updateFilters(filter);
           }
       )).toList();
 
@@ -34,7 +44,7 @@ class FilterPopup extends StatelessWidget {
         ElevatedButton(
           child: const Text('Confirm'),
           onPressed: () {
-            Navigator.of(context).pop();
+            Navigator.of(context).pop(selectedFilters);
           },
         ),
         ElevatedButton(

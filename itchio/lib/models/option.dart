@@ -8,7 +8,7 @@ class Option {
   String? label;
   bool isSelected = false;
 
-  Option(Map<String, dynamic> data) {
+  Option(dynamic data) {
     name = data['name'];
     label = data['label'];
     isSelected = data['isSelected'] ?? false;
@@ -19,6 +19,14 @@ class Option {
     name = data['name'];
     label = data['label'];
     isSelected = data['isSelected'] ?? false;
+  }
+
+  toJson() {
+    return {
+      'name': name,
+      'label': label,
+      'isSelected': isSelected,
+    };
   }
 
 }

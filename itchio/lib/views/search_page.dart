@@ -50,15 +50,15 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     try {
       searchResults = Future.value({"games": [], "users": []});
       tabFilteredResults = Future.value({"items": [], "title": ""});
-      await Future.wait([_fetchFilters(), _fetchTabs()]);
-      await _initializeTabAndFilters();
+      await Future.wait([_fetchTabs(), _fetchFilters()]);
+      _initializeTabAndFilters();
       _initializeSearchResults();
     } catch (e) {
       logger.e('Failed to initialize page: $e');
     }
   }
 
-  Future<void> _initializeTabAndFilters() async {
+  void _initializeTabAndFilters() async {
     if (widget.initialTab != null) {
       final index = _tabs.indexWhere((tab) => tab['name'] == widget.initialTab);
       if (index != -1) {
@@ -68,8 +68,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     }
 
     if (widget.initialFilters != null) {
-      final filtersData = await _fetchFilters();
-      _selectedFilters = _toListOfFilters(filtersData, widget.initialFilters!);
+      _selectedFilters = _toListOfFilters(_selectedFilters, widget.initialFilters!);
       _filterCount = widget.initialFilters!.split('/').length - 1;
     }
   }
@@ -90,9 +89,10 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     final DatabaseReference dbRef = dbInstance.ref('/items/filters');
     final snapshot = await dbRef.get();
     if (snapshot.exists) {
-      final dynamic data = snapshot.value;
+      final List<dynamic> data = snapshot.value as List<dynamic>;
       List<Filter> filters = data.map((item) => Filter(item)).toList();
 
+      _selectedFilters = filters;
       return filters;
     } else {
       logger.i('No filters found.');
@@ -151,17 +151,6 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
       return f;
     }).toList();
   }
-  List<Filter> _toListOfFiltersFromOptions(List<Filter> filters, Set<String> selectedOptions) {
-
-    return filters.map((f) {
-      f.options = f.options.map((o) {
-        o.isSelected = selectedOptions.contains(o.name);
-        return o;
-      }).toList();
-      return f;
-    }).toList();
-  }
-
 
   @override
   void dispose() {
@@ -206,20 +195,23 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   }
 
   Future<void> _showFilterPopup(BuildContext context, List<Filter> existingFilters) async {
-    final newSelectedFilters = existingFilters.map((f) => Filter.fromJson(json.encode(f))).toList();
+    final newSelectedFilters = existingFilters.map((f) => Filter(f.toJson())).toList();
 
     showDialog(
       context: context,
       builder: (context) => FilterPopup(
-        selectedFilters: newSelectedFilters,
-        onFiltersChanged: (selectedOptions) => setState(() {
-          _selectedFilters = _toListOfFiltersFromOptions(_selectedFilters, selectedOptions);
-          _filterCount = selectedOptions.length - 1;
-          _showSearchBar = _filterCount == 0;
-        }),
+        selectedFilters: existingFilters
       ),
-    ).then((_) {
-      _changeTab();
+    ).then((result) {
+      if(result!= null){
+        setState(() {
+          _selectedFilters = result;
+          _filterCount = getSelectedOptions(_selectedFilters).length;
+          _showSearchBar = _filterCount == 0;
+          _changeTab();
+        });
+      }
+
     });
   }
 
