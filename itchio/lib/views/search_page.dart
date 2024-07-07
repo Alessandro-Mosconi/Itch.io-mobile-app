@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:itchio/models/filter.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
+import '../models/option.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/responsive_grid_list.dart';
 import '../models/game.dart';
@@ -32,7 +34,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   bool _showSearchBar = true;
   Map<String, String> currentTab = {};
   int _filterCount = 0;
-  Map<String, Set<String>> _selectedFilters = {};
+  List<Filter> _selectedFilters = [];
   late TabController _tabController;
   List<Map<String, String>> _tabs = [];
   bool _showSaveButton = true;
@@ -67,7 +69,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
 
     if (widget.initialFilters != null) {
       final filtersData = await _fetchFilters();
-      _selectedFilters = _filterMap(filtersData, widget.initialFilters!);
+      _selectedFilters = _toListOfFilters(filtersData, widget.initialFilters!);
       _filterCount = widget.initialFilters!.split('/').length - 1;
     }
   }
@@ -81,7 +83,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     });
   }
 
-  Future<Map<String, List<Map<String, String>>>> _fetchFilters() async {
+  Future<List<Filter>> _fetchFilters() async {
     final firebaseApp = Firebase.app();
     final dbInstance = FirebaseDatabase.instanceFor(app: firebaseApp, databaseURL: 'https://itchioclientapp-default-rtdb.europe-west1.firebasedatabase.app');
 
@@ -89,34 +91,12 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     final snapshot = await dbRef.get();
     if (snapshot.exists) {
       final dynamic data = snapshot.value;
-      Map<String, List<Map<String, String>>> resultMap = {};
+      List<Filter> filters = data.map((item) => Filter(item)).toList();
 
-      data.forEach((key, value) {
-        if (key is String) {
-          if (value is List) {
-            List<Map<String, String>> listValue = [];
-            for (var item in value) {
-              if (item is Map) {
-                Map<String, String> stringMap = {};
-
-                item.forEach((key, value) {
-                  if (key is String && value is String) {
-                    stringMap[key] = value;
-                  }
-                });
-
-                listValue.add(stringMap);
-              }
-            }
-
-            resultMap[key] = listValue;
-          }
-        }
-      });
-      return resultMap;
+      return filters;
     } else {
-      logger.i('No data available.');
-      return {};
+      logger.i('No filters found.');
+      return [];
     }
   }
 
@@ -160,22 +140,28 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     }
   }
 
-  Map<String, Set<String>> _filterMap(Map<String, List<Map<String, String>>> data, String searchString) {
+  List<Filter> _toListOfFilters(List<Filter> filters, String searchString) {
     final searchItems = searchString.split('/').where((item) => item.isNotEmpty).toList();
-    final filteredData = <String, Set<String>>{};
 
-    data.forEach((key, value) {
-      final filteredList = value
-          .where((item) => searchItems.contains(item['name']))
-          .map((item) => item['name']!)
-          .toSet();
-      if (filteredList.isNotEmpty) {
-        filteredData[key] = filteredList;
-      }
-    });
-
-    return filteredData;
+    return filters.map((f) {
+      f.options = f.options.map((o) {
+        o.isSelected = searchItems.contains(o.name);
+        return o;
+      }).toList();
+      return f;
+    }).toList();
   }
+  List<Filter> _toListOfFiltersFromOptions(List<Filter> filters, Set<String> selectedOptions) {
+
+    return filters.map((f) {
+      f.options = f.options.map((o) {
+        o.isSelected = selectedOptions.contains(o.name);
+        return o;
+      }).toList();
+      return f;
+    }).toList();
+  }
+
 
   @override
   void dispose() {
@@ -196,10 +182,10 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     }
   }
 
-  Future<Map<String, dynamic>> _fetchTabResults(Map<String, String> currentTab, Map<String, Set<String>> filters) async {
+  Future<Map<String, dynamic>> _fetchTabResults(Map<String, String> currentTab, List<Filter> filters) async {
     _searchController.text = '';
-    final concatenatedFilters = filters.entries.isNotEmpty
-        ? '/${filters.entries.expand((entry) => entry.value).join('/')}'
+    final concatenatedFilters = getSelectedOptions(filters).isNotEmpty
+        ? '/${getSelectedOptions(filters).map((option) => option.name).join('/')}'
         : '';
 
     final currentTabName = currentTab['name'] ?? 'games';
@@ -219,24 +205,29 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     }
   }
 
-  Future<void> _showFilterPopup(BuildContext context, Map<String, Set<String>> existingFilters) async {
-    final newSelectedFilters = Map<String, Set<String>>.from(existingFilters);
+  Future<void> _showFilterPopup(BuildContext context, List<Filter> existingFilters) async {
+    final newSelectedFilters = existingFilters.map((f) => Filter.fromJson(json.encode(f))).toList();
 
     showDialog(
       context: context,
       builder: (context) => FilterPopup(
         selectedFilters: newSelectedFilters,
-        onFiltersChanged: (filters) => setState(() {
-          _selectedFilters = filters;
-          _filterCount = filters.values.fold(0, (prev, elem) => prev + elem.length);
+        onFiltersChanged: (selectedOptions) => setState(() {
+          _selectedFilters = _toListOfFiltersFromOptions(_selectedFilters, selectedOptions);
+          _filterCount = selectedOptions.length - 1;
           _showSearchBar = _filterCount == 0;
         }),
-        fetchFilters: _fetchFilters(),
       ),
     ).then((_) {
-      // After the popup is closed, update the tab
       _changeTab();
     });
+  }
+
+  List<Option> getSelectedOptions(List<Filter> filters) {
+    return filters
+        .expand((filter) => filter.options)
+        .where((option) => option.isSelected)
+        .toList();
   }
 
   void _performSearch() {
@@ -247,8 +238,8 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   }
 
   Future<void> _changeTab() async {
-    final concatenatedFilters = _selectedFilters.entries.isNotEmpty
-        ? '/${_selectedFilters.entries.expand((entry) => entry.value).join('/')}'
+    final concatenatedFilters = getSelectedOptions(_selectedFilters).isNotEmpty
+        ? '/${getSelectedOptions(_selectedFilters).map((option) => option.name).join('/')}'
         : '';
 
     final currentTabName = currentTab['name'] ?? 'games';
@@ -280,8 +271,8 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
 
   Future<void> _saveSearch() async {
     final tab = currentTab['name'] ?? 'games';
-    final concatenatedFilters = _selectedFilters.entries.isNotEmpty
-        ? '/${_selectedFilters.entries.expand((entry) => entry.value).join('/')}'
+    final concatenatedFilters = getSelectedOptions(_selectedFilters).isNotEmpty
+        ? '/${getSelectedOptions(_selectedFilters).map((option) => option.name).join('/')}'
         : '';
 
     bool providerBookmarkSaved = context.read<SearchBookmarkProvider>().isSearchBookmarked(tab, concatenatedFilters);

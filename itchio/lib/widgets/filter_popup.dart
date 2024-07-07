@@ -1,67 +1,49 @@
 import 'package:flutter/material.dart';
+import '../models/filter.dart';
 import 'filter_row_widget.dart';
 
 class FilterPopup extends StatelessWidget {
-  final Map<String, Set<String>> selectedFilters;
-  final void Function(Map<String, Set<String>>) onFiltersChanged;
-  final Future<Map<String, List<Map<String, String>>>> fetchFilters;
+  final List<Filter> selectedFilters;
+  final void Function(Set<String>) onFiltersChanged;
 
-  const FilterPopup({super.key, 
+  const FilterPopup({
+    super.key,
     required this.selectedFilters,
     required this.onFiltersChanged,
-    required this.fetchFilters,
   });
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Map<String, List<Map<String, String>>>>(
-      future: fetchFilters,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text("Error: ${snapshot.error}"));
-        } else if (snapshot.hasData) {
-          final filtersData = snapshot.data!;
-          final filterRows = filtersData.entries.map((entry) {
-            return FilterRowWidget(
-              label: entry.key,
-              options: entry.value,
-              selectedFilters: selectedFilters[entry.key] ?? {},
-              onFiltersChanged: (filters) {
-                selectedFilters[entry.key] = filters;
-                onFiltersChanged(Map<String, Set<String>>.from(selectedFilters));
-              },
-            );
-          }).toList();
+    final filterRows = selectedFilters.map((filter) => FilterRowWidget(
+          filter: filter,
+          onFiltersChanged: (selectedOptions) {
+            onFiltersChanged(selectedOptions);
+          }
+      )).toList();
 
-          return AlertDialog(
-            title: const Text('Filter'),
-            content: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: filterRows,
-              ),
-            ),
-            actions: <Widget>[
-            ElevatedButton(
-                child: const Text('Confirm'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              ElevatedButton(
-                child: const Text('Close'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        } else {
-          return const Center(child: Text("No data available"));
-        }
-      },
+
+  return AlertDialog(
+      title: const Text('Filter'),
+      content: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: filterRows,
+        ),
+      ),
+      actions: <Widget>[
+        ElevatedButton(
+          child: const Text('Confirm'),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        ElevatedButton(
+          child: const Text('Close'),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
     );
   }
 }

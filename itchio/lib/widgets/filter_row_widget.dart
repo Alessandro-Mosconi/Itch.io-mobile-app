@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 
+import '../models/filter.dart';
+
 class FilterRowWidget extends StatefulWidget {
-  final String label;
-  final List<Map<String, String>> options;
-  final Set<String> selectedFilters;
+  final Filter filter;
   final void Function(Set<String>) onFiltersChanged;
 
-  const FilterRowWidget({super.key, 
-    required this.label,
-    required this.options,
-    required this.selectedFilters,
+  const FilterRowWidget({
+    super.key,
+    required this.filter,
     required this.onFiltersChanged,
   });
 
@@ -18,12 +17,11 @@ class FilterRowWidget extends StatefulWidget {
 }
 
 class _FilterRowWidgetState extends State<FilterRowWidget> {
-  late Set<String> _selectedFilters;
+  late Set<String> selectedOptions;
 
   @override
   void initState() {
     super.initState();
-    _selectedFilters = Set.from(widget.selectedFilters);
   }
 
   @override
@@ -31,30 +29,29 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(widget.label),
+        Text(widget.filter.label ?? ''),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
-            children: widget.options.map((option) {
-              final isSelected = _selectedFilters.contains(option['name']);
+            children: widget.filter.options.map((option) {
               return Padding(
                 padding: const EdgeInsets.only(right: 8.0),
                 child: FilterChip(
-                  label: Text(option['label']!),
-                  selected: isSelected,
+                  label: Text(option.label ?? ''),
+                  selected: option.isSelected,
                   onSelected: (selected) {
                     setState(() {
                       if (selected) {
-                        _selectedFilters.add(option['name']!);
+                        selectedOptions.add(option.name ?? '');
                       } else {
-                        _selectedFilters.remove(option['name']);
+                        selectedOptions.remove(option.name ?? '');
                       }
-                      widget.onFiltersChanged(_selectedFilters);
+                      widget.onFiltersChanged(selectedOptions);
                     });
                   },
-                  selectedColor: isSelected ? Colors.blue : null,
-                  backgroundColor: isSelected ? Colors.blue.withOpacity(0.1) : null,
-                  labelStyle: TextStyle(color: isSelected ? Colors.white : null),
+                  selectedColor: option.isSelected ? Colors.blue : null,
+                  backgroundColor: option.isSelected ? Colors.blue.withOpacity(0.1) : null,
+                  labelStyle: TextStyle(color: option.isSelected ? Colors.white : null),
                 ),
               );
             }).toList(),
