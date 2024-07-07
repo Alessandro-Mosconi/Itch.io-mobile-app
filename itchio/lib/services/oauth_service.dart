@@ -25,11 +25,6 @@ class OAuthService extends ChangeNotifier {
     LinkStream? linkStream,
   })  : getInitialLink = getInitialLink ?? getInitialLinkImpl,
         linkStream = linkStream ?? linkStreamImpl {
-    if (sharedPreferences != null) {
-      prefs = sharedPreferences;
-    } else {
-      _initSharedPreferences();
-    }
     logger = customLogger ?? Logger(printer: PrettyPrinter());
   }
 
@@ -41,12 +36,9 @@ class OAuthService extends ChangeNotifier {
   }
 
   Future<void> init() async {
-    await initSharedPreferences();
+    await _initSharedPreferences();
+    _accessToken = prefs.getString("access_token");
     await initUniLinks();
-  }
-
-  Future<void> initSharedPreferences() async {
-    _accessToken = prefs.getString("access_token"); // Load the access token at initialization
   }
 
   Future<void> initUniLinks() async {
