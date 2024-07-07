@@ -17,11 +17,17 @@ class FilterRowWidget extends StatefulWidget {
 }
 
 class _FilterRowWidgetState extends State<FilterRowWidget> {
-  late Set<String> selectedOptions = new Set();
+  late Set<String> selectedOptions;
 
   @override
   void initState() {
     super.initState();
+    selectedOptions = {};
+    for (var option in widget.filter.options) {
+      if (option.isSelected) {
+        selectedOptions.add(option.name ?? '');
+      }
+    }
   }
 
   @override

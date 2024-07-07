@@ -200,7 +200,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     showDialog(
       context: context,
       builder: (context) => FilterPopup(
-        selectedFilters: existingFilters
+        selectedFilters: newSelectedFilters
       ),
     ).then((result) {
       if(result!= null){
