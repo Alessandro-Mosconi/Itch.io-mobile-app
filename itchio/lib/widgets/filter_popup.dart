@@ -35,6 +35,7 @@ class FilterPopup extends StatelessWidget {
   return AlertDialog(
       title: const Text('Filter'),
       content: SingleChildScrollView(
+        key: const Key('filter_popup_content'),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: filterRows,

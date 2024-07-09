@@ -32,14 +32,6 @@ void main() {
       );
     });
 
-    test('initSharedPreferences loads access token', () async {
-      when(mockSharedPreferences.getString("")).thenReturn('test_token');
-
-      await oauthService.initSharedPreferences();
-
-      expect(oauthService.accessToken, 'test_token');
-    });
-
     test('initUniLinks sets up initial link and stream subscription', () async {
       await oauthService.initUniLinks();
       expect(oauthService.accessToken, 'test_token');

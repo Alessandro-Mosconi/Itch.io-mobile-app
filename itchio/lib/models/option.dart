@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'package:logger/logger.dart';
 
-final Logger logger = Logger(printer: PrettyPrinter());
-
 class Option {
   String? name;
   String? label;

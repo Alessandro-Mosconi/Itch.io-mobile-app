@@ -3,8 +3,6 @@ import 'package:logger/logger.dart';
 
 import 'option.dart';
 
-final Logger logger = Logger(printer: PrettyPrinter());
-
 class Filter {
   String? name;
   String? label;
@@ -23,7 +21,7 @@ class Filter {
     name = data['name'];
     label = data['label'];
     isAlternative = data['isAlternative'];
-    options = data['options'].map((o) => Option(o)).toList();
+    options = (data['options'] as List<dynamic>).map((o) => Option(o)).toList();
 
   }
   Map<String, dynamic> toJson() {

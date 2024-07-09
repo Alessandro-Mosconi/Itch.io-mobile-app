@@ -49,7 +49,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
                     setState(() {
                       if (selected) {
                         if(widget.filter.isAlternative ?? false){
-                          selectedOptions = new Set();
+                          selectedOptions = {};
                         }
                         selectedOptions.add(option.name ?? '');
                       } else {
