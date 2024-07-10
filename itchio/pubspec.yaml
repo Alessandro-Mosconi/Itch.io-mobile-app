@@ -60,6 +60,7 @@ dependencies:
 
   webview_flutter_android: any
   webview_flutter_wkwebview: any
+  lottie: ^3.1.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
