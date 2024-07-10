@@ -520,3 +520,58 @@ Looking ahead, the app has potential for future enhancements and scalability:
 - **Feature Expansion**: Adding new features such as in-app messaging, advanced analytics, and enhanced social sharing capabilities.
 
 By focusing on these objectives and future prospects, the ItchExplorer app aims to become an indispensable tool for the Itch.io community, fostering growth and engagement within the indie game ecosystem.
+
+
+
+
+```mermaid
+
+classDiagram
+    namespace Views {
+        class MainView
+        class ContentViews
+    }
+    namespace Models {
+        class CoreModels
+    }
+    namespace Providers {
+        class StateManagement
+    }
+    namespace Services {
+        class OAuthService
+        class NotificationService
+        class APIService
+    }
+
+    MainView --> ContentViews : Contains
+    ContentViews --> CoreModels : Use
+    StateManagement --> CoreModels : Manage
+    ContentViews --> StateManagement : Consume
+    APIService --> CoreModels : Fetch/Update
+    OAuthService --> APIService : Authenticate
+    NotificationService --> MainView : Notify
+
+    class ContentViews {
+        HomePage
+        SearchPage
+        JamsPage
+        FavoritePage
+        ProfilePage
+        SettingsPage
+    }
+
+    class CoreModels {
+        Game
+        Jam
+        User
+        SavedSearch
+    }
+
+    class StateManagement {
+        FavoriteProvider
+        PageProvider
+        ThemeNotifier
+        SearchBookmarkProvider
+    }
+
+```
