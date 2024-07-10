@@ -2,12 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
-  String _currentTheme = 'standard'; // Default theme set to 'standard'
+  String _currentTheme = 'standard';
   ThemeMode _themeMode = ThemeMode.system;
 
   ThemeNotifier() {
     WidgetsBinding.instance.addObserver(this);
     _setStatusBarAndNavigationBarColors();
+  }
+
+  String get currentTheme => _currentTheme;
+  ThemeMode get themeMode => _themeMode;
+
+  bool get isDarkMode {
+    if (_themeMode == ThemeMode.system) {
+      return WidgetsBinding.instance.window.platformBrightness == Brightness.dark;
+    }
+    return _themeMode == ThemeMode.dark;
   }
 
   @override
@@ -21,9 +31,6 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
     _setStatusBarAndNavigationBarColors();
   }
-
-  String get currentTheme => _currentTheme;
-  ThemeMode get themeMode => _themeMode;
 
   ThemeData getLightThemeData(String theme) {
     switch (theme) {
