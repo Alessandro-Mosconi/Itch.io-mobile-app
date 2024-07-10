@@ -11,7 +11,7 @@ import 'package:firebase_database/firebase_database.dart';
 import '../models/option.dart';
 import '../providers/filter_provider.dart';
 import '../widgets/custom_app_bar.dart';
-import '../widgets/responsive_grid_list.dart';
+import '../widgets/responsive_grid_list_game.dart';
 import '../models/game.dart';
 import '../models/User.dart';
 import '../widgets/search_bar.dart' as custom;
@@ -289,7 +289,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
           final games = (data['games'] as List).map((game) => Game(game)).toList();
           final users = (data['users'] as List).map((user) => User(user)).toList();
 
-          return ResponsiveGridList(games: games, isSearch: true);
+          return ResponsiveGridListGame(games: games, isSearch: true);
         } else {
           return const Center(child: Text("No results found"));
         }
@@ -319,7 +319,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
                   child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 ),
               Expanded(
-                child: ResponsiveGridList(games: items),
+                child: ResponsiveGridListGame(games: items),
               ),
             ],
           );

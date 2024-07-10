@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:itchio/widgets/game_card.dart';
-import 'package:itchio/widgets/responsive_grid_list.dart';
+import 'package:itchio/widgets/responsive_grid_list_game.dart';
 import 'package:itchio/models/game.dart';
 
 void main() {
@@ -24,7 +24,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: ResponsiveGridList(games: games),
+          body: ResponsiveGridListGame(games: games),
         ),
       ),
     );
@@ -41,7 +41,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: ResponsiveGridList(games: games),
+          body: ResponsiveGridListGame(games: games),
         ),
       ),
     );
@@ -54,7 +54,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: ResponsiveGridList(games: games),
+          body: ResponsiveGridListGame(games: games),
         ),
       ),
     );

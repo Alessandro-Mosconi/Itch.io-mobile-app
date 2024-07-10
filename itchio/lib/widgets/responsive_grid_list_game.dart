@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:itchio/widgets/game_card.dart';
 import '../models/game.dart';
 
-class ResponsiveGridList extends StatelessWidget {
+class ResponsiveGridListGame extends StatelessWidget {
   final List<Game> games;
   final bool isSearch;
 
-  const ResponsiveGridList({super.key, required this.games, this.isSearch = false});
+  const ResponsiveGridListGame({super.key, required this.games, this.isSearch = false});
 
   @override
   Widget build(BuildContext context) {

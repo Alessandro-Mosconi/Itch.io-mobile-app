@@ -6,7 +6,8 @@ import '../providers/favorite_provider.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/game_card.dart';
 import '../widgets/jam_card.dart';
-import '../widgets/responsive_grid_list.dart';
+import '../widgets/responsive_grid_list_game.dart';
+import '../widgets/responsive_grid_list_jams.dart';
 
 class FavoritePage extends StatefulWidget {
   const FavoritePage({super.key});
@@ -66,11 +67,11 @@ class _FavoritePageState extends State<FavoritePage> with SingleTickerProviderSt
                 if (favoriteProvider.favoriteGames.isEmpty)
                   const Center(child: Text('Nessun gioco preferito ancora'))
                 else
-                  ResponsiveGridList(games: favoriteProvider.favoriteGames),
+                  ResponsiveGridListGame(games: favoriteProvider.favoriteGames),
                 if (favoriteProvider.favoriteJams.isEmpty)
                   const Center(child: Text('Nessuna jam preferita ancora'))
                 else
-                  _buildJamGrid(favoriteProvider.favoriteJams, context),
+                  ResponsiveGridListJam(jams: favoriteProvider.favoriteJams)
               ],
             );
           },
@@ -78,39 +79,6 @@ class _FavoritePageState extends State<FavoritePage> with SingleTickerProviderSt
       ),
     );
   }
+  
 
-  GridView _buildJamGrid(List<Jam> jams, BuildContext context) {
-    double aspectRatio = _getChildAspectRatio(context, false);
-    int crossAxisCount = MediaQuery.of(context).size.width > 600 ? 3 : 1;
-
-    return GridView.builder(
-      padding: const EdgeInsets.all(8),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: crossAxisCount,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
-        childAspectRatio: aspectRatio,
-      ),
-      itemCount: jams.length,
-      itemBuilder: (context, index) {
-        return JamCard(
-          jam: jams[index],
-          isTablet: false,
-        );
-      },
-    );
-  }
-
-  double _getChildAspectRatio(BuildContext context, bool isGame) {
-    double width = MediaQuery.of(context).size.width;
-    Orientation orientation = MediaQuery.of(context).orientation;
-
-    if (width > 1200) {
-      return orientation == Orientation.landscape ? 1.5 : 1;
-    } else if (width > 600) {
-      return orientation == Orientation.landscape ? 0.95 : 1.2;
-    } else {
-      return isGame ? 0.9 :1.5;
-    }
-  }
 }

@@ -9,6 +9,8 @@ import '../widgets/custom_app_bar.dart';
 import '../widgets/jam_card.dart';
 import 'package:badges/badges.dart' as badges;
 
+import '../widgets/responsive_grid_list_jams.dart';
+
 class JamsPage extends StatefulWidget {
   const JamsPage({super.key});
 
@@ -161,58 +163,10 @@ class _JamsPageState extends State<JamsPage> {
           Expanded(
             child: _isSearching
                 ? const Center(child: CircularProgressIndicator())
-                : _buildJamListOrGrid(),
+                : ResponsiveGridListJam(jams: _filteredJams),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildJamListOrGrid() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        if (_filteredJams.isEmpty) {
-          return const Center(child: Text('No jams found'));
-        }
-
-        if (constraints.maxWidth > 600) {
-          var orientation = MediaQuery.of(context).orientation;
-          bool isPortrait = orientation == Orientation.portrait;
-          return _buildJamGrid(_filteredJams, isPortrait);
-        } else {
-          // Phone layout: ListView
-          return _buildJamList(_filteredJams);
-        }
-      },
-    );
-  }
-
-  ListView _buildJamList(List<Jam> jams) {
-    return ListView.builder(
-        itemCount: jams.length,
-      itemBuilder: (context, index) {
-        return JamCard(
-          jam: jams[index],
-          isTablet: false,
-        );
-      },
-    );
-  }
-
-  GridView _buildJamGrid(List<Jam> jams, bool isPortrait) {
-    double itemWidth = 500.0;
-
-    return GridView.builder(
-      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: itemWidth,
-        crossAxisSpacing: 8.0,
-        mainAxisSpacing: 8.0,
-        childAspectRatio: 16 / 9,
-      ),
-      itemCount: jams.length,
-      itemBuilder: (context, index) {
-        return JamCard(jam: jams[index], isTablet: !isPortrait);
-      },
     );
   }
 
