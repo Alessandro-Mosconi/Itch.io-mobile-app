@@ -6,6 +6,7 @@ import '../providers/favorite_provider.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/game_card.dart';
 import '../widgets/jam_card.dart';
+import '../widgets/responsive_grid_list.dart';
 
 class FavoritePage extends StatefulWidget {
   const FavoritePage({super.key});
@@ -65,7 +66,7 @@ class _FavoritePageState extends State<FavoritePage> with SingleTickerProviderSt
                 if (favoriteProvider.favoriteGames.isEmpty)
                   const Center(child: Text('Nessun gioco preferito ancora'))
                 else
-                  _buildGameGrid(favoriteProvider.favoriteGames, context),
+                  ResponsiveGridList(games: favoriteProvider.favoriteGames),
                 if (favoriteProvider.favoriteJams.isEmpty)
                   const Center(child: Text('Nessuna jam preferita ancora'))
                 else
@@ -75,25 +76,6 @@ class _FavoritePageState extends State<FavoritePage> with SingleTickerProviderSt
           },
         ),
       ),
-    );
-  }
-
-  GridView _buildGameGrid(List<Game> games, BuildContext context) {
-    double aspectRatio = _getChildAspectRatio(context, true);
-    int crossAxisCount = MediaQuery.of(context).size.width > 600 ? 3 : 1;
-
-    return GridView.builder(
-      padding: const EdgeInsets.all(8),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: crossAxisCount,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
-        childAspectRatio: aspectRatio,
-      ),
-      itemCount: games.length,
-      itemBuilder: (context, index) {
-        return GameCard(game: games[index]);
-      },
     );
   }
 
