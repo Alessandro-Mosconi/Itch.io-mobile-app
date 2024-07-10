@@ -1,12 +1,24 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:itchio/models/game.dart';
 import 'package:itchio/providers/page_provider.dart';
+import 'package:itchio/services/notification_service.dart';
+import 'package:itchio/views/game_webview_page.dart';
 import 'package:itchio/widgets/carousel_card.dart';
+import 'package:mockito/mockito.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-
+import '../mock_notification_service.mocks.dart';
+import '../mock_page_provider.mocks.dart';
 
 void main() {
   group('CarouselCard Tests', () {
@@ -34,6 +46,76 @@ void main() {
         expect(find.byType(CarouselCard), findsOneWidget);
         expect(find.text('Featured games'), findsOneWidget);
         expect(find.text('Subtitle'), findsOneWidget);
+      });
+    });
+    /*testWidgets('Widget Autoscroll Test', (WidgetTester tester) async {
+      await mockNetworkImagesFor(() async {
+        await tester.pumpWidget(MaterialApp(
+          home: Directionality(
+            textDirection: TextDirection.ltr,
+            child: ChangeNotifierProvider<PageProvider>(
+              create: (_) => PageProvider(),
+              child: CarouselCard(
+                title: 'Featured Games',
+                subtitle: 'Subtitle',
+                items: [
+                  getGame("Game 1"),
+                  getGame("Game 2"),
+                  getGame("Game 3"),
+                  getGame("Game 4"),
+                  getGame("Game 5"),
+                  getGame("Game 6"),
+                  getGame("Game 7"),
+                  getGame("Game 8")
+                ],
+                notify: true,
+                onUpdateSavedSearches: (bool value) {},
+              ),
+            ),
+          ),
+        ));
+
+        expect(find.text('Game 1'), findsOneWidget);
+        //test autoscroll
+        logger.i('qua');
+        await tester.pump(Duration(seconds: 10));
+        logger.i('la');
+        expect(find.text('Game 1'), findsNothing);
+      });
+    });*/
+    testWidgets('Widget tap Test', (WidgetTester tester) async {
+      final mockPageProvider = MockPageProvider();
+
+      await mockNetworkImagesFor(() async {
+        await tester.pumpWidget(MaterialApp(
+          home: Directionality(
+            textDirection: TextDirection.ltr,
+            child: ChangeNotifierProvider<PageProvider>(
+              create: (_) => mockPageProvider,
+              child: CarouselCard(
+                title: 'Featured Games',
+                subtitle: 'Subtitle',
+                items: [
+                  getGame("Game 1"),
+                  getGame("Game 2"),
+                  getGame("Game 3"),
+                  getGame("Game 4"),
+                  getGame("Game 5"),
+                  getGame("Game 6"),
+                  getGame("Game 7"),
+                  getGame("Game 8")
+                ],
+                notify: true,
+                onUpdateSavedSearches: (bool value) {},
+              ),
+            ),
+          ),
+        ));
+
+        expect(find.text('Game 1'), findsOneWidget);
+        await tester.tap(find.text('Game 1'));
+
+        verify(mockPageProvider.setExtraPage(any)).called(1);
       });
     });
     testWidgets('Dismiss delete test', (WidgetTester tester) async {
@@ -145,27 +227,38 @@ void main() {
 
       });
     });
-/*
-    testWidgets('Notification Toggle Test', (WidgetTester tester) async {
+
+    testWidgets('Notification Toggle Test true', (WidgetTester tester) async {
+      final mockNotificationService = MockNotificationService();
+
       await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(MaterialApp(
-          home: Directionality(
-            textDirection: TextDirection.ltr,
-            child: ChangeNotifierProvider<PageProvider>(
-              create: (_) => PageProvider(),
-              child: CarouselCard(
-                title: 'Featured Games',
-                subtitle: 'Check out these awesome games!',
-                items: [
-                  getGame("Game 1"),
-                  getGame("Game 2"),
-                ],
-                notify: false,
-                onUpdateSavedSearches: (bool value) {},
+        await tester.pumpWidget(
+          MultiProvider(
+            providers: [
+              ChangeNotifierProvider<PageProvider>(
+                create: (_) => PageProvider(),
+              ),
+              Provider<NotificationService>(
+                create: (_) => mockNotificationService,
+              ),
+            ],
+            child: MaterialApp(
+              home: Directionality(
+                textDirection: TextDirection.ltr,
+                child: CarouselCard(
+                  title: 'testTitle',
+                  subtitle: 'testSubtitle',
+                  items: [
+                    getGame("Game 1"),
+                    getGame("Game 2"),
+                  ],
+                  notify: false,
+                  onUpdateSavedSearches: (bool value) {},
+                ),
               ),
             ),
           ),
-        ));
+        );
 
         // Verifica se la notifica è abilitata di default
         expect(find.byIcon(Icons.notifications_none), findsOneWidget);
@@ -174,11 +267,55 @@ void main() {
         await tester.tap(find.byIcon(Icons.notifications_none));
         await tester.pumpAndSettle();
 
-        // Verifica se la notifica è stata disabilitata
-        expect(find.byIcon(Icons.notifications_active), findsOneWidget);
+        verify(mockNotificationService.subscribeToTopic(_generateTopicHash('testTitle','testSubtitle'))).called(1);
       });
     });
-*/
+
+    testWidgets('Notification Toggle Test false', (WidgetTester tester) async {
+      final mockNotificationService = MockNotificationService();
+
+      await mockNetworkImagesFor(() async {
+        await tester.pumpWidget(
+          MultiProvider(
+            providers: [
+              ChangeNotifierProvider<PageProvider>(
+                create: (_) => PageProvider(),
+              ),
+              Provider<NotificationService>(
+                create: (_) => mockNotificationService,
+              ),
+            ],
+            child: MaterialApp(
+              home: Directionality(
+                textDirection: TextDirection.ltr,
+                child: CarouselCard(
+                  title: 'testTitle',
+                  subtitle: 'testSubtitle',
+                  items: [
+                    getGame("Game 1"),
+                    getGame("Game 2"),
+                  ],
+                  notify: true,
+                  onUpdateSavedSearches: (bool value) {},
+                ),
+              ),
+            ),
+          ),
+        );
+
+        // Verifica se la notifica è abilitata di default
+        expect(find.byIcon(Icons.notifications_active), findsOneWidget);
+
+        // Tocca l'icona di notifica per disabilitarla
+        await tester.tap(find.byIcon(Icons.notifications_active));
+        await tester.pumpAndSettle();
+
+        verify(mockNotificationService.unsubscribeFromTopic(_generateTopicHash('testTitle','testSubtitle'))).called(1);
+      });
+    });
+
+
+
     testWidgets('Carousel Scroll Test', (WidgetTester tester) async {
       await mockNetworkImagesFor(() async {
         await tester.pumpWidget(MaterialApp(
@@ -265,4 +402,9 @@ Map<String, dynamic> getUser() {
     'number_of_projects': "5",
   };
   return userData;
+}
+
+String _generateTopicHash(String type, String filters) {
+  String typeDefault = type;
+  return sha256.convert(utf8.encode(typeDefault + filters)).toString(); // key
 }

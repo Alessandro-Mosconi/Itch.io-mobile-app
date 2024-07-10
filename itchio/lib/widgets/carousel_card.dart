@@ -182,8 +182,9 @@ class _CarouselCardState extends State<CarouselCard> {
     return GestureDetector(
       onTap: () {
         if (game.url != null && game.url!.isNotEmpty) {
-          Provider.of<PageProvider>(context, listen: false).setExtraPage(
-            GameWebViewPage(url: game.url!, game: game),
+          final pageProvider = Provider.of<PageProvider>(context, listen: false);
+
+          pageProvider.setExtraPage(GameWebViewPage(url: game.url!, game: game),
           );
         } else {
           throw 'Could not launch ${game.url}';
