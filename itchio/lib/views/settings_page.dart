@@ -101,6 +101,17 @@ class SettingsPage extends StatelessWidget {
           },
         ),
       ),
+      ListTile(
+        title: const Text('Vibrant Theme'),
+        leading: const Icon(Icons.brightness_auto, color: Colors.deepPurple),
+        trailing: Radio(
+          value: 'vibrant',
+          groupValue: themeNotifier.currentTheme,
+          onChanged: (value) {
+            themeNotifier.setTheme(value as String);
+          },
+        ),
+      ),
       const Divider(),
       ListTile(
         leading: const Icon(Icons.logout, color: Colors.red),

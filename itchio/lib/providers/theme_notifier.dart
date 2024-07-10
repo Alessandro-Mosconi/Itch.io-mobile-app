@@ -84,7 +84,27 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
             secondary: Colors.white,
           ),
         );
-      default:
+      case 'vibrant':
+        return ThemeData(
+          brightness: Brightness.light,
+          primaryColor: Colors.purple,
+          secondaryHeaderColor: Colors.pinkAccent,
+          scaffoldBackgroundColor: Colors.green[50],
+          cardColor: Colors.teal[300],
+          textTheme: const TextTheme(
+            bodyLarge: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.w700),
+            bodyMedium: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.w500),
+            headlineSmall: TextStyle(color: Colors.purpleAccent, fontWeight: FontWeight.w900),
+            labelLarge: TextStyle(color: Colors.pinkAccent),
+          ),
+          colorScheme: ColorScheme.light(
+            surface: Colors.yellow[50]!,
+            primary: Colors.deepPurple,
+            secondary: Colors.pinkAccent,
+            tertiary: Colors.teal,
+          ),
+        );
+        default:
         return ThemeData.light().copyWith(
           cardColor: Colors.white,
           primaryColor: Colors.black,
@@ -162,7 +182,27 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
             secondary: Colors.white,
           ),
         );
-      default:
+      case 'vibrant':
+        return ThemeData(
+          brightness: Brightness.dark,
+          primaryColor: Colors.purple,
+          secondaryHeaderColor: Colors.pink,
+          scaffoldBackgroundColor: Colors.grey[900],
+          cardColor: Colors.teal[700],
+          textTheme: TextTheme(
+            bodyLarge: TextStyle(color: Colors.purple, fontWeight: FontWeight.w700),
+            bodyMedium: TextStyle(color: Colors.purple, fontWeight: FontWeight.w500),
+            headlineSmall: TextStyle(color: Colors.pink, fontWeight: FontWeight.w900),
+            labelLarge: TextStyle(color: Colors.teal[300]),
+          ),
+          colorScheme: ColorScheme.dark(
+            surface: Colors.grey[900]!,
+            primary: Colors.purple!,
+            secondary: Colors.pink,
+            tertiary: Colors.teal[300]!,
+          ),
+        );
+        default:
         return ThemeData.dark().copyWith(
           cardColor: Colors.grey[900],
           primaryColor: Colors.white,

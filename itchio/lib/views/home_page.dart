@@ -20,7 +20,7 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-// single ticker provider is needed for the box animations 
+// single ticker provider is needed for the box animations
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   late Future<List<SavedSearch>> futureSavedSearches;
   late AnimationController _animationController;
