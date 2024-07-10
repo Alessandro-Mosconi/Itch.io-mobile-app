@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:itchio/models/filter.dart';
+import 'package:itchio/models/item_type.dart';
+import 'package:itchio/providers/item_type_provider.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import '../models/option.dart';
+import '../providers/filter_provider.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/responsive_grid_list.dart';
 import '../models/game.dart';
@@ -31,12 +34,11 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   late Future<Map<String, dynamic>> searchResults;
   late Future<Map<String, dynamic>> tabFilteredResults;
   bool _searchPerformed = false;
-  bool _showSearchBar = true;
-  Map<String, String> currentTab = {};
+  late ItemType currentTab;
   int _filterCount = 0;
   List<Filter> _selectedFilters = [];
   late TabController _tabController;
-  List<Map<String, String>> _tabs = [];
+  List<ItemType> _tabs = [];
   bool _showSaveButton = true;
   bool isBookmarked = false;
 
@@ -50,9 +52,26 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     try {
       searchResults = Future.value({"games": [], "users": []});
       tabFilteredResults = Future.value({"items": [], "title": ""});
-      await Future.wait([_fetchTabs(), _fetchFilters()]);
-      _initializeTabAndFilters();
-      _initializeSearchResults();
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final filterProvider = Provider.of<FilterProvider>(context, listen: false);
+        final itemType = Provider.of<ItemTypeProvider>(context, listen: false);
+        Future.wait([itemType.fetchTabs(), filterProvider.fetchFilters()]).then(
+          (List<dynamic> results) {
+            _tabs = results[0] as List<ItemType>;
+            currentTab = _tabs.first;
+            _tabController = TabController(length: _tabs.length, vsync: this);
+            _tabController.addListener(() async {
+              setState(() {
+                currentTab = _tabs[_tabController.index];
+                _changeTab();
+              });
+            });
+            _selectedFilters = results[1] as List<Filter>;
+            _initializeTabAndFilters();
+            _initializeSearchResults();
+          },
+        );
+      });
     } catch (e) {
       logger.e('Failed to initialize page: $e');
     }
@@ -60,7 +79,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
 
   void _initializeTabAndFilters() async {
     if (widget.initialTab != null) {
-      final index = _tabs.indexWhere((tab) => tab['name'] == widget.initialTab);
+      final index = _tabs.indexWhere((tab) => tab.name == widget.initialTab);
       if (index != -1) {
         currentTab = _tabs[index];
         _tabController.index = index;
@@ -82,63 +101,6 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     });
   }
 
-  Future<List<Filter>> _fetchFilters() async {
-    final firebaseApp = Firebase.app();
-    final dbInstance = FirebaseDatabase.instanceFor(app: firebaseApp, databaseURL: 'https://itchioclientapp-default-rtdb.europe-west1.firebasedatabase.app');
-
-    final DatabaseReference dbRef = dbInstance.ref('/items/filters');
-    final snapshot = await dbRef.get();
-    if (snapshot.exists) {
-      final List<dynamic> data = snapshot.value as List<dynamic>;
-      List<Filter> filters = data.map((item) => Filter(item)).toList();
-
-      _selectedFilters = filters;
-      return filters;
-    } else {
-      logger.i('No filters found.');
-      return [];
-    }
-  }
-
-  Future<void> _fetchTabs() async {
-    final firebaseApp = Firebase.app();
-    final dbInstance = FirebaseDatabase.instanceFor(app: firebaseApp, databaseURL: 'https://itchioclientapp-default-rtdb.europe-west1.firebasedatabase.app');
-
-    final DatabaseReference dbRef = dbInstance.ref('/items/item_types');
-    final snapshot = await dbRef.get();
-    if (snapshot.exists) {
-      final dynamic data = snapshot.value;
-      if (data is List<dynamic>) {
-        setState(() {
-          _tabs = data.map((item) {
-            if (item is Map<Object?, Object?>) {
-              final Map<String, String> convertedMap = {};
-              item.forEach((key, value) {
-                if (key != null && value != null) {
-                  convertedMap[key.toString()] = value.toString();
-                }
-              });
-              return convertedMap;
-            } else {
-              return <String, String>{};
-            }
-          }).toList();
-
-          _tabController = TabController(length: _tabs.length, vsync: this);
-          _tabController.addListener(() async {
-              setState(() {
-                currentTab = _tabs[_tabController.index];
-                _changeTab();
-              });
-            });
-        });
-      } else {
-        logger.i('Unexpected data type: ${data.runtimeType}');
-      }
-    } else {
-      logger.i('No data available.');
-    }
-  }
 
   List<Filter> _toListOfFilters(List<Filter> filters, String searchString) {
     final searchItems = searchString.split('/').where((item) => item.isNotEmpty).toList();
@@ -171,13 +133,13 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     }
   }
 
-  Future<Map<String, dynamic>> _fetchTabResults(Map<String, String> currentTab, List<Filter> filters) async {
+  Future<Map<String, dynamic>> _fetchTabResults(ItemType currentTab, List<Filter> filters) async {
     _searchController.text = '';
     final concatenatedFilters = getSelectedOptions(filters).isNotEmpty
         ? '/${getSelectedOptions(filters).map((option) => option.name).join('/')}'
         : '';
 
-    final currentTabName = currentTab['name'] ?? 'games';
+    final currentTabName = currentTab.name ?? 'games';
 
     final response = await http.post(
       Uri.parse('https://us-central1-itchioclientapp.cloudfunctions.net/item_list'),
@@ -207,7 +169,6 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
         setState(() {
           _selectedFilters = result;
           _filterCount = getSelectedOptions(_selectedFilters).length;
-          _showSearchBar = _filterCount == 0;
           _changeTab();
         });
       }
@@ -234,7 +195,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
         ? '/${getSelectedOptions(_selectedFilters).map((option) => option.name).join('/')}'
         : '';
 
-    final currentTabName = currentTab['name'] ?? 'games';
+    final currentTabName = currentTab.name ?? 'games';
 
     bool providerBookmarkSaved = context.read<SearchBookmarkProvider>().isSearchBookmarked(currentTabName, concatenatedFilters);
 
@@ -262,7 +223,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   }
 
   Future<void> _saveSearch() async {
-    final tab = currentTab['name'] ?? 'games';
+    final tab = currentTab.name ?? 'games';
     final concatenatedFilters = getSelectedOptions(_selectedFilters).isNotEmpty
         ? '/${getSelectedOptions(_selectedFilters).map((option) => option.name).join('/')}'
         : '';
@@ -300,7 +261,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
             child: TabBar(
               isScrollable: true,
               controller: _tabController,
-              tabs: _tabs.map((tab) => Tab(text: tab['label'])).toList(),
+              tabs: _tabs.map((tab) => Tab(text: tab.label)).toList(),
             ),
           ),
           Expanded(
