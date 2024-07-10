@@ -1,35 +1,55 @@
 import 'package:flutter/material.dart';
-//  class that will manage the current page index and the list of pages:
+
 class PageProvider with ChangeNotifier {
   int _selectedIndex = 0;
-  Widget? _extraPage;
-  bool _isExtraPageVisible = false;
+  List<int> _indexHistory = [0];
+  List<Widget?> _extraPageHistory = [];
 
   int get selectedIndex => _selectedIndex;
-  Widget? get extraPage => _extraPage;
-  bool get isExtraPageVisible => _isExtraPageVisible;
+  Widget? get currentExtraPage => _extraPageHistory.isNotEmpty ? _extraPageHistory.last : null;
+  bool get isExtraPageVisible => _extraPageHistory.isNotEmpty;
 
   void setSelectedIndex(int index) {
-    _extraPage = null;
-    _isExtraPageVisible = false;
-    _selectedIndex = index;
+    if (_selectedIndex != index) {
+      _selectedIndex = index;
+      _indexHistory.add(index);
+      _extraPageHistory.clear();
+      notifyListeners();
+    }
+  }
+
+  void pushExtraPage(Widget page) {
+    _extraPageHistory.add(page);
     notifyListeners();
   }
 
   void setExtraPage(Widget page) {
-    _extraPage = page;
-    _isExtraPageVisible = true;
+    pushExtraPage(page);
+  }
+
+  void goBack() {
+    if (_extraPageHistory.isNotEmpty) {
+      _extraPageHistory.removeLast();
+    } else if (_indexHistory.length > 1) {
+      _indexHistory.removeLast();
+      _selectedIndex = _indexHistory.last;
+    }
     notifyListeners();
+  }
+
+  bool canGoBack() {
+    return _extraPageHistory.isNotEmpty || _indexHistory.length > 1;
+  }
+
+  void clearExtraPage() {
+    if (_extraPageHistory.isNotEmpty) {
+      _extraPageHistory.removeLast();
+      notifyListeners();
+    }
   }
 
   void navigateToIndexWithPage(int index, Widget page) {
     setSelectedIndex(index);
-    setExtraPage(page);
-  }
-
-  void clearExtraPage() {
-    _extraPage = null;
-    _isExtraPageVisible = false;
-    notifyListeners();
+    pushExtraPage(page);
   }
 }
