@@ -22,13 +22,7 @@ class GameCard extends StatelessWidget {
     final isLandscape = orientation == Orientation.landscape;
 
     String priceText = game.getFormatPriceWithCurrency();
-    // Calcola le dimensioni dell'immagine in base all'orientamento
-    final imageHeight = isLandscape
-        ? 120.0
-        : 200.0; // Valori esemplificativi, regola secondo necessità
-    final imageWidth = double.infinity;
 
-    // Ajusta la dimensione del testo in base all'orientamento
     final titleStyle = isLandscape ? theme.textTheme.headlineSmall?.copyWith(
         fontSize: 14) : theme.textTheme.headlineSmall;
     final descriptionStyle = isLandscape ? theme.textTheme.bodyMedium?.copyWith(
@@ -60,9 +54,11 @@ class GameCard extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Expanded(
+              Flexible(
+                fit: FlexFit.loose,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: Image.network(
