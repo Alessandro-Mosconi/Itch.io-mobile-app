@@ -94,24 +94,25 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
       case 'vibrant':
         return ThemeData(
           brightness: Brightness.light,
-          primaryColor: Colors.purple,
-          secondaryHeaderColor: Colors.pinkAccent,
-          scaffoldBackgroundColor: Colors.green[50],
-          cardColor: Colors.teal[300],
+          primaryColor: const Color(0xFF00FFFF), // Cyan
+          secondaryHeaderColor: const Color(0xFFFF00FF), // Fuchsia
+          scaffoldBackgroundColor: const Color(0xFFFFFFfd),
+          cardColor: const Color(0xFF00FF00), // Green
           textTheme: const TextTheme(
-            bodyLarge: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.w700),
-            bodyMedium: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.w500),
-            headlineSmall: TextStyle(color: Colors.purpleAccent, fontWeight: FontWeight.w900),
-            labelLarge: TextStyle(color: Colors.pinkAccent),
+            bodyLarge: TextStyle(color: Color(0xFF0000FF), fontWeight: FontWeight.w700), // Blue
+            bodyMedium: TextStyle(color: Color(0xFF0000FF), fontWeight: FontWeight.w500), // Blue
+            headlineSmall: TextStyle(color: Color(0xFFFF0000), fontWeight: FontWeight.w900), // Red
+            labelLarge: TextStyle(color: Color(0xFFFF00FF)), // Fuchsia
           ),
-          colorScheme: ColorScheme.light(
-            surface: Colors.yellow[50]!,
-            primary: Colors.deepPurple,
-            secondary: Colors.pinkAccent,
-            tertiary: Colors.teal,
+          colorScheme: const ColorScheme.light(
+            surface: Color(0xFFFFFFff),
+            primary: Color(0xFF00FFFF), // Cyan
+            secondary: Color(0xFFFF00FF), // Fuchsia
+            tertiary: Color(0xFF00FF00), // Green
+            background: Color(0xFFFFFFff),
           ),
         );
-        default:
+      default:
         return ThemeData.light().copyWith(
           cardColor: Colors.white,
           primaryColor: Colors.black,
@@ -192,24 +193,25 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
       case 'vibrant':
         return ThemeData(
           brightness: Brightness.dark,
-          primaryColor: Colors.purple,
-          secondaryHeaderColor: Colors.pink,
-          scaffoldBackgroundColor: Colors.grey[900],
-          cardColor: Colors.teal[700],
-          textTheme: TextTheme(
-            bodyLarge: TextStyle(color: Colors.purple, fontWeight: FontWeight.w700),
-            bodyMedium: TextStyle(color: Colors.purple, fontWeight: FontWeight.w500),
-            headlineSmall: TextStyle(color: Colors.pink, fontWeight: FontWeight.w900),
-            labelLarge: TextStyle(color: Colors.teal[300]),
+          primaryColor: const Color(0xFF00FFFF), // Cyan
+          secondaryHeaderColor: const Color(0xFFFF00FF), // Fuchsia
+          scaffoldBackgroundColor: const Color(0xFF000000), // Black
+          cardColor: const Color(0xFF00FF00), // Green
+          textTheme: const TextTheme(
+            bodyLarge: TextStyle(color: Color(0xFFFFFF00), fontWeight: FontWeight.w700), // Yellow
+            bodyMedium: TextStyle(color: Color(0xFFFFFF00), fontWeight: FontWeight.w500), // Yellow
+            headlineSmall: TextStyle(color: Color(0xFFFF0000), fontWeight: FontWeight.w900), // Red
+            labelLarge: TextStyle(color: Color(0xFF00FFFF)), // Cyan
           ),
-          colorScheme: ColorScheme.dark(
-            surface: Colors.grey[900]!,
-            primary: Colors.purple!,
-            secondary: Colors.pink,
-            tertiary: Colors.teal[300]!,
+          colorScheme: const ColorScheme.dark(
+            surface: Color(0xFF000000), // Black
+            primary: Color(0xFF00FFFF), // Cyan
+            secondary: Color(0xFFFF00FF), // Fuchsia
+            tertiary: Color(0xFF00FF00), // Green
+            background: Color(0xFF000000), // Black
           ),
         );
-        default:
+      default:
         return ThemeData.dark().copyWith(
           cardColor: Colors.grey[900],
           primaryColor: Colors.white,
