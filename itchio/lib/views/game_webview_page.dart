@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:webview_flutter_android/webview_flutter_android.dart';
-import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 import 'package:provider/provider.dart';
-import '../models/jam.dart';
 import '../providers/page_provider.dart';
 import '../providers/favorite_provider.dart';
 import '../widgets/custom_app_bar.dart';
 import '../models/game.dart';
+import '../models/jam.dart';
 
 class GameWebViewPage extends StatefulWidget {
   final String url;
   final Game? game;
   final Jam? jam;
 
-  const GameWebViewPage({super.key, required this.url, this.game, this.jam});
+  const GameWebViewPage({Key? key, required this.url, this.game, this.jam}) : super(key: key);
 
   @override
   _GameWebViewPageState createState() => _GameWebViewPageState();
@@ -177,14 +175,20 @@ class _GameWebViewPageState extends State<GameWebViewPage> {
           },
         ),
       ),
-      body: Stack(
-        children: [
-          if (_elementsHidden) WebViewWidget(controller: _controller),
-          if (_isLoading) const Center(child: CircularProgressIndicator()),
-        ],
+      body: GestureDetector(
+        onHorizontalDragStart: (details) {
+          // Only trigger for edge swipes
+          if (details.globalPosition.dx < 50) {
+            Provider.of<PageProvider>(context, listen: false).goBack();
+          }
+        },
+        child: Stack(
+          children: [
+            if (_elementsHidden) WebViewWidget(controller: _controller),
+            if (_isLoading) const Center(child: CircularProgressIndicator()),
+          ],
+        ),
       ),
     );
   }
-
-
 }

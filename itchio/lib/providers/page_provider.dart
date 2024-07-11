@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 class PageProvider with ChangeNotifier {
   int _selectedIndex = 0;
-  List<int> _indexHistory = [0];
-  List<Widget?> _extraPageHistory = [];
+  final List<int> _indexHistory = [0];
+  final List<Widget?> _extraPageHistory = [];
 
   int get selectedIndex => _selectedIndex;
   Widget? get currentExtraPage => _extraPageHistory.isNotEmpty ? _extraPageHistory.last : null;
