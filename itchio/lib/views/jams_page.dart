@@ -6,9 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../models/jam.dart';
 import '../widgets/custom_app_bar.dart';
-import '../widgets/jam_card.dart';
 import 'package:badges/badges.dart' as badges;
-
+import 'package:intl/intl.dart';
 import '../widgets/responsive_grid_list_jams.dart';
 
 class JamsPage extends StatefulWidget {
@@ -184,197 +183,49 @@ class _JamsPageState extends State<JamsPage> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('Filter Jams'),
-              content: SizedBox(
-                width: MediaQuery.of(context).size.width,
-                child: MediaQuery.of(context).size.width > 600
-                    ? GridView.count(
-                  crossAxisCount: 2,
-                  childAspectRatio: 6,
-                  shrinkWrap: true,
+              title: Text(
+                'Filter Jams',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    _buildDateSelector(
+                    _buildDateRangePicker(
                       context,
-                      "Start Date After",
+                      "Start Date",
                       tempStartDateAfterFilter,
-                          (date) {
-                        setState(() {
-                          tempStartDateAfterFilter = date;
-                        });
-                      },
-                          () {
-                        setState(() {
-                          tempStartDateAfterFilter = null;
-                        });
-                      },
-                    ),
-                    _buildDateSelector(
-                      context,
-                      "Start Date Before",
                       tempStartDateBeforeFilter,
-                          (date) {
+                          (after, before) {
                         setState(() {
-                          tempStartDateBeforeFilter = date;
-                        });
-                      },
-                          () {
-                        setState(() {
-                          tempStartDateBeforeFilter = null;
+                          tempStartDateAfterFilter = after;
+                          tempStartDateBeforeFilter = before;
                         });
                       },
                     ),
-                    _buildDateSelector(
+                    _buildDateRangePicker(
                       context,
-                      "End Date After",
+                      "End Date",
                       tempEndDateAfterFilter,
-                          (date) {
-                        setState(() {
-                          tempEndDateAfterFilter = date;
-                        });
-                      },
-                          () {
-                        setState(() {
-                          tempEndDateAfterFilter = null;
-                        });
-                      },
-                    ),
-                    _buildDateSelector(
-                      context,
-                      "End Date Before",
                       tempEndDateBeforeFilter,
-                          (date) {
+                          (after, before) {
                         setState(() {
-                          tempEndDateBeforeFilter = date;
-                        });
-                      },
-                          () {
-                        setState(() {
-                          tempEndDateBeforeFilter = null;
+                          tempEndDateAfterFilter = after;
+                          tempEndDateBeforeFilter = before;
                         });
                       },
                     ),
-                    _buildDateSelector(
+                    _buildDateRangePicker(
                       context,
-                      "Voting End Date After",
+                      "Voting End Date",
                       tempVotingEndDateAfterFilter,
-                          (date) {
-                        setState(() {
-                          tempVotingEndDateAfterFilter = date;
-                        });
-                      },
-                          () {
-                        setState(() {
-                          tempVotingEndDateAfterFilter = null;
-                        });
-                      },
-                    ),
-                    _buildDateSelector(
-                      context,
-                      "Voting End Date Before",
                       tempVotingEndDateBeforeFilter,
-                          (date) {
+                          (after, before) {
                         setState(() {
-                          tempVotingEndDateBeforeFilter = date;
-                        });
-                      },
-                          () {
-                        setState(() {
-                          tempVotingEndDateBeforeFilter = null;
-                        });
-                      },
-                    ),
-                  ],
-                )
-                    : ListView(
-                  shrinkWrap: true,
-                  children: [
-                    _buildDateSelector(
-                      context,
-                      "Start Date After",
-                      tempStartDateAfterFilter,
-                          (date) {
-                        setState(() {
-                          tempStartDateAfterFilter = date;
-                        });
-                      },
-                          () {
-                        setState(() {
-                          tempStartDateAfterFilter = null;
-                        });
-                      },
-                    ),
-                    _buildDateSelector(
-                      context,
-                      "Start Date Before",
-                      tempStartDateBeforeFilter,
-                          (date) {
-                        setState(() {
-                          tempStartDateBeforeFilter = date;
-                        });
-                      },
-                          () {
-                        setState(() {
-                          tempStartDateBeforeFilter = null;
-                        });
-                      },
-                    ),
-                    _buildDateSelector(
-                      context,
-                      "End Date After",
-                      tempEndDateAfterFilter,
-                          (date) {
-                        setState(() {
-                          tempEndDateAfterFilter = date;
-                        });
-                      },
-                          () {
-                        setState(() {
-                          tempEndDateAfterFilter = null;
-                        });
-                      },
-                    ),
-                    _buildDateSelector(
-                      context,
-                      "End Date Before",
-                      tempEndDateBeforeFilter,
-                          (date) {
-                        setState(() {
-                          tempEndDateBeforeFilter = date;
-                        });
-                      },
-                          () {
-                        setState(() {
-                          tempEndDateBeforeFilter = null;
-                        });
-                      },
-                    ),
-                    _buildDateSelector(
-                      context,
-                      "Voting End Date After",
-                      tempVotingEndDateAfterFilter,
-                          (date) {
-                        setState(() {
-                          tempVotingEndDateAfterFilter = date;
-                        });
-                      },
-                          () {
-                        setState(() {
-                          tempVotingEndDateAfterFilter = null;
-                        });
-                      },
-                    ),
-                    _buildDateSelector(
-                      context,
-                      "Voting End Date Before",
-                      tempVotingEndDateBeforeFilter,
-                          (date) {
-                        setState(() {
-                          tempVotingEndDateBeforeFilter = date;
-                        });
-                      },
-                          () {
-                        setState(() {
-                          tempVotingEndDateBeforeFilter = null;
+                          tempVotingEndDateAfterFilter = after;
+                          tempVotingEndDateBeforeFilter = before;
                         });
                       },
                     ),
@@ -382,6 +233,10 @@ class _JamsPageState extends State<JamsPage> {
                 ),
               ),
               actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text('Cancel'),
+                ),
                 ElevatedButton(
                   onPressed: () {
                     _startDateAfterFilter = tempStartDateAfterFilter;
@@ -393,13 +248,11 @@ class _JamsPageState extends State<JamsPage> {
                     _applyFilters();
                     Navigator.of(context).pop();
                   },
-                  child: const Text('Confirm'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Close'),
+                  child: Text('Apply Filters'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                  ),
                 ),
               ],
             );
@@ -409,42 +262,105 @@ class _JamsPageState extends State<JamsPage> {
     );
   }
 
+  Widget _buildDateRangePicker(
+      BuildContext context,
+      String title,
+      DateTime? startDate,
+      DateTime? endDate,
+      Function(DateTime?, DateTime?) onDateRangeSelected,
+      ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Text(
+            title,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: _buildDateChip(
+                context,
+                "From",
+                startDate,
+                    () async {
+                  final date = await _selectDate(context, startDate);
+                  if (date != null) {
+                    onDateRangeSelected(date, endDate);
+                  }
+                },
+                    () => onDateRangeSelected(null, endDate),
+              ),
+            ),
+            SizedBox(width: 8),
+            Expanded(
+              child: _buildDateChip(
+                context,
+                "To",
+                endDate,
+                    () async {
+                  final date = await _selectDate(context, endDate);
+                  if (date != null) {
+                    onDateRangeSelected(startDate, date);
+                  }
+                },
+                    () => onDateRangeSelected(startDate, null),
+              ),
+            ),
+          ],
+        ),
+        Divider(height: 24),
+      ],
+    );
+  }
 
-  Widget _buildDateSelector(BuildContext context, String title, DateTime? selectedDate, Function(DateTime) onDateSelected, Function() onDelete) {
-    return ListTile(
-      title: Text(
-        title,
-        style: const TextStyle(fontWeight: FontWeight.bold),
-      ),
-      subtitle: selectedDate != null ? Text(selectedDate.toIso8601String().split('T')[0]) : const Text("Not selected"),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.calendar_today),
-            onPressed: () => _selectDate(context, (date) {
-              onDateSelected(date);
-            }),
-          ),
-          IconButton(
-            icon: const Icon(Icons.clear),
-            onPressed: () {
-              onDelete();
-            },
-          ),
-        ],
+  Widget _buildDateChip(
+      BuildContext context,
+      String label,
+      DateTime? date,
+      VoidCallback onTap,
+      VoidCallback onClear,
+      ) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: Theme.of(context).chipTheme.backgroundColor,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              date != null ? DateFormat('MMM d, y').format(date) : label,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            if (date != null)
+              InkWell(
+                onTap: onClear,
+                child: Icon(Icons.clear, size: 18, color: Theme.of(context).colorScheme.onSurface),
+              ),
+          ],
+        ),
       ),
     );
   }
 
-  Future<void> _selectDate(BuildContext context, ValueChanged<DateTime> onDateSelected) async {
-    DateTime? picked = await showDatePicker(
+  Future<DateTime?> _selectDate(BuildContext context, DateTime? initialDate) async {
+    return showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: initialDate ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
     );
-    if (picked != null) onDateSelected(DateTime(picked.year, picked.month, picked.day));
   }
 
   void _clearFilters() {
