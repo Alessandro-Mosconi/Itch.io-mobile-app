@@ -86,7 +86,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
   bool isTablet(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final diagonal = sqrt((size.width * size.width) + (size.height * size.height));
-    final isTablet = diagonal > 1100.0; // Adjust this value based on your definition of a tablet
+    final isTablet = diagonal > 1500.0; // Adjust this value based on your definition of a tablet
     return isTablet;
   }
 
