@@ -34,13 +34,12 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   final TextEditingController _searchController = TextEditingController();
   late Future<Map<String, dynamic>> searchResults;
   late Future<Map<String, dynamic>> tabFilteredResults;
-  bool _searchPerformed = false;
   late ItemType currentTab;
   int _filterCount = 0;
   List<Filter> _selectedFilters = [];
   late TabController _tabController;
   List<ItemType> _tabs = [];
-  bool _showSaveButton = true;
+  bool _searchPerformed = false;
   bool isBookmarked = false;
 
   @override
@@ -98,7 +97,6 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     }
 
   }
-
 
   void _initializeSearchResults() {
     setState(() {
@@ -173,17 +171,16 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   }
 
   Widget _buildSearchBar() {
-    final bookMarkProvider = Provider.of<SearchBookmarkProvider>(context, listen: true);
 
     return custom.SearchBar(
       searchController: _searchController,
-      showSaveButton: _showSaveButton,
+      showSaveButton: !_searchPerformed,
       filterCount: _filterCount,
       isBookmarked: isBookmarked,
       onSearch: _performSearch,
       onClear: () {
         _searchController.text = '';
-        setState(() => _showSaveButton = true);
+        setState(() => _searchPerformed = false);
       },
       onFilter: () => _showFilterPopup(context, _selectedFilters),
       onSaveSearch: () => _saveSearch(),
