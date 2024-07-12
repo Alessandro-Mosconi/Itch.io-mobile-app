@@ -15,7 +15,13 @@ import '../models/option.dart';
 class SearchProvider with ChangeNotifier {
   final Logger logger = Logger(printer: PrettyPrinter());
 
-  void reloadSearchProvider() {
+  Future<void> reloadSearchProvider() async {
+    final prefs = await SharedPreferences.getInstance();
+    final keys = prefs.getKeys();
+    final keysToRemove = keys.where((key) => key.startsWith("cached_tab_result"));
+    for (var key in keysToRemove) {
+      await prefs.remove(key);
+    }
     notifyListeners();
   }
 
@@ -24,7 +30,13 @@ class SearchProvider with ChangeNotifier {
         ? '/${getSelectedOptions(filters).map((option) => option.name).join('/')}'
         : '';
 
+    final prefs = await SharedPreferences.getInstance();
+
     final currentTabName = currentTab.name ?? 'games';
+
+    if(prefs.getString("cached_tab_result/$currentTabName$concatenatedFilters") != null){
+      return json.decode(prefs.getString("cached_tab_result/$currentTabName$concatenatedFilters")!);
+    }
 
     final response = await http.post(
       Uri.parse('https://us-central1-itchioclientapp.cloudfunctions.net/item_list'),
@@ -33,6 +45,7 @@ class SearchProvider with ChangeNotifier {
     );
 
     if (response.statusCode == 200) {
+      prefs.setString("cached_tab_result/$currentTabName$concatenatedFilters", response.body);
       return json.decode(response.body);
     } else {
       logger.e('Type: $currentTabName, Filters: $concatenatedFilters');
@@ -40,6 +53,8 @@ class SearchProvider with ChangeNotifier {
       throw Exception('Failed to load tab results');
     }
   }
+
+
   Future<Map<String, dynamic>> fetchSearchResults(String query) async {
     final response = await http.get(
       Uri.parse('https://us-central1-itchioclientapp.cloudfunctions.net/search?search=$query'),

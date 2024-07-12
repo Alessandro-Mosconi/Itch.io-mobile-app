@@ -90,6 +90,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   Future<void> _refreshSavedSearches() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove(savedSearchesKey);
+    prefs.remove(savedSearchesTimestampKey);
     setState(() {
       futureSavedSearches = fetchSavedSearch();
     });

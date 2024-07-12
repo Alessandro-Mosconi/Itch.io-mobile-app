@@ -61,13 +61,14 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
             setState(() {
               _tabs = results[0] as List<ItemType>;
               _selectedFilters = results[1] as List<Filter>;
+              currentTab = _tabs.first;
               _tabController = TabController(length: _tabs.length, vsync: this);
               _tabController.addListener(() async {
                 setState(() {
                   isBookmarked = searchBookMarkProvider.isSearchBookmarked(currentTab.name!, getFilterString(_selectedFilters));
                   currentTab = _tabs[_tabController.index];
                 });
-            });
+              });
               _initializeTabAndFilters();
               _initializeSearchResults();
               isBookmarked = searchBookMarkProvider.isSearchBookmarked(currentTab.name!, getFilterString(_selectedFilters));
@@ -87,6 +88,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
         currentTab = _tabs[index];
         _tabController.index = index;
       } else {
+        logger.i('qua');
         currentTab = _tabs.first;
       }
     }
@@ -265,35 +267,56 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   Widget _buildTabPage(ItemType tab, List<Filter> filters) {
     final searchFilterProvider = Provider.of<SearchProvider>(context, listen: false);
 
-    return FutureBuilder<Map<String, dynamic>>(
-      future: searchFilterProvider.fetchTabResults(tab, filters),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          logger.e('FutureBuilder Error: ${snapshot.error}');
-          return Center(child: Text("Error: ${snapshot.error}"));
-        } else if (snapshot.hasData) {
-          final data = snapshot.data!;
-          final items = (data['items'] as List).map((game) => Game(game)).toList();
-          final title = data['title'].replaceAll(" - itch.io", "") as String;
+    Future<void> _reloadData() async {
+      await searchFilterProvider.reloadSearchProvider();
+      setState(() {
+        searchFilterProvider.fetchTabResults(tab, filters);
+      });
+    }
 
-          return Column(
+    return RefreshIndicator(
+      onRefresh: _reloadData,
+      child: FutureBuilder<Map<String, dynamic>>(
+        future: searchFilterProvider.fetchTabResults(tab, filters),
+        builder: (context, snapshot) {
+          Widget content;
+          if (snapshot.hasError) {
+            logger.e('FutureBuilder Error: ${snapshot.error}');
+            content = Center(child: Text("Error: ${snapshot.error}"));
+          } else if (snapshot.hasData && snapshot.data!['items'].isNotEmpty) {
+            final data = snapshot.data!;
+            final items = (data['items'] as List).map((game) => Game(game)).toList();
+            final title = data['title'].replaceAll(" - itch.io", "") as String;
+            content = _buildContent(items, title);
+          } else {
+            content = const Center(child: Text("No results found"));
+          }
+
+          return Stack(
             children: [
-              if (items.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                ),
-              Expanded(
-                child: ResponsiveGridListGame(games: items),
-              ),
+              content,
+              if (snapshot.connectionState == ConnectionState.waiting || snapshot.connectionState == ConnectionState.active)
+                  Center(
+                    child: CircularProgressIndicator(),
+                  )
             ],
           );
-        } else {
-          return const Center(child: Text("No results found"));
-        }
-      },
+        },
+      ),
+    );
+  }
+  Widget _buildContent(List<Game> items, String title) {
+    return Column(
+      children: [
+        if (items.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          ),
+        Expanded(
+          child: ResponsiveGridListGame(games: items),
+        ),
+      ],
     );
   }
 
