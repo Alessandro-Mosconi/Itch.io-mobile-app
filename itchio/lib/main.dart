@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:itchio/providers/filter_provider.dart';
 import 'package:itchio/providers/item_type_provider.dart';
+import 'package:itchio/providers/search_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -67,6 +68,9 @@ class _ProviderAppState extends State<ProviderApp> {
         ),
         ChangeNotifierProvider<ItemTypeProvider>(
           create: (_) => ItemTypeProvider(),
+        ),
+        ChangeNotifierProvider<SearchProvider>(
+          create: (_) => SearchProvider(),
         ),
         ChangeNotifierProvider<SearchBookmarkProvider>(
           create: (_) => SearchBookmarkProvider(),

@@ -73,7 +73,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   bool _isCacheValid(SharedPreferences prefs) {
     final timestamp = prefs.getInt(savedSearchesTimestampKey);
-    return timestamp != null &&
+    String? savedSearches = prefs.getString(savedSearchesKey);
+    return savedSearches!= null && timestamp != null &&
         DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(timestamp)) < cacheValidDuration;
   }
 

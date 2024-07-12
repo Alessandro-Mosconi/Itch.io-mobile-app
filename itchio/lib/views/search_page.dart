@@ -10,6 +10,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import '../models/option.dart';
 import '../providers/filter_provider.dart';
+import '../providers/search_provider.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/responsive_grid_list_game.dart';
 import '../models/game.dart';
@@ -55,20 +56,24 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         final filterProvider = Provider.of<FilterProvider>(context, listen: false);
         final itemType = Provider.of<ItemTypeProvider>(context, listen: false);
+        final searchBookMarkProvider = Provider.of<SearchBookmarkProvider>(context, listen: false);
         Future.wait([itemType.fetchTabs(), filterProvider.fetchFilters()]).then(
           (List<dynamic> results) {
-            _tabs = results[0] as List<ItemType>;
-            currentTab = _tabs.first;
-            _tabController = TabController(length: _tabs.length, vsync: this);
-            _tabController.addListener(() async {
-              setState(() {
-                currentTab = _tabs[_tabController.index];
-                _changeTab();
-              });
+            setState(() {
+              _tabs = results[0] as List<ItemType>;
+              _selectedFilters = results[1] as List<Filter>;
+              _tabController = TabController(length: _tabs.length, vsync: this);
+              logger.i('pro');
+              _tabController.addListener(() async {
+                setState(() {
+                  isBookmarked = searchBookMarkProvider.isSearchBookmarked(currentTab.name!, getFilterString(_selectedFilters));
+                  currentTab = _tabs[_tabController.index];
+                });
             });
-            _selectedFilters = results[1] as List<Filter>;
-            _initializeTabAndFilters();
-            _initializeSearchResults();
+              _initializeTabAndFilters();
+              _initializeSearchResults();
+
+            });
           },
         );
       });
@@ -77,12 +82,14 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     }
   }
 
-  void _initializeTabAndFilters() async {
+  void _initializeTabAndFilters() {
     if (widget.initialTab != null) {
       final index = _tabs.indexWhere((tab) => tab.name == widget.initialTab);
       if (index != -1) {
         currentTab = _tabs[index];
         _tabController.index = index;
+      } else {
+        currentTab = _tabs.first;
       }
     }
 
@@ -97,7 +104,6 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     setState(() {
       searchResults = Future.value({"games": [], "users": []});
       tabFilteredResults = Future.value({"items": [], "title": ""});
-      _changeTab();
     });
   }
 
@@ -120,45 +126,11 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     super.dispose();
   }
 
-  Future<Map<String, dynamic>> _fetchSearchResults(String query) async {
-    final response = await http.get(
-      Uri.parse('https://us-central1-itchioclientapp.cloudfunctions.net/search?search=$query'),
-    );
-
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
-      logger.e('Failed to load search results, status code: ${response.statusCode}');
-      throw Exception('Failed to load search results');
-    }
-  }
-
-  Future<Map<String, dynamic>> _fetchTabResults(ItemType currentTab, List<Filter> filters) async {
-    _searchController.text = '';
-    final concatenatedFilters = getSelectedOptions(filters).isNotEmpty
-        ? '/${getSelectedOptions(filters).map((option) => option.name).join('/')}'
-        : '';
-
-    final currentTabName = currentTab.name ?? 'games';
-
-    final response = await http.post(
-      Uri.parse('https://us-central1-itchioclientapp.cloudfunctions.net/item_list'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({'filters': concatenatedFilters, 'type': currentTabName}),
-    );
-
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
-      logger.e('Type: $currentTabName, Filters: $concatenatedFilters');
-      logger.e('Failed to load tab results, status code: ${response.statusCode}');
-      throw Exception('Failed to load tab results');
-    }
-  }
-
   Future<void> _showFilterPopup(BuildContext context, List<Filter> existingFilters) async {
     final newSelectedFilters = existingFilters.map((f) => Filter(f.toJson())).toList();
 
+    final searchBookMarkProvider = Provider.of<SearchBookmarkProvider>(context, listen: false);
+    final searchProvider = Provider.of<SearchProvider>(context, listen: false);
     showDialog(
       context: context,
       builder: (context) => FilterPopup(
@@ -169,7 +141,8 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
         setState(() {
           _selectedFilters = result;
           _filterCount = getSelectedOptions(_selectedFilters).length;
-          _changeTab();
+          searchBookMarkProvider.reloadBookMarkProvider();
+          searchProvider.reloadSearchProvider();
         });
       }
 
@@ -183,29 +156,24 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
         .toList();
   }
 
-  void _performSearch() {
-    setState(() {
-      _searchPerformed = true;
-      searchResults = _fetchSearchResults(_searchController.text);
-    });
-  }
-
-  Future<void> _changeTab() async {
-    final concatenatedFilters = getSelectedOptions(_selectedFilters).isNotEmpty
+  String getFilterString(List<Filter> filters) {
+    return getSelectedOptions(_selectedFilters).isNotEmpty
         ? '/${getSelectedOptions(_selectedFilters).map((option) => option.name).join('/')}'
         : '';
+  }
 
-    final currentTabName = currentTab.name ?? 'games';
-
-    bool providerBookmarkSaved = context.read<SearchBookmarkProvider>().isSearchBookmarked(currentTabName, concatenatedFilters);
+  void _performSearch() {
+    final searchProvider = Provider.of<SearchProvider>(context, listen: false);
 
     setState(() {
-      isBookmarked = providerBookmarkSaved;
-      tabFilteredResults = _fetchTabResults(currentTab, _selectedFilters);
+      _searchPerformed = true;
+      searchResults = searchProvider.fetchSearchResults(_searchController.text);
     });
   }
 
   Widget _buildSearchBar() {
+    final bookMarkProvider = Provider.of<SearchBookmarkProvider>(context, listen: true);
+
     return custom.SearchBar(
       searchController: _searchController,
       showSaveButton: _showSaveButton,
@@ -214,7 +182,6 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
       onSearch: _performSearch,
       onClear: () {
         _searchController.text = '';
-        _changeTab();
         setState(() => _showSaveButton = true);
       },
       onFilter: () => _showFilterPopup(context, _selectedFilters),
@@ -267,7 +234,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
           Expanded(
             child: TabBarView(
               controller: _tabController,
-              children: _tabs.map((tab) => _buildTabPage()).toList(),
+              children: _tabs.map((tab) => _buildTabPage(tab, _selectedFilters)).toList(),
             ),
           ),
         ],
@@ -297,9 +264,11 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildTabPage() {
+  Widget _buildTabPage(ItemType tab, List<Filter> filters) {
+    final searchFilterProvider = Provider.of<SearchProvider>(context, listen: false);
+
     return FutureBuilder<Map<String, dynamic>>(
-      future: tabFilteredResults,
+      future: searchFilterProvider.fetchTabResults(tab, filters),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());

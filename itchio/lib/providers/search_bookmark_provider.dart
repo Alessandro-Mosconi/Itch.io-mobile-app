@@ -56,6 +56,9 @@ class SearchBookmarkProvider with ChangeNotifier {
     return _searchBookmarks.contains(bookmark);
   }
 
+  void reloadBookMarkProvider() {
+    notifyListeners();
+  }
 
   Future<List<String>> fetchBookmarks() async {
     final prefs = await SharedPreferences.getInstance();
