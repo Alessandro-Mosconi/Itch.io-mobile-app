@@ -63,9 +63,13 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
     final response = await http.get(Uri.parse('https://itch.io/api/1/$accessToken/my-games'));
 
     if (response.statusCode == 200) {
-      return (json.decode(response.body)["games"] as List<dynamic>)
-          .map((gameMap) => Game(gameMap))
-          .toList();
+      if(json.decode(response.body)["games"] is List<dynamic>){
+        return (json.decode(response.body)["games"] as List<dynamic>)
+            .map((gameMap) => Game(gameMap))
+            .toList();
+      } else {
+        return [];
+      }
     } else {
       throw Exception('Failed to load developed games');
     }
@@ -75,9 +79,13 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
     final response = await http.get(Uri.parse('https://itch.io/api/1/$accessToken/my-owned-keys'));
 
     if (response.statusCode == 200) {
-      return (json.decode(response.body)["owned_keys"] as List<dynamic>)
-          .map((gameMap) => PurchaseGame(gameMap))
-          .toList();
+      if(json.decode(response.body)["owned_keys"] is List<dynamic>){
+        return (json.decode(response.body)["owned_keys"] as List<dynamic>)
+            .map((gameMap) => PurchaseGame(gameMap))
+            .toList();
+      } else {
+        return [];
+      }
     } else {
       throw Exception('Failed to load purchased games');
     }
@@ -137,16 +145,19 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
   }
 
   Widget buildUserProfile(User user) {
-    return Column(
-      children: <Widget>[
-        _buildProfileHeader(user),
-        const SizedBox(height: 20),
-        buildUserTags(user),
-        const SizedBox(height: 20),
-        Expanded(
-          child: isTablet(context) ? buildTabletLayout() : buildTabLayout(),
-        ),
-      ],
+    return SingleChildScrollView(
+      child: Column(
+        children: <Widget>[
+          _buildProfileHeader(user),
+          const SizedBox(height: 20),
+          buildUserTags(user),
+          const SizedBox(height: 20),
+          Container(
+            height: MediaQuery.of(context).size.height * 0.6, // Set a height for the container
+            child: isTablet(context) ? buildTabletLayout() : buildTabLayout(),
+          ),
+        ],
+      ),
     );
   }
 
@@ -196,8 +207,6 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
       ),
     );
   }
-
-
 
   Widget buildTabLayout() {
     return Column(
@@ -275,23 +284,24 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
 
   Widget buildGamesSection(Future<List<Game>>? gamesFuture) {
     return FutureBuilder<List<Game>>(
-        future: gamesFuture,
-        builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return const Center(child: CircularProgressIndicator());
-      } else if (snapshot.hasError) {
-        return Center(child: Text("Error: ${snapshot.error}"));
-      } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-        return ListView.builder(
-          itemCount: snapshot.data!.length,
-          itemBuilder: (context, index) {
-            return DevelopedGameCard(game: snapshot.data![index]);
-          },
-        );
-      } else {
-        return const Center(child: Text("No games found"));
-      }
-        },
+      future: gamesFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text("Error: ${snapshot.error}"));
+        } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+          return ListView.builder(
+            shrinkWrap: true,
+            itemCount: snapshot.data!.length,
+            itemBuilder: (context, index) {
+              return DevelopedGameCard(game: snapshot.data![index]);
+            },
+          );
+        } else {
+          return const Center(child: Text("No games found"));
+        }
+      },
     );
   }
 
@@ -305,6 +315,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
           return Center(child: Text("Error: ${snapshot.error}"));
         } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
           return ListView.builder(
+            shrinkWrap: true,
             itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
               PurchaseGame purchasedGame = snapshot.data![index];
@@ -320,4 +331,3 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
     );
   }
 }
-
