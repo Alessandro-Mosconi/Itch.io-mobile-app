@@ -63,7 +63,6 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
               _tabs = results[0] as List<ItemType>;
               _selectedFilters = results[1] as List<Filter>;
               _tabController = TabController(length: _tabs.length, vsync: this);
-              logger.i('pro');
               _tabController.addListener(() async {
                 setState(() {
                   isBookmarked = searchBookMarkProvider.isSearchBookmarked(currentTab.name!, getFilterString(_selectedFilters));
@@ -72,7 +71,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
             });
               _initializeTabAndFilters();
               _initializeSearchResults();
-
+              isBookmarked = searchBookMarkProvider.isSearchBookmarked(currentTab.name!, getFilterString(_selectedFilters));
             });
           },
         );
@@ -97,6 +96,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
       _selectedFilters = _toListOfFilters(_selectedFilters, widget.initialFilters!);
       _filterCount = widget.initialFilters!.split('/').length - 1;
     }
+
   }
 
 
@@ -141,6 +141,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
         setState(() {
           _selectedFilters = result;
           _filterCount = getSelectedOptions(_selectedFilters).length;
+          isBookmarked = searchBookMarkProvider.isSearchBookmarked(currentTab.name!, getFilterString(_selectedFilters));
           searchBookMarkProvider.reloadBookMarkProvider();
           searchProvider.reloadSearchProvider();
         });
