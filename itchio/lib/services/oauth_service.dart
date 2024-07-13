@@ -5,6 +5,8 @@ import 'package:flutter/services.dart' show PlatformException;
 import 'package:logger/logger.dart';
 import 'package:flutter/foundation.dart'; // needed for ChangeNotifier
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:async';
+
 
 typedef GetInitialLink = Future<String?> Function();
 typedef LinkStream = Stream<String?> Function();
@@ -14,6 +16,9 @@ class OAuthService extends ChangeNotifier {
   late SharedPreferences prefs;
   final GetInitialLink getInitialLink;
   final LinkStream linkStream;
+
+  final _authenticationSuccessController = StreamController<bool>.broadcast();
+  Stream<bool> get onAuthenticationSuccess => _authenticationSuccessController.stream;
 
   StreamSubscription? _sub;
   String? _accessToken; // Added to store the access token
@@ -87,9 +92,10 @@ class OAuthService extends ChangeNotifier {
   }
 
   void handleAccessToken(String accessToken) {
-    _accessToken = accessToken; // Update the access token
+    _accessToken = accessToken;
     saveAccessTokenToSharedPreferences(accessToken);
-    notifyListeners(); // Notify listeners about the change
+    _authenticationSuccessController.add(true);
+    notifyListeners();
   }
 
   Future<void> saveAccessTokenToSharedPreferences(String accessToken) async {
@@ -108,8 +114,8 @@ class OAuthService extends ChangeNotifier {
 
   @override
   void dispose() {
-    _sub?.cancel();
-    super.dispose(); // Call dispose on ChangeNotifier to clean up any listeners
+    _authenticationSuccessController.close();
+    super.dispose();
   }
 }
 

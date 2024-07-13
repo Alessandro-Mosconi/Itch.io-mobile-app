@@ -1,11 +1,46 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../services/oauth_service.dart';
 import '../providers/theme_notifier.dart';
+import '../providers/page_provider.dart';
+import '../views/main_view.dart';
 
-class AuthPage extends StatelessWidget {
+class AuthPage extends StatefulWidget {
   const AuthPage({Key? key}) : super(key: key);
+
+  @override
+  _AuthPageState createState() => _AuthPageState();
+}
+
+class _AuthPageState extends State<AuthPage> {
+  late StreamSubscription<bool> _authSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    final authService = Provider.of<OAuthService>(context, listen: false);
+    _authSubscription = authService.onAuthenticationSuccess.listen((success) {
+      if (success) {
+        _navigateToMainView();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _authSubscription.cancel();
+    super.dispose();
+  }
+
+  void _navigateToMainView() {
+    final pageProvider = Provider.of<PageProvider>(context, listen: false);
+    pageProvider.setSelectedIndex(0); // Reset to the first page
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => const MainView()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +48,6 @@ class AuthPage extends StatelessWidget {
     final themeNotifier = Provider.of<ThemeNotifier>(context);
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    // Choose logo based on theme
     final logoAsset = isDarkMode ? 'assets/logo-white-new.svg' : 'assets/logo-black-new.svg';
 
     return Scaffold(
