@@ -52,4 +52,12 @@ class PageProvider with ChangeNotifier {
     setSelectedIndex(index);
     pushExtraPage(page);
   }
+
+  void resetToInitialState() {
+    _selectedIndex = 0;
+    _indexHistory.clear();
+    _indexHistory.add(0);
+    _extraPageHistory.clear();
+    notifyListeners();
+  }
 }
