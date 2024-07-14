@@ -11,28 +11,29 @@ class DevelopedGameCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.all(8),
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            GameCard(game: game),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: <Widget>[
-                _buildStatColumn("Views", game.views_count ?? 0, Colors.red),
-                _buildStatColumn("Downloads", game.downloads_count ?? 0, Colors.green),
-                if (game.purchases_count != 0)
-                  _buildStatColumn("Purchases", game.purchases_count ?? 0, Colors.blue),
-              ],
-            ),
-          ],
+      child: SingleChildScrollView(  // Wrap with SingleChildScrollView to prevent overflow
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              GameCard(game: game),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: <Widget>[
+                  _buildStatColumn("Views", game.views_count ?? 0, Colors.red),
+                  _buildStatColumn("Downloads", game.downloads_count ?? 0, Colors.green),
+                  if (game.purchases_count != null && game.purchases_count != 0)
+                    _buildStatColumn("Purchases", game.purchases_count ?? 0, Colors.blue),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
-
 
   Widget _buildStatColumn(String label, int count, Color color) {
     return Column(
