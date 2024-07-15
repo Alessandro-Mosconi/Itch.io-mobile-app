@@ -4,8 +4,9 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i4;
-import 'dart:ui' as _i5;
+import 'dart:ui' as _i6;
 
+import 'package:itchio/models/saved_search.dart' as _i5;
 import 'package:itchio/providers/saved_searches_provider.dart' as _i3;
 import 'package:logger/logger.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
@@ -33,6 +34,16 @@ class _FakeLogger_0 extends _i1.SmartFake implements _i2.Logger {
         );
 }
 
+class _FakeDuration_1 extends _i1.SmartFake implements Duration {
+  _FakeDuration_1(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
 /// A class which mocks [SavedSearchesProvider].
 ///
 /// See the documentation for Mockito's code generation for more information.
@@ -50,6 +61,15 @@ class MockSavedSearchesProvider extends _i1.Mock
           Invocation.getter(#logger),
         ),
       ) as _i2.Logger);
+
+  @override
+  Duration get cacheValidDuration => (super.noSuchMethod(
+        Invocation.getter(#cacheValidDuration),
+        returnValue: _FakeDuration_1(
+          this,
+          Invocation.getter(#cacheValidDuration),
+        ),
+      ) as Duration);
 
   @override
   bool get hasListeners => (super.noSuchMethod(
@@ -94,7 +114,27 @@ class MockSavedSearchesProvider extends _i1.Mock
       ) as _i4.Future<void>);
 
   @override
-  void addListener(_i5.VoidCallback? listener) => super.noSuchMethod(
+  _i4.Future<List<_i5.SavedSearch>> fetchSavedSearch() => (super.noSuchMethod(
+        Invocation.method(
+          #fetchSavedSearch,
+          [],
+        ),
+        returnValue:
+            _i4.Future<List<_i5.SavedSearch>>.value(<_i5.SavedSearch>[]),
+      ) as _i4.Future<List<_i5.SavedSearch>>);
+
+  @override
+  _i4.Future<void> refreshSavedSearches() => (super.noSuchMethod(
+        Invocation.method(
+          #refreshSavedSearches,
+          [],
+        ),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
+
+  @override
+  void addListener(_i6.VoidCallback? listener) => super.noSuchMethod(
         Invocation.method(
           #addListener,
           [listener],
@@ -103,7 +143,7 @@ class MockSavedSearchesProvider extends _i1.Mock
       );
 
   @override
-  void removeListener(_i5.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i6.VoidCallback? listener) => super.noSuchMethod(
         Invocation.method(
           #removeListener,
           [listener],

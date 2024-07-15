@@ -12,8 +12,6 @@ import '../widgets/custom_app_bar.dart';
 import 'package:http/http.dart' as http;
 import 'package:lottie/lottie.dart';
 
-final Logger logger = Logger(printer: PrettyPrinter());
-
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 

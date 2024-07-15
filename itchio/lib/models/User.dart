@@ -20,7 +20,11 @@ class User {
     isGamer = data['gamer'];
     isDeveloper = data['developer'];
     avatar = data['img'];
-    numberOfProjects = int.tryParse(data['number_of_projects'] ?? '0');
+    try {
+      numberOfProjects = int.parse(data['number_of_projects'] ?? '0');
+    } catch (e) {
+      numberOfProjects = 0;
+    }
   }
 
   User.fromJson(String jsonUser) {
