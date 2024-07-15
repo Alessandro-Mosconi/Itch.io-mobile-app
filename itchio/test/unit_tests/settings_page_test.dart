@@ -11,38 +11,44 @@ import '../mock_oauth_service.mocks.dart';
 import '../mock_page_provider.mocks.dart';
 import '../mock_theme_notifier.mocks.dart';
 
-
 void main() {
-  // Define mocks at the top of the main function to ensure they are accessible in all test cases
   final MockThemeNotifier mockThemeNotifier = MockThemeNotifier();
   final MockOAuthService mockOAuthService = MockOAuthService();
   final MockPageProvider mockPageProvider = MockPageProvider();
 
-  Widget createTestWidget(Widget child) {
+  Widget createTestWidget() {
     when(mockThemeNotifier.themeMode).thenReturn(ThemeMode.system);
     when(mockThemeNotifier.currentTheme).thenReturn('standard');
 
     return MaterialApp(
-      home: MultiProvider(
-        providers: [
-          ChangeNotifierProvider<ThemeNotifier>(create: (_) => mockThemeNotifier),
-          ChangeNotifierProvider<OAuthService>(create: (_) => mockOAuthService),
-          ChangeNotifierProvider<PageProvider>(create: (_) => mockPageProvider),
-        ],
-        child: const Scaffold(body: SettingsPage()),
+      home: Directionality(
+        textDirection: TextDirection.ltr,
+        child: MultiProvider(
+          providers: [
+            ChangeNotifierProvider<ThemeNotifier>(create: (_) => mockThemeNotifier),
+            ChangeNotifierProvider<OAuthService>(create: (_) => mockOAuthService),
+            ChangeNotifierProvider<PageProvider>(create: (_) => mockPageProvider),
+          ],
+          child: SingleChildScrollView( // Wrap the content in a SingleChildScrollView
+            child: ChangeNotifierProvider<PageProvider>(
+              create: (_) => PageProvider(),
+              child: const SettingsPage(),
+            ),
+          ),
+        ),
       ),
     );
   }
 
   group('SettingsPage Tests', () {
     testWidgets('Settings page builds and displays essential UI components', (WidgetTester tester) async {
-      await tester.pumpWidget(createTestWidget(const SettingsPage()));
+      await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
       expect(find.text('Settings'), findsOneWidget);
     });
 
     testWidgets('Interactions with theme mode radio buttons', (WidgetTester tester) async {
-      await tester.pumpWidget(createTestWidget(const SettingsPage()));
+      await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
       await tester.tap(find.byKey(const Key('darkModeRadio')));
@@ -52,7 +58,7 @@ void main() {
     });
 
     testWidgets('Ensure state is maintained when selecting themes', (WidgetTester tester) async {
-      await tester.pumpWidget(createTestWidget(const SettingsPage()));
+      await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
       await tester.tap(find.byKey(const Key('fluxokiThemeRadio')));
@@ -62,7 +68,7 @@ void main() {
     });
 
     testWidgets('Response to logout tap', (WidgetTester tester) async {
-      await tester.pumpWidget(createTestWidget(const SettingsPage()));
+      await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('Logout'));
@@ -70,7 +76,5 @@ void main() {
 
       verify(mockOAuthService.logout()).called(1);
     });
-
-
   });
 }

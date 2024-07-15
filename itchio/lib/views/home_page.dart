@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:itchio/models/saved_search.dart';
+import 'package:itchio/providers/saved_searches_provider.dart';
 import 'package:itchio/providers/search_bookmark_provider.dart';
 import 'package:itchio/widgets/saved_search_list.dart';
 import 'package:logger/logger.dart';
@@ -22,17 +23,20 @@ class HomePage extends StatefulWidget {
 
 // single ticker provider is needed for the box animations
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
-  late Future<List<SavedSearch>> futureSavedSearches;
+  late Future<List<SavedSearch>> futureSavedSearches = Future(() => <SavedSearch>[]);
   late AnimationController _animationController;
 
-  static const Duration cacheValidDuration = Duration(days: 2);
-  static const String savedSearchesKey = "saved_searches";
-  static const String savedSearchesTimestampKey = "saved_searches_timestamp";
 
   @override
   void initState() {
     super.initState();
-    futureSavedSearches = fetchSavedSearch();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final savedSearchesProvider = Provider.of<SavedSearchesProvider>(context, listen: false);
+      setState(() {
+        futureSavedSearches = savedSearchesProvider.fetchSavedSearch();
+      });
+    });
+
     _animationController = AnimationController(vsync: this, duration: const Duration(seconds: 2));
     _animationController.repeat(reverse: true);
   }
@@ -43,58 +47,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     super.dispose();
   }
 
-  Future<List<SavedSearch>> fetchSavedSearch() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString("access_token");
-
-      if (_isCacheValid(prefs)) {
-        return _getFromCache(prefs);
-      }
-
-      final response = await http.post(
-        Uri.parse('https://us-central1-itchioclientapp.cloudfunctions.net/get_saved_search_carousel'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({'token': token}),
-      );
-
-      if (response.statusCode == 200) {
-        List<dynamic> results = json.decode(response.body);
-        _saveToCache(prefs, response.body);
-        return results.map((r) => SavedSearch(r)).toList();
-      } else {
-        throw Exception('Failed to load saved search results');
-      }
-    } catch (e) {
-      logger.e('Error fetching saved searches: $e');
-      rethrow;
-    }
-  }
-
-  bool _isCacheValid(SharedPreferences prefs) {
-    final timestamp = prefs.getInt(savedSearchesTimestampKey);
-    String? savedSearches = prefs.getString(savedSearchesKey);
-    return savedSearches!= null && timestamp != null &&
-        DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(timestamp)) < cacheValidDuration;
-  }
-
-  List<SavedSearch> _getFromCache(SharedPreferences prefs) {
-    String body = prefs.getString(savedSearchesKey)!;
-    List<dynamic> results = json.decode(body);
-    return results.map((r) => SavedSearch(r)).toList();
-  }
-
-  void _saveToCache(SharedPreferences prefs, String data) {
-    prefs.setString(savedSearchesKey, data);
-    prefs.setInt(savedSearchesTimestampKey, DateTime.now().millisecondsSinceEpoch);
-  }
-
   Future<void> _refreshSavedSearches() async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.remove(savedSearchesKey);
-    prefs.remove(savedSearchesTimestampKey);
+    final savedSearchesProvider = Provider.of<SavedSearchesProvider>(
+        context, listen: false);
+    savedSearchesProvider.refreshSavedSearches();
     setState(() {
-      futureSavedSearches = fetchSavedSearch();
+      futureSavedSearches = savedSearchesProvider.fetchSavedSearch();
     });
   }
 
