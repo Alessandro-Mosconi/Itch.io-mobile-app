@@ -227,9 +227,11 @@ class _CarouselCardState extends State<CarouselCard> {
               () => savedSearchesProvider.deleteSavedSearch(widget.title, widget.subtitle)) ??
           false;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Search deleted successfully')),
-      );
+      if(response) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Search deleted successfully')),
+        );
+      }
 
       return response;
 
