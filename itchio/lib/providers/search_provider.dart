@@ -50,7 +50,7 @@ class SearchProvider with ChangeNotifier {
     } else {
       logger.e('Type: $currentTabName, Filters: $concatenatedFilters');
       logger.e('Failed to load tab results, status code: ${response.statusCode}');
-      throw Exception('Failed to load tab results');
+      return {};
     }
   }
 

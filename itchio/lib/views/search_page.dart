@@ -283,7 +283,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
           if (snapshot.hasError) {
             logger.e('FutureBuilder Error: ${snapshot.error}');
             content = Center(child: Text("Error: ${snapshot.error}"));
-          } else if (snapshot.hasData && snapshot.data!['items'].isNotEmpty) {
+          } else if (snapshot.hasData && snapshot.data!['items'] != null && snapshot.data!['items'].isNotEmpty) {
             final data = snapshot.data!;
             final items = (data['items'] as List).map((game) => Game(game)).toList();
             final title = data['title'].replaceAll(" - itch.io", "") as String;
