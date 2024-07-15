@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:itchio/providers/page_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:mockito/mockito.dart';
 import 'package:itchio/views/settings_page.dart';
 import 'package:itchio/services/oauth_service.dart';
 import 'package:itchio/providers/theme_notifier.dart';
-import '../mocks.dart';
+
+import '../mock_oauth_service.mocks.dart';
+import '../mock_page_provider.mocks.dart';
+import '../mock_theme_notifier.mocks.dart';
+
 
 void main() {
   // Define mocks at the top of the main function to ensure they are accessible in all test cases
   final MockThemeNotifier mockThemeNotifier = MockThemeNotifier();
   final MockOAuthService mockOAuthService = MockOAuthService();
+  final MockPageProvider mockPageProvider = MockPageProvider();
 
   Widget createTestWidget(Widget child) {
-    // Use the already defined mocks
     when(mockThemeNotifier.themeMode).thenReturn(ThemeMode.system);
     when(mockThemeNotifier.currentTheme).thenReturn('standard');
 
@@ -22,8 +27,9 @@ void main() {
         providers: [
           ChangeNotifierProvider<ThemeNotifier>(create: (_) => mockThemeNotifier),
           ChangeNotifierProvider<OAuthService>(create: (_) => mockOAuthService),
+          ChangeNotifierProvider<PageProvider>(create: (_) => mockPageProvider),
         ],
-        child: child,
+        child: const Scaffold(body: SettingsPage()),
       ),
     );
   }

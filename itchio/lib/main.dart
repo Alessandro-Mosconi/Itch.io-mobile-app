@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:itchio/providers/filter_provider.dart';
 import 'package:itchio/providers/item_type_provider.dart';
+import 'package:itchio/providers/saved_searches_provider.dart';
 import 'package:itchio/providers/search_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -74,6 +75,9 @@ class _ProviderAppState extends State<ProviderApp> {
         ),
         ChangeNotifierProvider<SearchBookmarkProvider>(
           create: (_) => SearchBookmarkProvider(),
+        ),
+        ChangeNotifierProvider<SavedSearchesProvider>(
+          create: (_) => SavedSearchesProvider(),
         ),
         Provider<NotificationService>(
           create: (_) => _notificationService,

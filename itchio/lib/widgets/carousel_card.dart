@@ -5,6 +5,7 @@ import 'package:crypto/crypto.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:itchio/providers/saved_searches_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/game.dart';
@@ -58,7 +59,7 @@ class _CarouselCardState extends State<CarouselCard> {
       if (_scrollController.hasClients) {
         final maxScroll = _scrollController.position.maxScrollExtent;
         final currentScroll = _scrollController.offset;
-        const delta = 200.0; // Adjust the scroll amount as needed
+        const delta = 200.0;
 
         if (currentScroll + delta >= maxScroll) {
           await _scrollController.animateTo(
@@ -74,7 +75,6 @@ class _CarouselCardState extends State<CarouselCard> {
           );
         }
 
-        // Introduce a random delay between 1 and 5 seconds
         final randomDelay = Duration(seconds: _random.nextInt(5) + 1);
         await Future.delayed(randomDelay);
       }
@@ -186,8 +186,6 @@ class _CarouselCardState extends State<CarouselCard> {
 
           pageProvider.setExtraPage(GameWebViewPage(url: game.url!, game: game),
           );
-        } else {
-          throw 'Could not launch ${game.url}';
         }
       },
       child: Container(
@@ -222,15 +220,25 @@ class _CarouselCardState extends State<CarouselCard> {
 
 
   Future<bool> _confirmDismiss(DismissDirection direction, BuildContext context) async {
+    final savedSearchesProvider = Provider.of<SavedSearchesProvider>(context, listen: false);
     if (direction == DismissDirection.endToStart) {
-      return await _showConfirmDialog(
+      bool response = await _showConfirmDialog(
           context, "Confirm Deletion", "Are you sure you want to delete this saved search?",
-          deleteSavedSearch) ??
+              () => savedSearchesProvider.deleteSavedSearch(widget.title, widget.subtitle)) ??
           false;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Search deleted successfully')),
+      );
+
+      return response;
+
     } else {
-      return await _showConfirmDialog(
+      bool response =  await _showConfirmDialog(
           context, "Confirm Search", "Are you sure you want to perform this search?", _goToSearch) ??
           false;
+
+      return response;
     }
   }
 
@@ -269,6 +277,8 @@ class _CarouselCardState extends State<CarouselCard> {
   }
 
   void _toggleNotification(String type, String filters) async {
+    final savedSearchesProvider = Provider.of<SavedSearchesProvider>(context, listen: false);
+
     String topicName = _generateTopicHash(type, filters);
     final notificationService = Provider.of<NotificationService>(context, listen: false);
 
@@ -278,7 +288,7 @@ class _CarouselCardState extends State<CarouselCard> {
       await notificationService.subscribeToTopic(topicName);
     }
 
-    await changeNotifyField(type, filters, !isNotificationEnabled);
+    await savedSearchesProvider.changeNotifyField(type, filters, !isNotificationEnabled);
     setState(() {
       isNotificationEnabled = !isNotificationEnabled;
     });
@@ -287,48 +297,6 @@ class _CarouselCardState extends State<CarouselCard> {
   String _generateTopicHash(String type, String filters) {
     String typeDefault = type;
     return sha256.convert(utf8.encode(typeDefault + filters)).toString(); // key
-  }
-
-  Future<void> changeNotifyField(String type, String filters, bool notify) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString("access_token");
-    final firebaseApp = Firebase.app();
-    final dbInstance = FirebaseDatabase.instanceFor(app: firebaseApp, databaseURL: 'https://itchioclientapp-default-rtdb.europe-west1.firebasedatabase.app');
-    String key = _generateTopicHash(type, filters);
-    final DatabaseReference dbRef = dbInstance.ref('/user_search/${token!}/$key');
-    await dbRef.update({
-      "filters": filters,
-      "type": type,
-      "notify": notify
-    });
-    String body = prefs.getString("saved_searches")!;
-    List<dynamic> results = json.decode(body);
-    results = results.map((r) {
-      if (r['type'] == type && r['filters'] == filters) {
-        r['notify'] = notify;
-      }
-      return r;
-    }).toList();
-    prefs.setString("saved_searches", json.encode(results));
-  }
-
-  Future<void> deleteSavedSearch() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString("access_token");
-    final firebaseApp = Firebase.app();
-    final dbInstance = FirebaseDatabase.instanceFor(app: firebaseApp, databaseURL: 'https://itchioclientapp-default-rtdb.europe-west1.firebasedatabase.app');
-    String key = _generateTopicHash(widget.title, widget.subtitle);
-    final DatabaseReference dbRef = dbInstance.ref('/user_search/${token!}/$key');
-    await dbRef.remove();
-    String body = prefs.getString("saved_searches")!;
-    List<dynamic> results = json.decode(body);
-    results.removeWhere((r) {
-      return r['type'] == widget.title && r['filters'] == widget.subtitle;
-    });
-    prefs.setString("saved_searches", json.encode(results));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Search deleted successfully')),
-    );
   }
 
   Future<void> _goToSearch() async {

@@ -58,10 +58,46 @@ class MockPageProvider extends _i1.Mock implements _i2.PageProvider {
       );
 
   @override
+  void pushExtraPage(_i3.Widget? page) => super.noSuchMethod(
+        Invocation.method(
+          #pushExtraPage,
+          [page],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
   void setExtraPage(_i3.Widget? page) => super.noSuchMethod(
         Invocation.method(
           #setExtraPage,
           [page],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void goBack() => super.noSuchMethod(
+        Invocation.method(
+          #goBack,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  bool canGoBack() => (super.noSuchMethod(
+        Invocation.method(
+          #canGoBack,
+          [],
+        ),
+        returnValue: false,
+      ) as bool);
+
+  @override
+  void clearExtraPage() => super.noSuchMethod(
+        Invocation.method(
+          #clearExtraPage,
+          [],
         ),
         returnValueForMissingStub: null,
       );
@@ -83,9 +119,9 @@ class MockPageProvider extends _i1.Mock implements _i2.PageProvider {
       );
 
   @override
-  void clearExtraPage() => super.noSuchMethod(
+  void resetToInitialState() => super.noSuchMethod(
         Invocation.method(
-          #clearExtraPage,
+          #resetToInitialState,
           [],
         ),
         returnValueForMissingStub: null,

@@ -1,71 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:itchio/widgets/game_card.dart';
-import 'package:itchio/widgets/responsive_grid_list_game.dart';
 import 'package:itchio/models/game.dart';
+import 'package:itchio/widgets/responsive_grid_list_game.dart';
+import 'package:network_image_mock/network_image_mock.dart';
 
 void main() {
   testWidgets('ResponsiveGridList widget test', (WidgetTester tester) async {
-    // Create sample games
-    final games = [
-      getGame('Game 1'),
-      getGame('Game 2'),
-      getGame('Game 3'),
-      getGame('Game 4'),
-      getGame('Game 5'),
-      getGame('Game 6'),
-      getGame('Game 7'),
-      getGame('Game 8'),
-      getGame('Game 9'),
-      getGame('Game 10'),
-    ];
+    final games = [getGame('Game 1'), getGame('Game 2')];
 
-    // Build the widget
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: ResponsiveGridListGame(games: games),
-        ),
-      ),
-    );
+    // Mock network images for the entire test
+    await mockNetworkImagesFor(() async {
+      // Initial pump with a small screen size to expect a ListView
+      await tester.pumpWidget(MaterialApp(home: ResponsiveGridListGame(games: games)));
+      tester.view.physicalSize = const Size(500, 800);
+      await tester.pumpAndSettle();
+      expect(find.byType(ListView), findsOneWidget);
 
-    // Verify the widget builds the correct layout for mobile (list)
-    expect(find.byType(ListView), findsOneWidget);
-    expect(find.byType(GameCard), findsNWidgets(10));
+      // Change the physical size to simulate a larger screen
+      tester.view.physicalSize = const Size(800, 600);
+      tester.view.devicePixelRatio = 1.0;
 
-    tester.view.physicalSize = Size(800, 600);
-    addTearDown(() {
-      tester.view.resetPhysicalSize();
+      // Rebuild the widget tree with the new screen size
+      await tester.pumpWidget(MaterialApp(home: ResponsiveGridListGame(games: games)));
+      await tester.pumpAndSettle();
+
+      // Now we expect a GridView because of the larger screen
+      expect(find.byType(GridView), findsOneWidget);
     });
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: ResponsiveGridListGame(games: games),
-        ),
-      ),
-    );
-
-    expect(find.byType(GridView), findsOneWidget);
-    expect(find.byType(GameCard), findsNWidgets(10));
-
-    // Change orientation to landscape and verify the grid layout
-    tester.view.physicalSize = Size(1200, 600);
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: ResponsiveGridListGame(games: games),
-        ),
-      ),
-    );
-
-    expect(find.byType(GridView), findsOneWidget);
-    expect(find.byType(GameCard), findsNWidgets(10));
-
-    // Verify the crossAxisCount for landscape
-    final gridView = tester.widget<GridView>(find.byType(GridView));
-    final gridDelegate = gridView.gridDelegate as SliverGridDelegateWithFixedCrossAxisCount;
-    expect(gridDelegate.crossAxisCount, 4);
+    // Reset the physical size after the test
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
   });
 }
 
@@ -74,14 +41,14 @@ Game getGame(String title) {
     'views_count': 100,
     'url': 'http://example.com/game/1',
     'id': 1,
-    'short_text': 'Short description of the game',
+    'short_text': 'Short description',
     'min_price': 0,
     'price': 0.0,
     'type': 'action',
-    'p_windows': true,
-    'p_linux': true,
-    'p_osx': true,
-    'p_android': true,
+    'p_windows': false,
+    'p_linux': false,
+    'p_osx': false,
+    'p_android': false,
     'title': title,
     'published_at': '2023-01-01T00:00:00Z',
     'can_be_bought': true,

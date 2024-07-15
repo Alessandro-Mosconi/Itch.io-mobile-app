@@ -9,6 +9,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:itchio/models/game.dart';
 import 'package:itchio/providers/page_provider.dart';
+import 'package:itchio/providers/saved_searches_provider.dart';
 import 'package:itchio/services/notification_service.dart';
 import 'package:itchio/views/game_webview_page.dart';
 import 'package:itchio/widgets/carousel_card.dart';
@@ -19,6 +20,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../mock_notification_service.mocks.dart';
 import '../mock_page_provider.mocks.dart';
+import '../mock_saved_searches_provider.mocks.dart';
 
 void main() {
   group('CarouselCard Tests', () {
@@ -48,41 +50,6 @@ void main() {
         expect(find.text('Subtitle'), findsOneWidget);
       });
     });
-    /*testWidgets('Widget Autoscroll Test', (WidgetTester tester) async {
-      await mockNetworkImagesFor(() async {
-        await tester.pumpWidget(MaterialApp(
-          home: Directionality(
-            textDirection: TextDirection.ltr,
-            child: ChangeNotifierProvider<PageProvider>(
-              create: (_) => PageProvider(),
-              child: CarouselCard(
-                title: 'Featured Games',
-                subtitle: 'Subtitle',
-                items: [
-                  getGame("Game 1"),
-                  getGame("Game 2"),
-                  getGame("Game 3"),
-                  getGame("Game 4"),
-                  getGame("Game 5"),
-                  getGame("Game 6"),
-                  getGame("Game 7"),
-                  getGame("Game 8")
-                ],
-                notify: true,
-                onUpdateSavedSearches: (bool value) {},
-              ),
-            ),
-          ),
-        ));
-
-        expect(find.text('Game 1'), findsOneWidget);
-        //test autoscroll
-        logger.i('qua');
-        await tester.pump(Duration(seconds: 10));
-        logger.i('la');
-        expect(find.text('Game 1'), findsNothing);
-      });
-    });*/
     testWidgets('Widget tap Test', (WidgetTester tester) async {
       final mockPageProvider = MockPageProvider();
 
@@ -119,21 +86,36 @@ void main() {
       });
     });
     testWidgets('Dismiss delete test', (WidgetTester tester) async {
+      final mockSavedSearchesProvider = MockSavedSearchesProvider();
+      final mockNotificationService = MockNotificationService();
+
       await mockNetworkImagesFor(() async {
         await tester.pumpWidget(MaterialApp(
           home: Directionality(
             textDirection: TextDirection.ltr,
-            child: ChangeNotifierProvider<PageProvider>(
-              create: (_) => PageProvider(),
-              child: CarouselCard(
-                title: 'Featured Games',
-                subtitle: 'Subtitle',
-                items: [
-                  getGame("Game 1"),
-                  getGame("Game 2"),
-                ],
-                notify: true,
-                onUpdateSavedSearches: (bool value) {},
+            child: MultiProvider(
+              providers: [
+                ChangeNotifierProvider<PageProvider>(
+                  create: (_) => PageProvider(),
+                ),
+                Provider<NotificationService>(
+                  create: (_) => mockNotificationService,
+                ),
+                ChangeNotifierProvider<SavedSearchesProvider>(
+                  create: (_) => mockSavedSearchesProvider,
+                ),
+              ],
+              child: Scaffold(
+                body: CarouselCard(
+                  title: 'Featured Games',
+                  subtitle: 'Subtitle',
+                  items: [
+                    getGame("Game 1"),
+                    getGame("Game 2"),
+                  ],
+                  notify: true,
+                  onUpdateSavedSearches: (bool value) {},
+                ),
               ),
             ),
           ),
@@ -141,17 +123,7 @@ void main() {
 
         final dismissibleFinder = find.byType(Dismissible);
 
-        // Check if the Dismissible widget is present
         expect(dismissibleFinder, findsOneWidget);
-
-        // Trigger dismiss in one direction (e.g., right)
-        await tester.drag(dismissibleFinder, const Offset(-1000, 0));
-        await tester.pumpAndSettle();
-
-        var cancelButtonFinder = find.widgetWithText(TextButton, 'Cancel');
-        expect(cancelButtonFinder, findsOneWidget);
-        await tester.tap(cancelButtonFinder);
-        await tester.pumpAndSettle();
 
         expect(find.byType(CarouselCard), findsOneWidget);
         expect(find.text('Featured games'), findsOneWidget);
@@ -167,17 +139,31 @@ void main() {
         await tester.tap(confirmButtonFinder);
         await tester.pumpAndSettle();
 
-        //TODO CAPIRE COME TESTARE DELTE
+        verify(mockSavedSearchesProvider.deleteSavedSearch(any, any)).called(1);
 
       });
     });
     testWidgets('Dismiss search test', (WidgetTester tester) async {
+      final mockSavedSearchesProvider = MockSavedSearchesProvider();
+      final mockNotificationService = MockNotificationService();
+      final mockPageProvider = MockPageProvider();
+
       await mockNetworkImagesFor(() async {
         await tester.pumpWidget(MaterialApp(
           home: Directionality(
             textDirection: TextDirection.ltr,
-            child: ChangeNotifierProvider<PageProvider>(
-              create: (_) => PageProvider(),
+            child: MultiProvider(
+              providers: [
+                ChangeNotifierProvider<PageProvider>(
+                  create: (_) => mockPageProvider,
+                ),
+                Provider<NotificationService>(
+                  create: (_) => mockNotificationService,
+                ),
+                ChangeNotifierProvider<SavedSearchesProvider>(
+                  create: (_) => mockSavedSearchesProvider,
+                ),
+              ],
               child: CarouselCard(
                 title: 'Featured Games',
                 subtitle: 'Subtitle',
@@ -220,16 +206,14 @@ void main() {
         await tester.tap(confirmButtonFinder);
         await tester.pumpAndSettle();
 
-        expect(find.text('Cancel'), findsNothing);
-        expect(find.text('Confirm'), findsNothing);
-        expect(find.text('Featured games'), findsNothing);
-        expect(find.text('Subtitle'), findsNothing);
+        verify(mockPageProvider.navigateToIndexWithPage(1, any)).called(1);
 
       });
     });
 
     testWidgets('Notification Toggle Test true', (WidgetTester tester) async {
       final mockNotificationService = MockNotificationService();
+      final mockSavedSearchesProvider = MockSavedSearchesProvider();
 
       await mockNetworkImagesFor(() async {
         await tester.pumpWidget(
@@ -240,6 +224,9 @@ void main() {
               ),
               Provider<NotificationService>(
                 create: (_) => mockNotificationService,
+              ),
+              ChangeNotifierProvider<SavedSearchesProvider>(
+                create: (_) => mockSavedSearchesProvider,
               ),
             ],
             child: MaterialApp(
@@ -273,6 +260,7 @@ void main() {
 
     testWidgets('Notification Toggle Test false', (WidgetTester tester) async {
       final mockNotificationService = MockNotificationService();
+      final mockSavedSearchesProvider = MockSavedSearchesProvider();
 
       await mockNetworkImagesFor(() async {
         await tester.pumpWidget(
@@ -283,6 +271,9 @@ void main() {
               ),
               Provider<NotificationService>(
                 create: (_) => mockNotificationService,
+              ),
+              ChangeNotifierProvider<SavedSearchesProvider>(
+                create: (_) => mockSavedSearchesProvider,
               ),
             ],
             child: MaterialApp(

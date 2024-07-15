@@ -38,9 +38,6 @@ class GameCard extends StatelessWidget {
               game: game,
             ),
           );
-        } else {
-          logger.i('Could not launch ${game.url}');
-          //throw 'Could not launch ${game.url}';
         }
       },
       child: Card(

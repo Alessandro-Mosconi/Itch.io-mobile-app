@@ -26,6 +26,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0,
       centerTitle: true,
       title: SvgPicture.asset(
+        key: Key(logoAsset),
         logoAsset,
         height: 30, // Adjust the height as needed
       ),
