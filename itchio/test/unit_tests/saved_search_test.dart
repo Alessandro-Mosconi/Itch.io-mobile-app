@@ -26,9 +26,10 @@ void main() {
     });
 
     test('should create SavedSearch from JSON', () {
-      final jsonString = '{"type":"testType","filters":"testFilters","notify":false,"items":[{"id":1,"title":"Game 1"}]}';
+      final json = {
+        "type":"testType","filters":"testFilters","notify":false,"items":[{"id":1,"title":"Game 1"}]};
 
-      final savedSearch = SavedSearch.fromJson(jsonString);
+      final savedSearch = SavedSearch(json);
 
       expect(savedSearch.type, 'testType');
       expect(savedSearch.filters, 'testFilters');
