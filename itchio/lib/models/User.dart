@@ -27,19 +27,6 @@ class User {
     }
   }
 
-  User.fromJson(String jsonUser) {
-    var data = json.decode(jsonUser);
-    username = data['username'];
-    url = data['url'];
-    id = data['id'];
-    displayName = data['display_name'];
-    coverUrl = data['cover_url'];
-    isGamer = data['gamer'];
-    isDeveloper = data['developer'];
-    avatar = data['img'];
-    numberOfProjects = int.tryParse(data['number_of_projects'] ?? '0');
-  }
-
   Map<String, Object?> toMap() {
     return {
       'username': username,

@@ -18,12 +18,6 @@ class PurchaseGame {
   int? id;
   int? download;
 
-  // Not in the interface, since this is a constructor.
-  purchaseFromJson(String jsonGame){
-    var data = json.decode(jsonGame);
-    PurchaseGame(data);
-  }
-
   PurchaseGame(Map<String, dynamic> data){
     game_id = data['game_id'];
     purchase_id = data['purchase_id'];

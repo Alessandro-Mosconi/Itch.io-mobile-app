@@ -111,7 +111,7 @@ Game getGame(bool isUrlInvalid) {
     'id': 1,
     'short_text': 'Short description of the game',
     'min_price': 0,
-    'price': 0.0,
+    'price': 1.0,
     'type': 'action',
     'p_windows': true,
     'p_linux': true,

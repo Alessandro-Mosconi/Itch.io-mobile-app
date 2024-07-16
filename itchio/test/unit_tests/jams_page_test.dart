@@ -2,26 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:itchio/models/game.dart';
 import 'package:itchio/models/jam.dart';
-import 'package:itchio/models/saved_search.dart';
-import 'package:itchio/providers/favorite_provider.dart';
 import 'package:itchio/providers/jams_provider.dart';
-import 'package:itchio/providers/saved_searches_provider.dart';
-import 'package:itchio/providers/search_bookmark_provider.dart';
 import 'package:itchio/providers/theme_notifier.dart';
-import 'package:itchio/views/favorite_page.dart';
-import 'package:itchio/views/home_page.dart';
 import 'package:itchio/views/jams_page.dart';
-import 'package:itchio/widgets/carousel_card.dart';
-import 'package:itchio/widgets/game_card.dart';
 import 'package:itchio/widgets/jam_card.dart';
 import 'package:mockito/mockito.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 import 'package:provider/provider.dart';
 
-import '../mock_favorite_provider.mocks.dart';
 import '../mock_jams_provider.mocks.dart';
-import '../mock_saved_searches_provider.mocks.dart';
-import '../mock_search_bookmark_provider.mocks.dart';
 import '../mock_theme_notifier.mocks.dart';
 import 'package:badges/badges.dart' as badges;
 
