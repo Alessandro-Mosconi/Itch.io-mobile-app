@@ -14,7 +14,7 @@ class SavedSearch {
     type = json['type'];
     filters = json['filters'];
     notify = json['notify'];
-    items = (json['items'] as List<dynamic>?)?.map((item) => Game(item)).toList();
+    items = (json['items'] as List<dynamic>?)?.map((item) => Game(item)).toList() ?? [];
   }
 
   Map<String, dynamic> toJson() {

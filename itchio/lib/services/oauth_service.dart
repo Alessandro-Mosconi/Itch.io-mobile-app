@@ -107,9 +107,9 @@ class OAuthService extends ChangeNotifier {
   }
 
   void logout() {
-    _accessToken = null; // Clear the access token
-    prefs.remove('access_token'); // Remove the token from shared preferences
-    notifyListeners(); // Notify listeners about the change
+    _accessToken = null;
+    prefs.clear();
+    notifyListeners();
   }
 
   @override
