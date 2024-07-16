@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:crypto/crypto.dart';
 import 'package:itchio/models/game.dart';
 
@@ -17,34 +18,30 @@ class SavedSearch {
         .toList() ?? [];
   }
 
-  SavedSearch.fromJson(String jsonUser) {
-    var data = json.decode(jsonUser);
-    type = data['type'];
-    notify = data['notify'];
-    filters = data['filters'];
-    items = (data['items'] as List<dynamic>?)
-        ?.map((d) => Game(d as Map<String, dynamic>))
-        .toList() ?? [];
-  }
-
   void setNotify(bool newValue) {
     notify = newValue;
   }
 
-
-  getKey(){
+  String getKey() {
     String filtersDefault = filters ?? '';
     String typeDefault = type ?? 'games';
     String key = sha256.convert(utf8.encode(typeDefault + filtersDefault)).toString();
     return key;
   }
-  static getKeyFromParameters(String type, String filters){
-    String filtersDefault = filters ?? '';
-    String typeDefault = type ?? 'games';
+
+  Map<String, dynamic> toJson() {
+    return {
+      'type': type,
+      'filters': filters,
+      'notify': notify,
+      'items': items?.map((game) => game.toMap()).toList(),
+    };
+  }
+
+  static String getKeyFromParameters(String type, String filters) {
+    String filtersDefault = filters;
+    String typeDefault = type;
     String key = sha256.convert(utf8.encode(typeDefault + filtersDefault)).toString();
     return key;
   }
 }
-
-
-
