@@ -35,7 +35,13 @@ class SearchProvider with ChangeNotifier {
     final currentTabName = currentTab.name ?? 'games';
 
     if(prefs.getString("cached_tab_result/$currentTabName$concatenatedFilters") != null){
-      return json.decode(prefs.getString("cached_tab_result/$currentTabName$concatenatedFilters")!);
+      final result = json.decode(prefs.getString("cached_tab_result/$currentTabName$concatenatedFilters")!);
+      if(result['items'] is List) {
+        return result;
+      } else {
+        result['items'] = [result['items']];
+        return result;
+      }
     }
 
     final response = await http.post(
@@ -50,7 +56,7 @@ class SearchProvider with ChangeNotifier {
     } else {
       logger.e('Type: $currentTabName, Filters: $concatenatedFilters');
       logger.e('Failed to load tab results, status code: ${response.statusCode}');
-      return {};
+      return <String, dynamic>{} as Map<String, dynamic>;
     }
   }
 

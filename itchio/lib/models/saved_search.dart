@@ -37,8 +37,6 @@ class SavedSearch {
   }
 
   static String getKeyFromParameters(String type, String filters) {
-    String filtersDefault = filters;
-    String typeDefault = type;
-    return sha256.convert(utf8.encode(typeDefault + filtersDefault)).toString();
+    return sha256.convert(utf8.encode(type + filters)).toString();
   }
 }

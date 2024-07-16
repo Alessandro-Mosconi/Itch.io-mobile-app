@@ -28,6 +28,12 @@ class SearchBookmarkProvider with ChangeNotifier {
     );
 
     String bookmark = '$tab$filters';
+    List<String> order = prefs.getStringList("saved_searches_order") ?? [];
+    if (!order.contains(SavedSearch.getKeyFromParameters(tab, filters))) {
+      order.add(SavedSearch.getKeyFromParameters(tab, filters));
+      prefs.setStringList("saved_searches_order", order);
+    }
+
     if (!_searchBookmarks.contains(bookmark)) {
       _searchBookmarks.add(bookmark);
       notifyListeners();
@@ -47,16 +53,22 @@ class SearchBookmarkProvider with ChangeNotifier {
 
     String bookmark = '$tab$filters';
     _searchBookmarks.remove(bookmark);
+    List<String> order = prefs.getStringList("saved_searches_order") ?? [];
+    order.removeWhere((r) => r == SavedSearch.getKeyFromParameters(tab, filters));
+    prefs.setStringList("saved_searches_order", order);
     notifyListeners();
     prefs.remove("saved_searches");
   }
 
   bool isSearchBookmarked(String tab, String filters) {
     String bookmark = '$tab$filters';
+    logger.i(_searchBookmarks);
     return _searchBookmarks.contains(bookmark);
   }
 
-  void reloadBookMarkProvider() {
+  Future<void> reloadBookMarkProvider() async {
+
+    await fetchBookmarks();
     notifyListeners();
   }
 

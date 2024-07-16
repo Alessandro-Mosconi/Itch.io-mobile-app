@@ -6,6 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:itchio/providers/saved_searches_provider.dart';
+import 'package:itchio/providers/search_bookmark_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/game.dart';
@@ -221,10 +222,18 @@ class _CarouselCardState extends State<CarouselCard> {
 
   Future<bool> _confirmDismiss(DismissDirection direction, BuildContext context) async {
     final savedSearchesProvider = Provider.of<SavedSearchesProvider>(context, listen: false);
+
+    final bookmarkProvider = Provider.of<SearchBookmarkProvider>(context, listen: false);
+
     if (direction == DismissDirection.endToStart) {
       bool response = await _showConfirmDialog(
           context, "Confirm Deletion", "Are you sure you want to delete this saved search?",
-              () => savedSearchesProvider.deleteSavedSearch(widget.title, widget.subtitle)) ??
+              () async {
+                await savedSearchesProvider.deleteSavedSearch(
+                    widget.title, widget.subtitle);
+                await bookmarkProvider.reloadBookMarkProvider();
+              }
+              ) ??
           false;
 
       if(response) {

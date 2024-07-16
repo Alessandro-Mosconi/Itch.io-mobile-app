@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import '../models/saved_search.dart';
 import '../providers/saved_searches_provider.dart';
 import 'carousel_card.dart';
+final Logger logger = Logger(printer: PrettyPrinter());
 
 class SavedSearchList extends StatefulWidget {
   final List<SavedSearch> savedSearches;
@@ -21,6 +23,7 @@ class _SavedSearchListState extends State<SavedSearchList> {
 
   @override
   Widget build(BuildContext context) {
+    logger.i(widget.savedSearches.map((s)=>s.filters).toList());
     return ReorderableListView.builder(
       itemCount: widget.savedSearches.length,
       itemBuilder: (context, index) {

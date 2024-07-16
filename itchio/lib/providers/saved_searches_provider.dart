@@ -28,10 +28,14 @@ class SavedSearchesProvider with ChangeNotifier {
     final token = prefs.getString("access_token");
     final firebaseApp = Firebase.app();
     final dbInstance = FirebaseDatabase.instanceFor(app: firebaseApp, databaseURL: 'https://itchioclientapp-default-rtdb.europe-west1.firebasedatabase.app');
-    String key = _generateTopicHash(type, filters);
+    String key = SavedSearch.getKeyFromParameters(type, filters);
+    logger.i('/user_search/${token!}/$key');
     final DatabaseReference dbRef = dbInstance.ref('/user_search/${token!}/$key');
     await dbRef.remove();
+    logger.i('removed');
     _savedSearches.removeWhere((r) => r.type == type && r.filters == filters);
+    List<String> order = prefs.getStringList(_savedSearchesOrderKey) ?? [];
+    order.removeWhere((r) => r == key);
     await _saveToPrefs();
     notifyListeners();
   }
@@ -41,7 +45,7 @@ class SavedSearchesProvider with ChangeNotifier {
     final token = prefs.getString("access_token");
     final firebaseApp = Firebase.app();
     final dbInstance = FirebaseDatabase.instanceFor(app: firebaseApp, databaseURL: 'https://itchioclientapp-default-rtdb.europe-west1.firebasedatabase.app');
-    String key = _generateTopicHash(type, filters);
+    String key = SavedSearch.getKeyFromParameters(type, filters);
     final DatabaseReference dbRef = dbInstance.ref('/user_search/${token!}/$key');
     await dbRef.update({
       "filters": filters,
@@ -66,11 +70,6 @@ class SavedSearchesProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  String _generateTopicHash(String type, String filters) {
-    String typeDefault = type;
-    return sha1.convert(utf8.encode(typeDefault + filters)).toString();
-  }
-
   Future<List<SavedSearch>> fetchSavedSearch() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -89,16 +88,21 @@ class SavedSearchesProvider with ChangeNotifier {
 
       if (response.statusCode == 200) {
         List<dynamic> results = json.decode(response.body);
-        Map<String, SavedSearch> searchMap = {for (var r in results) _generateTopicHash(r['type'], r['filters']): SavedSearch.fromJson(r)};
+        Map<String, SavedSearch> searchMap = {for (var r in results) SavedSearch.getKeyFromParameters(r['type'], r['filters']): SavedSearch.fromJson(r)};
 
         List<String> order = prefs.getStringList(_savedSearchesOrderKey) ?? [];
+
         if (order.isEmpty) {
           _savedSearches = searchMap.values.toList();
         } else {
+          logger.i(order);
+          logger.i(searchMap);
           _savedSearches = order.map((key) => searchMap[key]!).toList();
           // Add any new searches that aren't in the saved order
-          _savedSearches.addAll(searchMap.values.where((search) => !order.contains(_generateTopicHash(search.type!, search.filters!))));
+          _savedSearches.addAll(searchMap.values.where((search) => !order.contains(SavedSearch.getKeyFromParameters(search.type!, search.filters!))));
         }
+
+        logger.i(_savedSearches);
 
         _saveToCache(prefs, json.encode(_savedSearches.map((s) => s.toJson()).toList()));
         return _savedSearches;
@@ -131,7 +135,7 @@ class SavedSearchesProvider with ChangeNotifier {
     await prefs.setInt(savedSearchesTimestampKey, DateTime.now().millisecondsSinceEpoch);
 
     // Save the order of searches
-    List<String> order = _savedSearches.map((search) => _generateTopicHash(search.type!, search.filters!)).toList();
+    List<String> order = _savedSearches.map((search) => SavedSearch.getKeyFromParameters(search.type!, search.filters!)).toList();
     await prefs.setStringList(_savedSearchesOrderKey, order);
   }
 
@@ -140,7 +144,7 @@ class SavedSearchesProvider with ChangeNotifier {
     prefs.setInt(savedSearchesTimestampKey, DateTime.now().millisecondsSinceEpoch);
 
     // Save the order of searches
-    List<String> order = _savedSearches.map((search) => _generateTopicHash(search.type!, search.filters!)).toList();
+    List<String> order = _savedSearches.map((search) => SavedSearch.getKeyFromParameters(search.type!, search.filters!)).toList();
     prefs.setStringList(_savedSearchesOrderKey, order);
   }
 
@@ -148,8 +152,6 @@ class SavedSearchesProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     prefs.remove(savedSearchesKey);
     prefs.remove(savedSearchesTimestampKey);
-    // Don't remove the order when refreshing
-    // prefs.remove(_savedSearchesOrderKey);
     await fetchSavedSearch();
     notifyListeners();
   }

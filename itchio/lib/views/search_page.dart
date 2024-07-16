@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:itchio/models/filter.dart';
 import 'package:itchio/models/item_type.dart';
+import 'package:itchio/models/saved_search.dart';
 import 'package:itchio/providers/item_type_provider.dart';
+import 'package:itchio/providers/saved_searches_provider.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import '../models/option.dart';
@@ -51,7 +53,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
         final filterProvider = Provider.of<FilterProvider>(context, listen: false);
         final itemType = Provider.of<ItemTypeProvider>(context, listen: false);
         final searchBookMarkProvider = Provider.of<SearchBookmarkProvider>(context, listen: false);
-        Future.wait([itemType.fetchTabs(), filterProvider.fetchFilters()]).then(
+        Future.wait([itemType.fetchTabs(), filterProvider.fetchFilters(), searchBookMarkProvider.fetchBookmarks()]).then(
           (List<dynamic> results) {
             setState(() {
               _tabs = results[0] as List<ItemType>;
@@ -132,7 +134,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
         setState(() {
           _selectedFilters = result;
           _filterCount = getSelectedOptions(_selectedFilters).length;
-          isBookmarked = searchBookMarkProvider.isSearchBookmarked(currentTab.name!, getFilterString(_selectedFilters));
+          isBookmarked = searchBookMarkProvider.isSearchBookmarked(currentTab.name!, getFilterString(result));
           searchBookMarkProvider.reloadBookMarkProvider();
           searchProvider.reloadSearchProvider();
         });
@@ -156,7 +158,8 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
 
   void _performSearch() {
     final searchProvider = Provider.of<SearchProvider>(context, listen: false);
-
+    final savedSearchesProvider = Provider.of<SavedSearchesProvider>(context, listen: false);
+    savedSearchesProvider.refreshSavedSearches();
     setState(() {
       _searchPerformed = true;
       searchResults = searchProvider.fetchSearchResults(_searchController.text);
@@ -194,12 +197,14 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
 
     if(!providerBookmarkSaved) {
       await context.read<SearchBookmarkProvider>().addSearchBookmark(tab, concatenatedFilters);
+      await context.read<SavedSearchesProvider>().refreshSavedSearches();
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Search saved successfully')),
       );
     } else {
       await context.read<SearchBookmarkProvider>().removeSearchBookmark(tab, concatenatedFilters);
+      await context.read<SavedSearchesProvider>().refreshSavedSearches();
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Search removed successfully')),
@@ -273,6 +278,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
             content = Center(child: Text("Error: ${snapshot.error}"));
           } else if (snapshot.hasData && snapshot.data!['items'] != null && snapshot.data!['items'].isNotEmpty) {
             final data = snapshot.data!;
+            logger.i(snapshot.data);
             final items = (data['items'] as List).map((game) => Game(game)).toList();
             final title = data['title'].replaceAll(" - itch.io", "") as String;
             content = _buildContent(items, title);
