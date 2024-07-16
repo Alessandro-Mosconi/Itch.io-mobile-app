@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../models/jam.dart';
+import '../providers/jams_provider.dart';
 import '../widgets/custom_app_bar.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:intl/intl.dart';
@@ -22,7 +24,7 @@ class _JamsPageState extends State<JamsPage> {
   final TextEditingController _searchController = TextEditingController();
   List<Jam> _allJams = [];
   List<Jam> _filteredJams = [];
-  final bool _isSearching = false;
+  bool _isSearching = true;
   int _activeFiltersCount = 0;
 
   DateTime? _startDateAfterFilter;
@@ -35,56 +37,24 @@ class _JamsPageState extends State<JamsPage> {
   @override
   void initState() {
     super.initState();
-    fetchJams(false).then((jams) {
-      setState(() {
-        _allJams = jams;
-        _filteredJams = jams;
+    final jamsProvider = Provider.of<JamsProvider>(context, listen: false);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      jamsProvider.fetchJams(false).then((jams) {
+        setState(() {
+          _isSearching = false;
+          _allJams = jams;
+          _filteredJams = jams;
+        });
       });
     });
+
   }
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
-  }
-
-  Future<List<Jam>> fetchJams(bool? includeDetails) async {
-    includeDetails ??= false;
-    final prefs = await SharedPreferences.getInstance();
-    var key = includeDetails ? "saved_jams_details" : "saved_jams";
-
-    if (prefs.getString(key) != null && checkTimestamp(prefs.getInt("${key}_timestamp"))) {
-      return _getCachedJams(prefs, key);
-    }
-
-    return _fetchJamsFromNetwork(key, includeDetails, prefs);
-  }
-
-  Future<List<Jam>> _getCachedJams(SharedPreferences prefs, String key) async {
-    String body = prefs.getString(key)!;
-    List<dynamic>? results = json.decode(body);
-    return results?.map((r) => Jam(r)).toList() ?? [];
-  }
-
-  Future<List<Jam>> _fetchJamsFromNetwork(String key, bool includeDetails, SharedPreferences prefs) async {
-    final response = await http.get(Uri.parse('https://us-central1-itchioclientapp.cloudfunctions.net/fetch_jams?include_details=$includeDetails'));
-
-    if (response.statusCode == 200) {
-      List<dynamic>? results = json.decode(response.body);
-      prefs.setString(key, response.body);
-      prefs.setInt("${key}_timestamp", DateTime.now().millisecondsSinceEpoch);
-      return results?.map((r) => Jam(r)).toList() ?? [];
-    } else {
-      throw Exception('Failed to load saved jams results');
-    }
-  }
-
-  bool checkTimestamp(int? timestamp) {
-    if (timestamp == null) return false;
-    const cacheDuration = Duration(hours: 24);
-    final now = DateTime.now().millisecondsSinceEpoch;
-    return now - timestamp < cacheDuration.inMilliseconds;
   }
 
   void _applyFilters() {
@@ -119,7 +89,21 @@ class _JamsPageState extends State<JamsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const CustomAppBar(),
-      body: Column(
+      body: RefreshIndicator(
+        onRefresh: () async {
+          setState(() {
+            _isSearching = true;
+        });
+        final jamsProvider = Provider.of<JamsProvider>(context, listen: false);
+        await jamsProvider.reloadJam(false);
+        var jams = await jamsProvider.fetchJams(false);
+        setState(() {
+          _isSearching = false;
+          _allJams = jams;
+          _filteredJams = jams;
+        });
+      },
+    child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -165,6 +149,7 @@ class _JamsPageState extends State<JamsPage> {
                 : ResponsiveGridListJam(jams: _filteredJams),
           ),
         ],
+      ),
       ),
     );
   }
@@ -345,6 +330,7 @@ class _JamsPageState extends State<JamsPage> {
             ),
             if (date != null)
               InkWell(
+                key: const Key('clear_date_chip'),
                 onTap: onClear,
                 child: Icon(Icons.clear, size: 18, color: Theme.of(context).colorScheme.onSurface),
               ),
@@ -372,7 +358,7 @@ class _JamsPageState extends State<JamsPage> {
       _endDateBeforeFilter = null;
       _votingEndDateAfterFilter = null;
       _votingEndDateBeforeFilter = null;
-      _activeFiltersCount = 0; // Resetta il contatore dei filtri attivi
+      _activeFiltersCount = 0;
     });
     _applyFilters();
   }

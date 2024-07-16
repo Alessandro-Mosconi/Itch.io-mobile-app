@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:itchio/providers/filter_provider.dart';
 import 'package:itchio/providers/item_type_provider.dart';
+import 'package:itchio/providers/jams_provider.dart';
 import 'package:itchio/providers/saved_searches_provider.dart';
 import 'package:itchio/providers/search_provider.dart';
 import 'package:provider/provider.dart';
@@ -78,6 +79,9 @@ class _ProviderAppState extends State<ProviderApp> {
         ),
         ChangeNotifierProvider<SavedSearchesProvider>(
           create: (_) => SavedSearchesProvider(),
+        ),
+        ChangeNotifierProvider<JamsProvider>(
+          create: (_) => JamsProvider(),
         ),
         Provider<NotificationService>(
           create: (_) => _notificationService,
