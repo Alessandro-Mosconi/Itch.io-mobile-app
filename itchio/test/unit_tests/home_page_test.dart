@@ -144,10 +144,18 @@ void main() {
           ),
         );
 
-        await tester.fling(find.byType(RefreshIndicator), const Offset(0, 500), 2000);
-        await tester.pump();
 
-        verify(mockSavedSearchesProvider.fetchSavedSearch()).called(2);
+        final Finder refreshIndicatorFinder = find.byType(RefreshIndicator);
+
+        expect(refreshIndicatorFinder, findsOneWidget);
+
+        await tester.runAsync(() => (refreshIndicatorFinder.evaluate().first.widget as RefreshIndicator).onRefresh());
+
+        for (int i = 0; i < 5; i++) {
+          await tester.pump(Duration(seconds: 1));
+        }
+
+        verify(mockSavedSearchesProvider.refreshSavedSearches()).called(1);
       });
 
     });

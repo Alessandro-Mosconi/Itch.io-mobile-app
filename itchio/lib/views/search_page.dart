@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:itchio/models/filter.dart';
 import 'package:itchio/models/item_type.dart';
 import 'package:itchio/providers/item_type_provider.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_database/firebase_database.dart';
 import '../models/option.dart';
 import '../providers/filter_provider.dart';
 import '../providers/search_provider.dart';
@@ -49,7 +45,6 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   }
 
   Future<void> _initializePage() async {
-    try {
       searchResults = Future.value({"games": [], "users": []});
       tabFilteredResults = Future.value({"items": [], "title": ""});
       WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -76,9 +71,6 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
           },
         );
       });
-    } catch (e) {
-      logger.e('Failed to initialize page: $e');
-    }
   }
 
   void _initializeTabAndFilters() {
@@ -88,7 +80,6 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
         currentTab = _tabs[index];
         _tabController.index = index;
       } else {
-        logger.i('qua');
         currentTab = _tabs.first;
       }
     }
@@ -249,12 +240,10 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          logger.e('FutureBuilder Error: ${snapshot.error}');
           return Center(child: Text("Error: ${snapshot.error}"));
         } else if (snapshot.hasData) {
           final data = snapshot.data!;
           final games = (data['games'] as List).map((game) => Game(game)).toList();
-          final users = (data['users'] as List).map((user) => User(user)).toList();
 
           return ResponsiveGridListGame(games: games, isSearch: true);
         } else {
@@ -281,7 +270,6 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
         builder: (context, snapshot) {
           Widget content;
           if (snapshot.hasError) {
-            logger.e('FutureBuilder Error: ${snapshot.error}');
             content = Center(child: Text("Error: ${snapshot.error}"));
           } else if (snapshot.hasData && snapshot.data!['items'] != null && snapshot.data!['items'].isNotEmpty) {
             final data = snapshot.data!;
@@ -312,6 +300,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            key: Key('title')
           ),
         Expanded(
           child: ResponsiveGridListGame(games: items),

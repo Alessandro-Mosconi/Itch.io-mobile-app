@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:itchio/providers/user_provider.dart';
 import 'dart:convert';
 import 'dart:math';
 import '../models/User.dart';
@@ -35,59 +36,19 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
   }
 
   void fetchUser() {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
     final authService = Provider.of<OAuthService>(context, listen: false);
     final accessToken = authService.accessToken;
 
     if (accessToken == null) {
-      user = Future.error('No access token found');
+      developedGames = Future.value([]);
+      purchasedGames = Future.value([]);
       return;
-    }
-
-    user = http
-        .get(Uri.parse('https://itch.io/api/1/$accessToken/me'))
-        .then((response) {
-      if (response.statusCode == 200) {
-        final fetchedUser = User(json.decode(response.body)["user"]);
-        developedGames = fetchDevelopedGames(accessToken);
-        purchasedGames = fetchPurchasedGames(accessToken);
-        return fetchedUser;
-      } else {
-        throw Exception('Failed to load profile data');
-      }
-    }).catchError((error) {
-      return Future.error(error.toString());
-    });
-  }
-
-  Future<List<Game>> fetchDevelopedGames(String accessToken) async {
-    final response = await http.get(Uri.parse('https://itch.io/api/1/$accessToken/my-games'));
-
-    if (response.statusCode == 200) {
-      if(json.decode(response.body)["games"] is List<dynamic>){
-        return (json.decode(response.body)["games"] as List<dynamic>)
-            .map((gameMap) => Game(gameMap))
-            .toList();
-      } else {
-        return [];
-      }
     } else {
-      throw Exception('Failed to load developed games');
-    }
-  }
-
-  Future<List<PurchaseGame>> fetchPurchasedGames(String accessToken) async {
-    final response = await http.get(Uri.parse('https://itch.io/api/1/$accessToken/my-owned-keys'));
-
-    if (response.statusCode == 200) {
-      if(json.decode(response.body)["owned_keys"] is List<dynamic>){
-        return (json.decode(response.body)["owned_keys"] as List<dynamic>)
-            .map((gameMap) => PurchaseGame(gameMap))
-            .toList();
-      } else {
-        return [];
-      }
-    } else {
-      throw Exception('Failed to load purchased games');
+      user = userProvider.fetchUser(accessToken);
+      developedGames = userProvider.fetchDevelopedGames(accessToken);
+      purchasedGames = userProvider.fetchPurchasedGames(accessToken);
     }
   }
 
@@ -129,12 +90,12 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text("Error: ${snapshot.error}"));
                 } else if (snapshot.hasData) {
                   return buildUserProfile(snapshot.data!);
+                } else if (snapshot.hasError) {
+                  return Center(child: Text("Error: ${snapshot.error}"));
                 } else {
-                  return const Center(child: Text("Loading profile..."));
+                  return const Center(child: Text("No user found"));
                 }
               },
             );
@@ -299,7 +260,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
             },
           );
         } else {
-          return const Center(child: Text("No games found"));
+          return const Center(child: Text("No developed games found"));
         }
       },
     );
@@ -325,7 +286,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
             },
           );
         } else {
-          return const Center(child: Text("No games found"));
+          return const Center(child: Text("No purchased games found"));
         }
       },
     );
