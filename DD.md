@@ -1,3 +1,20 @@
+---
+title: Itch.io mobile app Design Document
+author: Martino Piaggi, Alessandro Mosconi
+date: 2023-2024
+numbersections: true
+geometry:
+  - top=30mm
+  - left=23mm
+  - right=23mm
+  - bottom=30mm
+---
+
+\maketitle
+\newpage
+\tableofcontents
+\newpage
+
 ## Introduction
 
 ### Project Overview
@@ -150,6 +167,7 @@ Key functionalities include:
 
 
 Example of API Endpoints ([Itch.io API Documentation](https://itch.io/docs/api/server)):
+
 - Credentials Information: `GET /api/1/KEY/credentials/info`
 - User Profile: `GET /api/1/KEY/me`
 - User Games: `GET /api/1/KEY/my-games`
@@ -165,6 +183,7 @@ RSS feeds allow users to subscribe to updates and new content on Itch.io. The ap
 For any browse page URL, such as `http://itch.io/games/price-free`, appending `.xml` to the end of the URL to access the corresponding RSS feed `http://itch.io/games/price-free.xml`.
 
 Other examples of RSS feeds:
+
 - Latest Games Uploaded: `http://itch.io/feed/new.xml`
 - Featured Games: `http://itch.io/feed/featured.xml`
 - Active Sales: `http://itch.io/feed/sales.xml`
@@ -219,7 +238,8 @@ To maintain high-quality code and efficient development workflows, the following
 - **Adhering to Dart Programming Style**: Following the Dart language style guide, including proper naming conventions, code organization, and documentation practices.
 
 
-```mermaid
+```{.mermaid}
+
 classDiagram
     namespace Views {
         class MainView
@@ -272,6 +292,7 @@ classDiagram
 ### Version Control and Collaboration
 
 Using version control and collaboration tools is essential for maintaining a coherent and efficient development process:
+
 - **Version Control**: Using Git for source code management, with a clear branching strategy (e.g., feature branches, development branch, and main branch) to manage code changes and releases.
 - **Collaboration Tools**: Utilizing tools like GitHub or GitLab for code hosting, pull requests, and code reviews. Integrating these tools with continuous integration (CI) systems to automate testing and deployment.
 - **Documentation**: Keeping comprehensive documentation of the codebase, development processes, and API integrations to facilitate collaboration and onboarding of new team members.
@@ -281,6 +302,7 @@ Using version control and collaboration tools is essential for maintaining a coh
 ### Testing Strategy in Flutter
 
 A comprehensive testing strategy is crucial for ensuring the app’s quality and reliability:
+
 - **Unit Testing**: Writing unit tests to validate the behavior of individual functions and classes.
 - **Widget Testing**: Creating widget tests to verify the correctness of the UI components and their interactions.
 - **Integration Testing**: Implementing integration tests to ensure that different parts of the app work together as expected.
@@ -289,6 +311,7 @@ A comprehensive testing strategy is crucial for ensuring the app’s quality and
 ### Quality Assurance Practices
 
 To maintain high standards of quality, the following practices will be implemented:
+
 - **Code Reviews**: Conducting regular code reviews to ensure code quality, consistency, and adherence to best practices.
 - **Continuous Integration**: Setting up CI pipelines to automatically run tests, build the app, and deploy it to staging environments.
 - **Performance Monitoring**: Using tools to monitor the app’s performance and detect issues such as memory leaks, slow rendering, and high CPU usage.
