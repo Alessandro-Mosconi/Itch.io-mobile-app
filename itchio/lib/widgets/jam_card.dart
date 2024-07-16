@@ -30,14 +30,16 @@ class JamCard extends StatelessWidget {
         color: theme.canvasColor,
         child: Stack(
           children: [
-            Column(
-              children: [
-                ListTile(
-                  contentPadding: const EdgeInsets.all(20),
-                  title: Text(jam.title ?? '', style: theme.textTheme.headlineSmall),
-                  subtitle: JamInfo(jam: jam, isTablet: isTablet),
-                ),
-              ],
+            SingleChildScrollView(
+              child: Column(
+                children: [
+                  ListTile(
+                    contentPadding: const EdgeInsets.all(20),
+                    title: Text(jam.title ?? '', style: theme.textTheme.headlineSmall),
+                    subtitle: JamInfo(jam: jam, isTablet: isTablet),
+                  ),
+                ],
+              ),
             ),
             if (jam.endDate != null || jam.startDate != null || jam.votingEndDate != null)
               Positioned(
