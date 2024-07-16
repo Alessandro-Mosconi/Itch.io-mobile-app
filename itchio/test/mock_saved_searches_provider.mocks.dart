@@ -3,10 +3,10 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i4;
+import 'dart:async' as _i5;
 import 'dart:ui' as _i6;
 
-import 'package:itchio/models/saved_search.dart' as _i5;
+import 'package:itchio/models/saved_search.dart' as _i4;
 import 'package:itchio/providers/saved_searches_provider.dart' as _i3;
 import 'package:logger/logger.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
@@ -72,13 +72,19 @@ class MockSavedSearchesProvider extends _i1.Mock
       ) as Duration);
 
   @override
+  List<_i4.SavedSearch> get savedSearches => (super.noSuchMethod(
+        Invocation.getter(#savedSearches),
+        returnValue: <_i4.SavedSearch>[],
+      ) as List<_i4.SavedSearch>);
+
+  @override
   bool get hasListeners => (super.noSuchMethod(
         Invocation.getter(#hasListeners),
         returnValue: false,
       ) as bool);
 
   @override
-  _i4.Future<void> deleteSavedSearch(
+  _i5.Future<void> deleteSavedSearch(
     String? type,
     String? filters,
   ) =>
@@ -90,12 +96,12 @@ class MockSavedSearchesProvider extends _i1.Mock
             filters,
           ],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i4.Future<void> changeNotifyField(
+  _i5.Future<void> changeNotifyField(
     String? type,
     String? filters,
     bool? notify,
@@ -109,29 +115,46 @@ class MockSavedSearchesProvider extends _i1.Mock
             notify,
           ],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i4.Future<List<_i5.SavedSearch>> fetchSavedSearch() => (super.noSuchMethod(
+  _i5.Future<void> reorderSavedSearches(
+    int? oldIndex,
+    int? newIndex,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #reorderSavedSearches,
+          [
+            oldIndex,
+            newIndex,
+          ],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<List<_i4.SavedSearch>> fetchSavedSearch() => (super.noSuchMethod(
         Invocation.method(
           #fetchSavedSearch,
           [],
         ),
         returnValue:
-            _i4.Future<List<_i5.SavedSearch>>.value(<_i5.SavedSearch>[]),
-      ) as _i4.Future<List<_i5.SavedSearch>>);
+            _i5.Future<List<_i4.SavedSearch>>.value(<_i4.SavedSearch>[]),
+      ) as _i5.Future<List<_i4.SavedSearch>>);
 
   @override
-  _i4.Future<void> refreshSavedSearches() => (super.noSuchMethod(
+  _i5.Future<void> refreshSavedSearches() => (super.noSuchMethod(
         Invocation.method(
           #refreshSavedSearches,
           [],
         ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
   void addListener(_i6.VoidCallback? listener) => super.noSuchMethod(

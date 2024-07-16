@@ -30,6 +30,8 @@ void main() {
       mockSavedSearchesProvider = MockSavedSearchesProvider();
       mockThemeNotifier = MockThemeNotifier();
 
+      when(mockSavedSearchesProvider.savedSearches).thenReturn(<SavedSearch>[]);
+
       when(mockThemeNotifier.themeMode).thenReturn(ThemeMode.system);
       when(mockThemeNotifier.currentTheme).thenReturn('standard');
     });
@@ -130,6 +132,7 @@ void main() {
         return [];
       });
 
+
       await mockNetworkImagesFor(() async {
         await tester.pumpWidget(
           MultiProvider(
@@ -171,7 +174,7 @@ SavedSearch getSavedSearch(String filters) {
     'notify': true,
     'items': [getGame('Game 1').toMap(), getGame('Game 2').toMap()]
   };
-  return SavedSearch(savedSearchData);
+  return SavedSearch.fromJson(savedSearchData);
 }
 
 Game getGame(String title) {

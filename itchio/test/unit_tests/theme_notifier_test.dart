@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:itchio/providers/theme_notifier.dart';
+import 'package:mockito/mockito.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   group('ThemeNotifier', () {
     late ThemeNotifier themeNotifier;
 
     setUp(() {
-      TestWidgetsFlutterBinding.ensureInitialized();  // Ensure widget bindings are initialized
+      TestWidgetsFlutterBinding.ensureInitialized();
+      SharedPreferences.setMockInitialValues({});
+
       themeNotifier = ThemeNotifier();
+      themeNotifier.init();
+
     });
 
     tearDown(() {

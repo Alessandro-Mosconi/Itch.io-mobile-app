@@ -3,8 +3,8 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i6;
-import 'dart:ui' as _i5;
+import 'dart:async' as _i5;
+import 'dart:ui' as _i6;
 
 import 'package:flutter/material.dart' as _i2;
 import 'package:flutter/services.dart' as _i7;
@@ -63,16 +63,20 @@ class MockThemeNotifier extends _i1.Mock implements _i3.ThemeNotifier {
       ) as _i2.ThemeMode);
 
   @override
-  bool get isDarkMode => (super.noSuchMethod(
-        Invocation.getter(#isDarkMode),
-        returnValue: false,
-      ) as bool);
-
-  @override
   bool get hasListeners => (super.noSuchMethod(
         Invocation.getter(#hasListeners),
         returnValue: false,
       ) as bool);
+
+  @override
+  _i5.Future<void> init() => (super.noSuchMethod(
+        Invocation.method(
+          #init,
+          [],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
   void dispose() => super.noSuchMethod(
@@ -156,7 +160,7 @@ class MockThemeNotifier extends _i1.Mock implements _i3.ThemeNotifier {
       );
 
   @override
-  void addListener(_i5.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i6.VoidCallback? listener) => super.noSuchMethod(
         Invocation.method(
           #addListener,
           [listener],
@@ -165,7 +169,7 @@ class MockThemeNotifier extends _i1.Mock implements _i3.ThemeNotifier {
       );
 
   @override
-  void removeListener(_i5.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i6.VoidCallback? listener) => super.noSuchMethod(
         Invocation.method(
           #removeListener,
           [listener],
@@ -183,13 +187,13 @@ class MockThemeNotifier extends _i1.Mock implements _i3.ThemeNotifier {
       );
 
   @override
-  _i6.Future<bool> didPopRoute() => (super.noSuchMethod(
+  _i5.Future<bool> didPopRoute() => (super.noSuchMethod(
         Invocation.method(
           #didPopRoute,
           [],
         ),
-        returnValue: _i6.Future<bool>.value(false),
-      ) as _i6.Future<bool>);
+        returnValue: _i5.Future<bool>.value(false),
+      ) as _i5.Future<bool>);
 
   @override
   bool handleStartBackGesture(_i7.PredictiveBackEvent? backEvent) =>
@@ -230,24 +234,24 @@ class MockThemeNotifier extends _i1.Mock implements _i3.ThemeNotifier {
       );
 
   @override
-  _i6.Future<bool> didPushRoute(String? route) => (super.noSuchMethod(
+  _i5.Future<bool> didPushRoute(String? route) => (super.noSuchMethod(
         Invocation.method(
           #didPushRoute,
           [route],
         ),
-        returnValue: _i6.Future<bool>.value(false),
-      ) as _i6.Future<bool>);
+        returnValue: _i5.Future<bool>.value(false),
+      ) as _i5.Future<bool>);
 
   @override
-  _i6.Future<bool> didPushRouteInformation(
+  _i5.Future<bool> didPushRouteInformation(
           _i2.RouteInformation? routeInformation) =>
       (super.noSuchMethod(
         Invocation.method(
           #didPushRouteInformation,
           [routeInformation],
         ),
-        returnValue: _i6.Future<bool>.value(false),
-      ) as _i6.Future<bool>);
+        returnValue: _i5.Future<bool>.value(false),
+      ) as _i5.Future<bool>);
 
   @override
   void didChangeMetrics() => super.noSuchMethod(
@@ -268,7 +272,7 @@ class MockThemeNotifier extends _i1.Mock implements _i3.ThemeNotifier {
       );
 
   @override
-  void didChangeLocales(List<_i5.Locale>? locales) => super.noSuchMethod(
+  void didChangeLocales(List<_i6.Locale>? locales) => super.noSuchMethod(
         Invocation.method(
           #didChangeLocales,
           [locales],
@@ -277,7 +281,7 @@ class MockThemeNotifier extends _i1.Mock implements _i3.ThemeNotifier {
       );
 
   @override
-  void didChangeAppLifecycleState(_i5.AppLifecycleState? state) =>
+  void didChangeAppLifecycleState(_i6.AppLifecycleState? state) =>
       super.noSuchMethod(
         Invocation.method(
           #didChangeAppLifecycleState,
@@ -287,14 +291,14 @@ class MockThemeNotifier extends _i1.Mock implements _i3.ThemeNotifier {
       );
 
   @override
-  _i6.Future<_i5.AppExitResponse> didRequestAppExit() => (super.noSuchMethod(
+  _i5.Future<_i6.AppExitResponse> didRequestAppExit() => (super.noSuchMethod(
         Invocation.method(
           #didRequestAppExit,
           [],
         ),
         returnValue:
-            _i6.Future<_i5.AppExitResponse>.value(_i5.AppExitResponse.exit),
-      ) as _i6.Future<_i5.AppExitResponse>);
+            _i5.Future<_i6.AppExitResponse>.value(_i6.AppExitResponse.exit),
+      ) as _i5.Future<_i6.AppExitResponse>);
 
   @override
   void didHaveMemoryPressure() => super.noSuchMethod(

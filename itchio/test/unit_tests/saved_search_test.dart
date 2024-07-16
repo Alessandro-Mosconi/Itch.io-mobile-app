@@ -15,7 +15,7 @@ void main() {
         ],
       };
 
-      final savedSearch = SavedSearch(data);
+      final savedSearch = SavedSearch.fromJson(data);
 
       expect(savedSearch.type, 'testType');
       expect(savedSearch.filters, 'testFilters');
@@ -29,7 +29,7 @@ void main() {
       final json = {
         "type":"testType","filters":"testFilters","notify":false,"items":[{"id":1,"title":"Game 1"}]};
 
-      final savedSearch = SavedSearch(json);
+      final savedSearch = SavedSearch.fromJson(json);
 
       expect(savedSearch.type, 'testType');
       expect(savedSearch.filters, 'testFilters');
@@ -39,7 +39,7 @@ void main() {
     });
 
     test('should set notify value', () {
-      final savedSearch = SavedSearch({'notify': false});
+      final savedSearch = SavedSearch.fromJson({'notify': false});
 
       savedSearch.setNotify(true);
 
@@ -47,7 +47,7 @@ void main() {
     });
 
     test('should generate correct key', () {
-      final savedSearch = SavedSearch({
+      final savedSearch = SavedSearch.fromJson({
         'type': 'testType',
         'filters': 'testFilters',
       });
@@ -55,18 +55,18 @@ void main() {
       final key = savedSearch.getKey();
 
       expect(key, isA<String>());
-      expect(key.length, 64); // SHA-256 hash is 64 characters long
+      expect(key.length, 64);
     });
 
     test('should generate correct key from parameters', () {
       final key = SavedSearch.getKeyFromParameters('testType', 'testFilters');
 
       expect(key, isA<String>());
-      expect(key.length, 64); // SHA-256 hash is 64 characters long
+      expect(key.length, 64);
     });
 
     test('should handle null values', () {
-      final savedSearch = SavedSearch({});
+      final savedSearch = SavedSearch.fromJson({});
 
       expect(savedSearch.type, null);
       expect(savedSearch.filters, null);
