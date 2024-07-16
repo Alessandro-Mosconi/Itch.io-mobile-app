@@ -30,8 +30,9 @@ class SettingsPage extends StatelessWidget {
         backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
       ),
-      body: Container(
-        color: theme.scaffoldBackgroundColor,
+    body: SingleChildScrollView(
+    child: Container(
+    color: theme.scaffoldBackgroundColor,
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,6 +84,7 @@ class SettingsPage extends StatelessWidget {
             title: const Text('Standard Theme'),
             leading: const Icon(Icons.brightness_1, color: Colors.grey),
             trailing: Radio(
+              key: const Key('standardThemeRadio'),
               value: 'standard',
               groupValue: themeNotifier.currentTheme,
               onChanged: (value) {
@@ -99,7 +101,7 @@ class SettingsPage extends StatelessWidget {
               onChanged: (value) {
                 themeNotifier.setTheme(value as String);
               },
-              key: const Key('fluxokiThemeRadio'), //to test
+              key: const Key('fluxokiThemeRadio'),
             ),
           ),
           ListTile(
@@ -111,6 +113,7 @@ class SettingsPage extends StatelessWidget {
               onChanged: (value) {
                 themeNotifier.setTheme(value as String);
               },
+              key: const Key('abyssThemeRadio'),
             ),
           ),
           ListTile(
@@ -122,6 +125,7 @@ class SettingsPage extends StatelessWidget {
               onChanged: (value) {
                 themeNotifier.setTheme(value as String);
               },
+              key: const Key('vibrantThemeRadio'),
             ),
           ),
         const Divider(),
@@ -134,6 +138,7 @@ class SettingsPage extends StatelessWidget {
         ],
         ),
         ),
+    ),
         );
       }
     }
