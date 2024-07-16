@@ -20,7 +20,7 @@ geometry:
 ## Project Overview
 
 Our app aims to transform the mobile experience on Itch.io, a platform widely used by gamers and developers from all the world.
-The focus is to make the user explores new items as fast as possible on mobile. The focus is to make exploration of new items—such as games, assets, tools, books, and soundtracks—as fast and intuitive as possible on mobile. 
+The focus is to make exploration of new items—such as games, assets, tools, books, and soundtracks—as fast and intuitive as possible on mobile. 
 
 
 ## Purpose and Scope
