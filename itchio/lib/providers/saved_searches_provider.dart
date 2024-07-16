@@ -16,8 +16,12 @@ class SavedSearchesProvider with ChangeNotifier {
   final String _savedSearchesKey = "saved_searches";
   final String _savedSearchesTimestampKey = "saved_searches_timestamp";
 
+  List<SavedSearch> _savedSearches = [];
+
   get savedSearchesKey => _savedSearchesKey;
   get savedSearchesTimestampKey => _savedSearchesTimestampKey;
+
+  List<SavedSearch> get savedSearches => _savedSearches;
 
   Future<void> deleteSavedSearch(String type, String filters) async {
     final prefs = await SharedPreferences.getInstance();
@@ -27,14 +31,10 @@ class SavedSearchesProvider with ChangeNotifier {
     String key = _generateTopicHash(type, filters);
     final DatabaseReference dbRef = dbInstance.ref('/user_search/${token!}/$key');
     await dbRef.remove();
-    String body = prefs.getString("saved_searches")!;
-    List<dynamic> results = json.decode(body);
-    results.removeWhere((r) {
-      return r['type'] == type && r['filters'] == filters;
-    });
-    prefs.setString("saved_searches", json.encode(results));
+    _savedSearches.removeWhere((r) => r.type == type && r.filters == filters);
+    await _saveToPrefs();
+    notifyListeners();
   }
-
 
   Future<void> changeNotifyField(String type, String filters, bool notify) async {
     final prefs = await SharedPreferences.getInstance();
@@ -48,20 +48,27 @@ class SavedSearchesProvider with ChangeNotifier {
       "type": type,
       "notify": notify
     });
-    String body = prefs.getString("saved_searches")!;
-    List<dynamic> results = json.decode(body);
-    results = results.map((r) {
-      if (r['type'] == type && r['filters'] == filters) {
-        r['notify'] = notify;
-      }
-      return r;
-    }).toList();
-    prefs.setString("saved_searches", json.encode(results));
+    final index = _savedSearches.indexWhere((r) => r.type == type && r.filters == filters);
+    if (index != -1) {
+      _savedSearches[index].setNotify(notify);
+    }
+    await _saveToPrefs();
+    notifyListeners();
+  }
+
+  Future<void> reorderSavedSearches(int oldIndex, int newIndex) async {
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
+    final SavedSearch item = _savedSearches.removeAt(oldIndex);
+    _savedSearches.insert(newIndex, item);
+    await _saveToPrefs();
+    notifyListeners();
   }
 
   String _generateTopicHash(String type, String filters) {
     String typeDefault = type;
-    return sha256.convert(utf8.encode(typeDefault + filters)).toString(); // key
+    return sha256.convert(utf8.encode(typeDefault + filters)).toString();
   }
 
   Future<List<SavedSearch>> fetchSavedSearch() async {
@@ -70,7 +77,8 @@ class SavedSearchesProvider with ChangeNotifier {
       final token = prefs.getString("access_token");
 
       if (_isCacheValid(prefs)) {
-        return _getFromCache(prefs);
+        _savedSearches = _getFromCache(prefs);
+        return _savedSearches;
       }
 
       final response = await http.post(
@@ -81,8 +89,9 @@ class SavedSearchesProvider with ChangeNotifier {
 
       if (response.statusCode == 200) {
         List<dynamic> results = json.decode(response.body);
+        _savedSearches = results.map((r) => SavedSearch(r)).toList();
         _saveToCache(prefs, response.body);
-        return results.map((r) => SavedSearch(r)).toList();
+        return _savedSearches;
       } else {
         throw Exception('Failed to load saved search results');
       }
@@ -92,11 +101,10 @@ class SavedSearchesProvider with ChangeNotifier {
     }
   }
 
-
   bool _isCacheValid(SharedPreferences prefs) {
     final timestamp = prefs.getInt(savedSearchesTimestampKey);
     String? savedSearches = prefs.getString(savedSearchesKey);
-    return savedSearches!= null && timestamp != null &&
+    return savedSearches != null && timestamp != null &&
         DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(timestamp)) < cacheValidDuration;
   }
 
@@ -104,6 +112,13 @@ class SavedSearchesProvider with ChangeNotifier {
     String body = prefs.getString(savedSearchesKey)!;
     List<dynamic> results = json.decode(body);
     return results.map((r) => SavedSearch(r)).toList();
+  }
+
+  Future<void> _saveToPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedSearchesJson = json.encode(_savedSearches.map((search) => search.toJson()).toList());
+    await prefs.setString(savedSearchesKey, savedSearchesJson);
+    await prefs.setInt(savedSearchesTimestampKey, DateTime.now().millisecondsSinceEpoch);
   }
 
   void _saveToCache(SharedPreferences prefs, String data) {
@@ -115,6 +130,7 @@ class SavedSearchesProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     prefs.remove(savedSearchesKey);
     prefs.remove(savedSearchesTimestampKey);
+    await fetchSavedSearch();
     notifyListeners();
   }
 }

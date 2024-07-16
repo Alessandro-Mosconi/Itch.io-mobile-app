@@ -10,7 +10,6 @@ import '../widgets/custom_app_bar.dart';
 import '../models/game.dart';
 import '../models/jam.dart';
 
-
 class GameWebViewPage extends StatefulWidget {
   final String url;
   final Game? game;
@@ -51,6 +50,7 @@ class _GameWebViewPageState extends State<GameWebViewPage> {
             setState(() {
               _isLoading = true;
             });
+            _controller.runJavaScript(_initialHideScript);
           },
           onPageFinished: (String url) {
             _controller.runJavaScript(_hideUnwantedElementsScript);
@@ -65,8 +65,56 @@ class _GameWebViewPageState extends State<GameWebViewPage> {
     }
   }
 
+  static const String _initialHideScript = """
+    var style = document.createElement('style');
+    style.textContent = `
+      header, #view_game_footer, .footer, .bottom_bar, #user_tools, 
+      .jam_layout_header_widget, .header_widget, #header, 
+      .footer_widget, .bottom_panel, .footer_panel, .bottom-bar 
+      { display: none !important; }
+      body { padding-top: 0 !important; padding-bottom: 0 !important; }
+    `;
+    document.head.appendChild(style);
+  """;
+
   static const String _hideUnwantedElementsScript = """
-    // Your existing script to hide unwanted elements
+    function hideElements() {
+      var elementsToHide = [
+        'header',
+        '#view_game_footer',
+        '.footer',
+        '.bottom_bar',
+        '#user_tools',
+        '.jam_layout_header_widget',
+        '.header_widget',
+        '#header',
+        '.footer_widget',
+        '.bottom_panel',
+        '.footer_panel',
+        '.bottom-bar'
+      ];
+      
+      elementsToHide.forEach(function(selector) {
+        var elements = document.querySelectorAll(selector);
+        elements.forEach(function(element) {
+          element.style.display = 'none';
+        });
+      });
+      
+      document.body.style.paddingTop = '0';
+      document.body.style.paddingBottom = '0';
+    }
+
+    hideElements();
+
+    var observer = new MutationObserver(function(mutations) {
+      hideElements();
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
   """;
 
   @override
