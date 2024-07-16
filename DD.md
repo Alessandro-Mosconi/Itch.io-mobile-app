@@ -15,15 +15,15 @@ geometry:
 \tableofcontents
 \newpage
 
-## Introduction
+# Introduction
 
-### Project Overview
+## Project Overview
 
 Our app aims to transform the mobile experience on Itch.io, a platform widely used by gamers and developers from all the world.
 The focus is to make the user explores new items as fast as possible on mobile. The focus is to make exploration of new items—such as games, assets, tools, books, and soundtracks—as fast and intuitive as possible on mobile. 
 
 
-### Purpose and Scope
+## Purpose and Scope
 
 The app aims to fill the gap in Itch.io's current mobile experience, which is considered poorly organized when accessed via a mobile browser. 
 
@@ -32,20 +32,20 @@ During our Videogame course at Politecnico, we recognized the need for a dedicat
 Key functionalities include browsing indie games, assets, tools, books, soundtracks, and other content available on Itch.io, creating a custom feed, receiving notifications on updates and new releases, personalized library management, and efficient game jam management. 
 
 
-### Target Audience
+## Target Audience
 
 The target audience for the app includes Itch.io users, game developers, and gamers. The app's features cater to their specific needs by providing a seamless and enhanced mobile experience, allowing users to explore, purchase, and manage indie games and content more effectively.
 
-## User Experience Design
+# User Experience Design
 
-### Interface Design
+## Interface Design
 
 The design principles guiding the app's user interface emphasize the importance of a responsive design that mirrors Itch.io’s style. The app aims to keep the user interface minimal while offering customization options. Each game/item page is embedded in a web view to preserve the developers' and publishers' personalized styles, backgrounds, and fonts.
 
 The app ships with multiple themes that change its aesthetics, and there is an option for a theme that follows the device's overall theme.
 
 
-### User Interaction Flow
+## User Interaction Flow
 
 The user journey within the app includes:
 
@@ -55,25 +55,25 @@ The user journey within the app includes:
 - **Saving Items and Searches**: Save individual items to favorites or entire searches for easy access later.
 - **Tracking Game Jams**: Discover ongoing and upcoming game jams, add them to the in-app calendar.
 
-## Functional Specifications
+# Functional Specifications
 
 The app will offer a seamless browsing experience, allowing users to explore a wide range of games, assets, tools, books, soundtracks, and other content hosted on Itch.io.
 
-### Customization of Homepage
+## Customization of Homepage
 
 Users can customize their homepage by:
 
 - **Pinning Searches and Favorites**: Pin important searches and favorite games for quick access.
 - **Modular Layout**: Rearrange elements on the homepage to prioritize what matters most, creating a tailored and personal experience.
 
-### Receiving Notifications
+## Receiving Notifications
 
 Integration with Google Firebase will enable efficient management of notifications:
 
 - **Customizable Settings**: Users can customize notification settings to receive updates about game releases, updates, and other important information.
 - **Real-Time Alerts**: Real-time notifications about the latest developments in the Itch.io community. 
 
-### Finding and tracking Game Jams
+## Finding and tracking Game Jams
 
 Users can find and track game jams, which are rapid game development events. The app will provide functionalities to:
 
@@ -81,10 +81,10 @@ Users can find and track game jams, which are rapid game development events. The
 - **Save and Follow Submissions**: Save and follow specific game jam submissions, keeping up-to-date with their progress.
 
 
-## Technical Architecture
+# Technical Architecture
 
 
-### Front-End (Flutter)
+## Front-End (Flutter)
 
 The **presentation layer** is developed using Flutter, which handles the user interface and user experience aspects. This layer includes various screens, widgets, and UI components that users interact with.
 
@@ -96,7 +96,7 @@ The **presentation layer** is developed using Flutter, which handles the user in
 - **Hot Reload:** This feature enhances developer productivity by enabling instant viewing of code changes without the need for a full rebuild.
 - **Strong Community and Support:** Flutter's growing community and the support from Google ensure a wealth of resources and regular updates.
 
-### Back-End (Firebase and Other Services)
+## Back-End (Firebase and Other Services)
 
 The **back-end** apart from using Itch.io, is based on Firebase. Firebase is a set of backend cloud computing services and application development platforms provided by Google. It hosts databases, services, authentication, and integration for our application.
 
@@ -105,7 +105,7 @@ The **back-end** apart from using Itch.io, is based on Firebase. Firebase is a s
 - **Firebase Cloud Messaging (FCM)**: Handles push notifications, ensuring users receive timely updates about game releases and updates.
 - **Cloud Functions**: Used for server-side logic, such as sending notifications, managing complex queries, and performing backend tasks that require server-side processing.
 
-#### Interaction Between Components
+### Interaction Between Components
 
 1. **User Authentication**:
    - User both authenticate with Itch.io and with our backend. After successful authentication, a user token is generated and used for subsequent interactions with both Itch.io and Firebase services.
@@ -119,9 +119,9 @@ The **back-end** apart from using Itch.io, is based on Firebase. Firebase is a s
 
 By leveraging Flutter for front-end development and Firebase for backend services, the app ensures a high-performance, scalable, and maintainable solution that enhances the mobile experience for Itch.io users.
 
-## Notification System Design
+# Notification System Design
 
-### Using Google Firebase
+## Using Google Firebase
 
 Google Firebase was chosen for handling notifications due to its efficiency, scalability, and ease of integration with Flutter:
 
@@ -130,7 +130,7 @@ Google Firebase was chosen for handling notifications due to its efficiency, sca
 - **Ease of Integration**: Firebase integrates seamlessly with Flutter, simplifying the implementation process. Firebase SDKs are well-documented and provide out-of-the-box support for push notifications, analytics, and other services.
 - **Real-Time Updates**: Firebase Firestore supports real-time data synchronization, ensuring that notifications and other data updates are propagated instantly across all user devices.
 
-### Notification Features
+## Notification Features
 
 The notification system will cover a variety of user notifications, including new game releases, updates, discounts, and game jam reminders. The implementation strategy using Firebase Cloud Messaging (FCM) is that when a saved search returns a different search results sends the changes to users who have subscribed to notifications for that search.
 
@@ -138,17 +138,17 @@ In this way users can for example:
 
 - **Track discounts**: Users which has saved searches with "on sale" and "last week" filters can see what are the games that are on sale in the current week.
 
-### Implementation Strategy
+## Implementation Strategy
 
 To implement these features, Firebase Cloud Messaging (FCM) will be integrated with the backend and the Flutter app. Below is an example of the backend implementation using Firebase Functions and Itch.io API:
 
 **DIAGRAM HERE**
 
-## Third-Party Integrations
+# Third-Party Integrations
 
 The ItchExplorer app will integrate with several third-party services to enhance its functionality and provide a seamless user experience. 
 
-### OAuth API
+## OAuth API
 
 OAuth applications allow making requests to the Itch.io API on behalf of another user. This is useful for creating websites or games that process user data like in our case. 
 Key functionalities include:
@@ -176,7 +176,7 @@ Example of API Endpoints ([Itch.io API Documentation](https://itch.io/docs/api/s
 
 Passing Parameters is possible using GET requests, inserted in the query string.
 
-### RSS Feeds
+## RSS Feeds
 
 RSS feeds allow users to subscribe to updates and new content on Itch.io. The app will use these feeds to keep users informed about the latest game uploads, featured games, and active sales.
 
@@ -191,13 +191,13 @@ Other examples of RSS feeds:
 We used libraries such Axios to make HTTP requests to both our Firebase backend and the RSS feeds, for further processing and display within the app.
 
 
-### Web View and Data Retrieval
+## Web View and Data Retrieval
 
 Also the web view of game and jams pages are used since each developer customize them with custom background, layouts and fonts. We used web scraping tools like Cheerio to remove the bars of Itch.io web page to make a continuity in the design of our application.
 
 
 
-### Google Firebase
+## Google Firebase
 
 Google Firebase will be integral to the ItchExplorer app, providing several backend services to enhance user experience and app functionality.
 
@@ -208,9 +208,9 @@ Google Firebase will be integral to the ItchExplorer app, providing several back
 - **Cloud Functions**: Executes server-side logic for tasks such as sending notifications, managing complex queries, and performing backend processing.
 
 
-## Responsive and Adaptive Design
+# Responsive and Adaptive Design
 
-### Design Principles
+## Design Principles
 
 Responsive and adaptive design principles are critical for creating a seamless user experience across various devices and screen sizes. In the context of Flutter, these principles are facilitated by Flutter’s powerful widget system, which allows for:
 
@@ -218,7 +218,7 @@ Responsive and adaptive design principles are critical for creating a seamless u
 - **Scalability**: The use of responsive design ensures that the app looks and functions well on both small screens (like phones) and larger screens (like tablets). Flutter’s `LayoutBuilder` and `Constraints` widgets help manage different layout requirements based on screen size.
 - **Consistency**: Adaptive design ensures that the app provides a consistent user experience by adjusting its UI elements to fit the device's form factor and user input methods. For example, touch interfaces on phones and tablets are optimized for finger interactions.
 
-### Device Compatibility
+## Device Compatibility
 
 To ensure compatibility and optimal user experience across various devices and screen sizes, the app will focus on:
 
@@ -227,9 +227,9 @@ To ensure compatibility and optimal user experience across various devices and s
 - **Testing on Multiple Devices**: Regular testing on a range of Android phones and tablets to identify and resolve any compatibility issues.
 - **Optimized Performance**: Ensuring the app performs efficiently across all supported devices, leveraging Flutter’s capabilities to maintain smooth animations and interactions.
 
-## Development Best Practices
+# Development Best Practices
 
-### Flutter Development Best Practices
+## Flutter Development Best Practices
 
 To maintain high-quality code and efficient development workflows, the following Flutter-specific best practices will be adhered to:
 
@@ -289,7 +289,7 @@ classDiagram
     }
 ```
 
-### Version Control and Collaboration
+## Version Control and Collaboration
 
 Using version control and collaboration tools is essential for maintaining a coherent and efficient development process:
 
@@ -297,9 +297,9 @@ Using version control and collaboration tools is essential for maintaining a coh
 - **Collaboration Tools**: Utilizing tools like GitHub or GitLab for code hosting, pull requests, and code reviews. Integrating these tools with continuous integration (CI) systems to automate testing and deployment.
 - **Documentation**: Keeping comprehensive documentation of the codebase, development processes, and API integrations to facilitate collaboration and onboarding of new team members.
 
-## Testing and Quality Assurance
+# Testing and Quality Assurance
 
-### Testing Strategy in Flutter
+## Testing Strategy in Flutter
 
 A comprehensive testing strategy is crucial for ensuring the app’s quality and reliability:
 
@@ -308,7 +308,7 @@ A comprehensive testing strategy is crucial for ensuring the app’s quality and
 - **Integration Testing**: Implementing integration tests to ensure that different parts of the app work together as expected.
 - **Automated Testing**: Leveraging Flutter’s testing framework and CI tools to automate the execution of tests, providing continuous feedback on code quality.
 
-### Quality Assurance Practices
+## Quality Assurance Practices
 
 To maintain high standards of quality, the following practices will be implemented:
 
@@ -316,9 +316,9 @@ To maintain high standards of quality, the following practices will be implement
 - **Continuous Integration**: Setting up CI pipelines to automatically run tests, build the app, and deploy it to staging environments.
 - **Performance Monitoring**: Using tools to monitor the app’s performance and detect issues such as memory leaks, slow rendering, and high CPU usage.
 
-## 10. Project Timeline and Milestones
+# 10. Project Timeline and Milestones
 
-### 10.1 Development Phases
+## 10.1 Development Phases
 
 The project will be broken down into the following phases, each with tentative timelines:
 
@@ -328,7 +328,7 @@ The project will be broken down into the following phases, each with tentative t
 4. **Testing Phase**: Conduct thorough testing, including unit, widget, and integration tests (4 weeks).
 5. **Deployment Phase**: Finalize the app fixing last bugs (2 weeks).
 
-### 10.2 Key Milestones
+## 10.2 Key Milestones
 
 Key milestones within each phase will include:
 
@@ -338,11 +338,11 @@ Key milestones within each phase will include:
 - **Testing Phase**: Completion of all tests, bug fixing, and performance optimization.
 - **Deployment Phase**: App submission to app stores, marketing launch, and post-launch support.
 
-## 11. Conclusion
+# 11. Conclusion
 
 The primary objectives of this app are to enhance the mobile experience for Itch.io users by providing a feature-rich, responsive, and intuitive application. The app aims to support game developers, gamers, and the Itch.io community by offering seamless navigation, real-time updates, and efficient content management.
 
-### 11.2 Future Prospects
+## 11.2 Future Prospects
 
 Looking ahead, the app has potential for future enhancements and scalability:
 
