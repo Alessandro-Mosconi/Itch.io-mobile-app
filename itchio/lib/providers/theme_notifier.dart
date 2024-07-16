@@ -1,23 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
   String _currentTheme = 'standard';
   ThemeMode _themeMode = ThemeMode.system;
+  late SharedPreferences _prefs;
 
   ThemeNotifier() {
     WidgetsBinding.instance.addObserver(this);
-    _setStatusBarAndNavigationBarColors();
   }
 
   String get currentTheme => _currentTheme;
   ThemeMode get themeMode => _themeMode;
 
-  bool get isDarkMode {
-    if (_themeMode == ThemeMode.system) {
-      return WidgetsBinding.instance.window.platformBrightness == Brightness.dark;
-    }
-    return _themeMode == ThemeMode.dark;
+  Future<void> init() async {
+    await _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    _prefs = await SharedPreferences.getInstance();
+    _currentTheme = _prefs.getString('theme') ?? 'standard';
+    _themeMode = ThemeMode.values[_prefs.getInt('themeMode') ?? ThemeMode.system.index];
+    _setStatusBarAndNavigationBarColors();
+    notifyListeners();
   }
 
   @override
@@ -28,8 +34,8 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
 
   @override
   void didChangePlatformBrightness() {
-    notifyListeners();
     _setStatusBarAndNavigationBarColors();
+    notifyListeners();
   }
 
   ThemeData getLightThemeData(String theme) {
@@ -94,7 +100,7 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
       case 'vibrant':
         return ThemeData(
           brightness: Brightness.light,
-          primaryColor: const Color(0xFF00FFFF), // Cyan
+          primaryColor: const Color(0xFF00FF00),
           secondaryHeaderColor: const Color(0xFFFF00FF), // Fuchsia
           scaffoldBackgroundColor: const Color(0xFFFFFFfd),
           cardColor: const Color(0xFF00FF00), // Green
@@ -106,7 +112,7 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
           ),
           colorScheme: const ColorScheme.light(
             surface: Color(0xFFFFFFff),
-            primary: Color(0xFF00FFFF), // Cyan
+            primary: Color(0xCC00CC00), // Cyan
             secondary: Color(0xFFFF00FF), // Fuchsia
             tertiary: Color(0xFF00FF00), // Green
             background: Color(0xFFFFFFff),
@@ -244,14 +250,16 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
 
   void setTheme(String theme) {
     _currentTheme = theme;
-    notifyListeners();
+    _prefs.setString('theme', theme);
     _setStatusBarAndNavigationBarColors();
+    notifyListeners();
   }
 
   void setThemeMode(ThemeMode mode) {
     _themeMode = mode;
-    notifyListeners();
+    _prefs.setInt('themeMode', mode.index);
     _setStatusBarAndNavigationBarColors();
+    notifyListeners();
   }
 
   void _setStatusBarAndNavigationBarColors() {

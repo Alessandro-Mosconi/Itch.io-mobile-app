@@ -23,11 +23,17 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterL
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const ProviderApp());
+
+  final themeNotifier = ThemeNotifier();
+  await themeNotifier.init(); // Initialize the ThemeNotifier
+
+  runApp(ProviderApp(themeNotifier: themeNotifier));
 }
 
 class ProviderApp extends StatefulWidget {
-  const ProviderApp({super.key});
+  final ThemeNotifier themeNotifier;
+
+  const ProviderApp({Key? key, required this.themeNotifier}) : super(key: key);
 
   @override
   _ProviderAppState createState() => _ProviderAppState();
@@ -57,8 +63,8 @@ class _ProviderAppState extends State<ProviderApp> {
         ChangeNotifierProvider<OAuthService>(
           create: (_) => _oauthService,
         ),
-        ChangeNotifierProvider<ThemeNotifier>(
-          create: (_) => ThemeNotifier(),
+        ChangeNotifierProvider<ThemeNotifier>.value(
+          value: widget.themeNotifier,
         ),
         ChangeNotifierProvider<PageProvider>(
           create: (_) => PageProvider(),
@@ -97,7 +103,7 @@ class _ProviderAppState extends State<ProviderApp> {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
