@@ -4,6 +4,7 @@ import 'package:itchio/providers/item_type_provider.dart';
 import 'package:itchio/providers/jams_provider.dart';
 import 'package:itchio/providers/saved_searches_provider.dart';
 import 'package:itchio/providers/search_provider.dart';
+import 'package:itchio/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -82,6 +83,9 @@ class _ProviderAppState extends State<ProviderApp> {
         ),
         ChangeNotifierProvider<JamsProvider>(
           create: (_) => JamsProvider(),
+        ),
+        ChangeNotifierProvider<UserProvider>(
+          create: (_) => UserProvider(),
         ),
         Provider<NotificationService>(
           create: (_) => _notificationService,
