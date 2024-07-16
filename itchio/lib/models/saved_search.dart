@@ -1,6 +1,5 @@
-import 'dart:convert';
-
 import 'package:crypto/crypto.dart';
+import 'dart:convert';
 import 'package:itchio/models/game.dart';
 
 class SavedSearch {
@@ -9,13 +8,22 @@ class SavedSearch {
   bool? notify;
   List<Game>? items;
 
-  SavedSearch(Map<String, dynamic> data) {
-    type = data['type'];
-    filters = data['filters'];
-    notify = data['notify'];
-    items = (data['items'] as List<dynamic>?)
-        ?.map((d) => Game(d as Map<String, dynamic>))
-        .toList() ?? [];
+  SavedSearch({this.type, this.filters, this.notify, this.items});
+
+  SavedSearch.fromJson(Map<String, dynamic> json) {
+    type = json['type'];
+    filters = json['filters'];
+    notify = json['notify'];
+    items = (json['items'] as List<dynamic>?)?.map((item) => Game(item)).toList();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'type': type,
+      'filters': filters,
+      'notify': notify,
+      'items': items?.map((item) => item.toMap()).toList(),
+    };
   }
 
   void setNotify(bool newValue) {
@@ -25,23 +33,12 @@ class SavedSearch {
   String getKey() {
     String filtersDefault = filters ?? '';
     String typeDefault = type ?? 'games';
-    String key = sha256.convert(utf8.encode(typeDefault + filtersDefault)).toString();
-    return key;
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'type': type,
-      'filters': filters,
-      'notify': notify,
-      'items': items?.map((game) => game.toMap()).toList(),
-    };
+    return sha256.convert(utf8.encode(typeDefault + filtersDefault)).toString();
   }
 
   static String getKeyFromParameters(String type, String filters) {
     String filtersDefault = filters;
     String typeDefault = type;
-    String key = sha256.convert(utf8.encode(typeDefault + filtersDefault)).toString();
-    return key;
+    return sha256.convert(utf8.encode(typeDefault + filtersDefault)).toString();
   }
 }

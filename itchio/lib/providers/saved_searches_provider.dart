@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:crypto/crypto.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -15,6 +14,7 @@ class SavedSearchesProvider with ChangeNotifier {
   final Duration cacheValidDuration = Duration(days: 2);
   final String _savedSearchesKey = "saved_searches";
   final String _savedSearchesTimestampKey = "saved_searches_timestamp";
+  final String _savedSearchesOrderKey = "saved_searches_order";
 
   List<SavedSearch> _savedSearches = [];
 
@@ -68,7 +68,7 @@ class SavedSearchesProvider with ChangeNotifier {
 
   String _generateTopicHash(String type, String filters) {
     String typeDefault = type;
-    return sha256.convert(utf8.encode(typeDefault + filters)).toString();
+    return sha1.convert(utf8.encode(typeDefault + filters)).toString();
   }
 
   Future<List<SavedSearch>> fetchSavedSearch() async {
@@ -89,8 +89,18 @@ class SavedSearchesProvider with ChangeNotifier {
 
       if (response.statusCode == 200) {
         List<dynamic> results = json.decode(response.body);
-        _savedSearches = results.map((r) => SavedSearch(r)).toList();
-        _saveToCache(prefs, response.body);
+        Map<String, SavedSearch> searchMap = {for (var r in results) _generateTopicHash(r['type'], r['filters']): SavedSearch.fromJson(r)};
+
+        List<String> order = prefs.getStringList(_savedSearchesOrderKey) ?? [];
+        if (order.isEmpty) {
+          _savedSearches = searchMap.values.toList();
+        } else {
+          _savedSearches = order.map((key) => searchMap[key]!).toList();
+          // Add any new searches that aren't in the saved order
+          _savedSearches.addAll(searchMap.values.where((search) => !order.contains(_generateTopicHash(search.type!, search.filters!))));
+        }
+
+        _saveToCache(prefs, json.encode(_savedSearches.map((s) => s.toJson()).toList()));
         return _savedSearches;
       } else {
         throw Exception('Failed to load saved search results');
@@ -111,7 +121,7 @@ class SavedSearchesProvider with ChangeNotifier {
   List<SavedSearch> _getFromCache(SharedPreferences prefs) {
     String body = prefs.getString(savedSearchesKey)!;
     List<dynamic> results = json.decode(body);
-    return results.map((r) => SavedSearch(r)).toList();
+    return results.map((r) => SavedSearch.fromJson(r as Map<String, dynamic>)).toList();
   }
 
   Future<void> _saveToPrefs() async {
@@ -119,17 +129,27 @@ class SavedSearchesProvider with ChangeNotifier {
     final savedSearchesJson = json.encode(_savedSearches.map((search) => search.toJson()).toList());
     await prefs.setString(savedSearchesKey, savedSearchesJson);
     await prefs.setInt(savedSearchesTimestampKey, DateTime.now().millisecondsSinceEpoch);
+
+    // Save the order of searches
+    List<String> order = _savedSearches.map((search) => _generateTopicHash(search.type!, search.filters!)).toList();
+    await prefs.setStringList(_savedSearchesOrderKey, order);
   }
 
   void _saveToCache(SharedPreferences prefs, String data) {
     prefs.setString(savedSearchesKey, data);
     prefs.setInt(savedSearchesTimestampKey, DateTime.now().millisecondsSinceEpoch);
+
+    // Save the order of searches
+    List<String> order = _savedSearches.map((search) => _generateTopicHash(search.type!, search.filters!)).toList();
+    prefs.setStringList(_savedSearchesOrderKey, order);
   }
 
   Future<void> refreshSavedSearches() async {
     final prefs = await SharedPreferences.getInstance();
     prefs.remove(savedSearchesKey);
     prefs.remove(savedSearchesTimestampKey);
+    // Don't remove the order when refreshing
+    // prefs.remove(_savedSearchesOrderKey);
     await fetchSavedSearch();
     notifyListeners();
   }

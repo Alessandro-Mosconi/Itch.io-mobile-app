@@ -12,46 +12,26 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool _isEditMode = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        actions: [
-          Consumer<SavedSearchesProvider>(
-            builder: (context, provider, child) {
-              if (provider.savedSearches.length >= 2) {
-                return IconButton(
-                  icon: Icon(_isEditMode ? Icons.done : Icons.edit),
-                  onPressed: () {
-                    setState(() {
-                      _isEditMode = !_isEditMode;
-                    });
-                  },
-                );
-              }
-              return SizedBox.shrink();
-            },
-          ),
-        ],
-      ),
-      body: Consumer<SavedSearchesProvider>(
-        builder: (context, provider, child) {
-          return SavedSearchList(
-            savedSearches: provider.savedSearches,
-            isEditMode: _isEditMode,
-          );
-        },
-      ),
-    );
-  }
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<SavedSearchesProvider>(context, listen: false).fetchSavedSearch();
     });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: const CustomAppBar(),
+      body: Consumer<SavedSearchesProvider>(
+        builder: (context, provider, child) {
+          return RefreshIndicator(
+            onRefresh: provider.refreshSavedSearches,
+            child: SavedSearchList(savedSearches: provider.savedSearches),
+          );
+        },
+      ),
+    );
   }
 }
