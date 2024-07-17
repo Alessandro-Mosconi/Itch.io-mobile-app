@@ -9,8 +9,8 @@ import 'package:provider/provider.dart';
 import 'package:logger/logger.dart';
 import 'settings_page.dart';
 import '../widgets/custom_app_bar.dart';
-import '../widgets/game_card.dart'; // Import the GameCard widget
-import '../widgets/developed_game_card.dart'; // Import the DevelopedGameCard widget
+import '../widgets/game_card.dart';
+import '../widgets/developed_game_card.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -50,11 +50,12 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
     }
   }
 
-  bool isTablet(BuildContext context) {
+  bool isTabletAndLandscape(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final diagonal = sqrt((size.width * size.width) + (size.height * size.height));
-    final isTablet = diagonal > 1500.0; // Adjust this value based on your definition of a tablet
-    return isTablet;
+    final isTablet = diagonal > 1000.0;
+    final isLandscape = size.width > size.height;
+    return isTablet && isLandscape;
   }
 
   @override
@@ -113,7 +114,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
           const SizedBox(height: 20),
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.6, // Set a height for the container
-            child: isTablet(context) ? buildTabletLayout() : buildTabLayout(),
+            child: isTabletAndLandscape(context) ? buildTabletLayout() : buildTabLayout(),
           ),
         ],
       ),
@@ -242,6 +243,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
   }
 
   Widget buildGamesSection(Future<List<Game>>? gamesFuture) {
+
     return FutureBuilder<List<Game>>(
       future: gamesFuture,
       builder: (context, snapshot) {
@@ -250,7 +252,20 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
         } else if (snapshot.hasError) {
           return Center(child: Text("Error: ${snapshot.error}"));
         } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-          return ListView.builder(
+          return isTabletAndLandscape(context)?
+          GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 0.6,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+            ),
+            itemCount: snapshot.data!.length,
+            itemBuilder: (context, index) {
+              return DevelopedGameCard(game: snapshot.data![index]);
+            },
+          )
+          : ListView.builder(
             shrinkWrap: true,
             itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {

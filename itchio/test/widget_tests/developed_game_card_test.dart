@@ -22,7 +22,9 @@ class MyApp extends StatelessWidget {
         textDirection: TextDirection.ltr,
         child: ChangeNotifierProvider<PageProvider>(
           create: (_) => PageProvider(),
-          child: DevelopedGameCard(game: game),
+          child: SingleChildScrollView(
+            child: DevelopedGameCard(game: game),
+          )
         ),
       ),
     );

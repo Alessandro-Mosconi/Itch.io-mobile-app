@@ -128,6 +128,39 @@ void main() {
 
     });
 
+    testWidgets('ProfilePage Developed and Purchased games tablet', (WidgetTester tester) async {
+
+      when(mockUserProvider.fetchDevelopedGames(any)).thenAnswer((_) async {
+        return [getGame("Game 1")];
+      });
+
+      when(mockUserProvider.fetchPurchasedGames(any)).thenAnswer((_) async {
+        return [getPurchasedGame('Purchased Game 1')];
+      });
+
+      tester.view.physicalSize = const Size(1600, 1200);
+      tester.view.devicePixelRatio = 1.0;
+
+      await mockNetworkImagesFor(() async {
+        await tester.pumpWidget(
+          MultiProvider(
+            providers: [
+              ChangeNotifierProvider<UserProvider>(create: (_) => mockUserProvider),
+              ChangeNotifierProvider<ThemeNotifier>(create: (_) => mockThemeNotifier)
+              ,              ChangeNotifierProvider<OAuthService>(create: (_) => mockOAuthService)
+            ],
+            child: const MaterialApp(home: ProfilePage()),
+          ),
+        );
+
+        await tester.pumpAndSettle();
+
+        expect(find.byType(GridView), findsOne);
+
+      });
+
+    });
+
     testWidgets('ProfilePage Open settings', (WidgetTester tester) async {
 
       await mockNetworkImagesFor(() async {
