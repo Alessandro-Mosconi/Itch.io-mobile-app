@@ -3,14 +3,15 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i5;
-import 'dart:ui' as _i6;
+import 'dart:async' as _i6;
+import 'dart:ui' as _i7;
 
 import 'package:flutter/material.dart' as _i2;
-import 'package:flutter/services.dart' as _i7;
+import 'package:flutter/services.dart' as _i8;
 import 'package:itchio/providers/theme_notifier.dart' as _i3;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i4;
+import 'package:mockito/src/dummies.dart' as _i5;
+import 'package:shared_preferences/shared_preferences.dart' as _i4;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -48,9 +49,18 @@ class MockThemeNotifier extends _i1.Mock implements _i3.ThemeNotifier {
   }
 
   @override
+  set prefs(_i4.SharedPreferences? prefs) => super.noSuchMethod(
+        Invocation.setter(
+          #prefs,
+          prefs,
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
   String get currentTheme => (super.noSuchMethod(
         Invocation.getter(#currentTheme),
-        returnValue: _i4.dummyValue<String>(
+        returnValue: _i5.dummyValue<String>(
           this,
           Invocation.getter(#currentTheme),
         ),
@@ -69,14 +79,14 @@ class MockThemeNotifier extends _i1.Mock implements _i3.ThemeNotifier {
       ) as bool);
 
   @override
-  _i5.Future<void> init() => (super.noSuchMethod(
+  _i6.Future<void> init() => (super.noSuchMethod(
         Invocation.method(
           #init,
           [],
         ),
-        returnValue: _i5.Future<void>.value(),
-        returnValueForMissingStub: _i5.Future<void>.value(),
-      ) as _i5.Future<void>);
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
 
   @override
   void dispose() => super.noSuchMethod(
@@ -160,7 +170,7 @@ class MockThemeNotifier extends _i1.Mock implements _i3.ThemeNotifier {
       );
 
   @override
-  void addListener(_i6.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i7.VoidCallback? listener) => super.noSuchMethod(
         Invocation.method(
           #addListener,
           [listener],
@@ -169,7 +179,7 @@ class MockThemeNotifier extends _i1.Mock implements _i3.ThemeNotifier {
       );
 
   @override
-  void removeListener(_i6.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i7.VoidCallback? listener) => super.noSuchMethod(
         Invocation.method(
           #removeListener,
           [listener],
@@ -187,16 +197,16 @@ class MockThemeNotifier extends _i1.Mock implements _i3.ThemeNotifier {
       );
 
   @override
-  _i5.Future<bool> didPopRoute() => (super.noSuchMethod(
+  _i6.Future<bool> didPopRoute() => (super.noSuchMethod(
         Invocation.method(
           #didPopRoute,
           [],
         ),
-        returnValue: _i5.Future<bool>.value(false),
-      ) as _i5.Future<bool>);
+        returnValue: _i6.Future<bool>.value(false),
+      ) as _i6.Future<bool>);
 
   @override
-  bool handleStartBackGesture(_i7.PredictiveBackEvent? backEvent) =>
+  bool handleStartBackGesture(_i8.PredictiveBackEvent? backEvent) =>
       (super.noSuchMethod(
         Invocation.method(
           #handleStartBackGesture,
@@ -206,7 +216,7 @@ class MockThemeNotifier extends _i1.Mock implements _i3.ThemeNotifier {
       ) as bool);
 
   @override
-  void handleUpdateBackGestureProgress(_i7.PredictiveBackEvent? backEvent) =>
+  void handleUpdateBackGestureProgress(_i8.PredictiveBackEvent? backEvent) =>
       super.noSuchMethod(
         Invocation.method(
           #handleUpdateBackGestureProgress,
@@ -234,24 +244,24 @@ class MockThemeNotifier extends _i1.Mock implements _i3.ThemeNotifier {
       );
 
   @override
-  _i5.Future<bool> didPushRoute(String? route) => (super.noSuchMethod(
+  _i6.Future<bool> didPushRoute(String? route) => (super.noSuchMethod(
         Invocation.method(
           #didPushRoute,
           [route],
         ),
-        returnValue: _i5.Future<bool>.value(false),
-      ) as _i5.Future<bool>);
+        returnValue: _i6.Future<bool>.value(false),
+      ) as _i6.Future<bool>);
 
   @override
-  _i5.Future<bool> didPushRouteInformation(
+  _i6.Future<bool> didPushRouteInformation(
           _i2.RouteInformation? routeInformation) =>
       (super.noSuchMethod(
         Invocation.method(
           #didPushRouteInformation,
           [routeInformation],
         ),
-        returnValue: _i5.Future<bool>.value(false),
-      ) as _i5.Future<bool>);
+        returnValue: _i6.Future<bool>.value(false),
+      ) as _i6.Future<bool>);
 
   @override
   void didChangeMetrics() => super.noSuchMethod(
@@ -272,7 +282,7 @@ class MockThemeNotifier extends _i1.Mock implements _i3.ThemeNotifier {
       );
 
   @override
-  void didChangeLocales(List<_i6.Locale>? locales) => super.noSuchMethod(
+  void didChangeLocales(List<_i7.Locale>? locales) => super.noSuchMethod(
         Invocation.method(
           #didChangeLocales,
           [locales],
@@ -281,7 +291,7 @@ class MockThemeNotifier extends _i1.Mock implements _i3.ThemeNotifier {
       );
 
   @override
-  void didChangeAppLifecycleState(_i6.AppLifecycleState? state) =>
+  void didChangeAppLifecycleState(_i7.AppLifecycleState? state) =>
       super.noSuchMethod(
         Invocation.method(
           #didChangeAppLifecycleState,
@@ -291,14 +301,14 @@ class MockThemeNotifier extends _i1.Mock implements _i3.ThemeNotifier {
       );
 
   @override
-  _i5.Future<_i6.AppExitResponse> didRequestAppExit() => (super.noSuchMethod(
+  _i6.Future<_i7.AppExitResponse> didRequestAppExit() => (super.noSuchMethod(
         Invocation.method(
           #didRequestAppExit,
           [],
         ),
         returnValue:
-            _i5.Future<_i6.AppExitResponse>.value(_i6.AppExitResponse.exit),
-      ) as _i5.Future<_i6.AppExitResponse>);
+            _i6.Future<_i7.AppExitResponse>.value(_i7.AppExitResponse.exit),
+      ) as _i6.Future<_i7.AppExitResponse>);
 
   @override
   void didHaveMemoryPressure() => super.noSuchMethod(

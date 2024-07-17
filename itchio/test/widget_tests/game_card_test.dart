@@ -4,10 +4,14 @@ import 'package:itchio/customIcons/custom_icon_icons.dart';
 
 import 'package:itchio/models/game.dart';
 import 'package:itchio/providers/page_provider.dart';
+import 'package:itchio/views/game_webview_page.dart';
 import 'package:itchio/widgets/game_card.dart';
 import 'package:logger/logger.dart';
+import 'package:mockito/mockito.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 import 'package:provider/provider.dart';
+
+import '../mock_page_provider.mocks.dart';
 
 class MyApp extends StatelessWidget {
 
@@ -37,7 +41,19 @@ void main() {
 
     Game game = getGame(false);
 
-    await mockNetworkImagesFor(() => tester.pumpWidget(const MyApp(false)));
+    final mockPageProvider = MockPageProvider();
+
+    await mockNetworkImagesFor(() => tester.pumpWidget(
+        MaterialApp(
+      home: Directionality(
+        textDirection: TextDirection.ltr,
+        child: ChangeNotifierProvider<PageProvider>(
+          create: (_) => mockPageProvider,
+          child: GameCard(game: game,),
+        ),
+      ),
+    )
+    ));
 
     expect(find.text(game.title!), findsOneWidget);
     expect(find.text(game.getCleanDescription()!), findsOneWidget);
@@ -53,14 +69,15 @@ void main() {
     expect(iconMacFinder, findsOneWidget);
     expect(iconAndroidFinder, findsOneWidget);
 
-
-    //TEST TAP ON JAM
-
     await tester.tap(find.byKey(const Key('game_card_gesture_detector')));
 
     await tester.pumpAndSettle();
-    //TODO da verificare davvero
-    //expect(find.byType(GameWebViewPage), findsOneWidget);
+
+    for (int i = 0; i < 5; i++) {
+      await tester.pump(Duration(seconds: 1));
+    }
+
+    verify(mockPageProvider.setExtraPage(any)).called(1);
 
   });
 
