@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:itchio/models/saved_search.dart';
-import 'package:itchio/models/game.dart';
 
 void main() {
   group('SavedSearch', () {

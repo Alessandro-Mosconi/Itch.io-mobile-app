@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:itchio/widgets/game_card.dart';
-import '../models/game.dart';
 import '../models/jam.dart';
 import 'jam_card.dart';
 

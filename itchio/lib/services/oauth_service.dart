@@ -5,7 +5,6 @@ import 'package:flutter/services.dart' show PlatformException;
 import 'package:logger/logger.dart';
 import 'package:flutter/foundation.dart'; // needed for ChangeNotifier
 import 'package:url_launcher/url_launcher.dart';
-import 'dart:async';
 
 
 typedef GetInitialLink = Future<String?> Function();

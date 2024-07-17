@@ -1,14 +1,8 @@
 import 'dart:convert';
 
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../models/User.dart';
 import '../models/game.dart';
-import '../models/jam.dart';
 import '../models/purchased_game.dart';
 import 'package:http/http.dart' as http;
 

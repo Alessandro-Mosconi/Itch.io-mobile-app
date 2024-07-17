@@ -2,7 +2,6 @@ import 'package:itchio/providers/favorite_provider.dart';
 import 'package:itchio/services/notification_service.dart';
 import 'package:logger/logger.dart';
 import 'package:mockito/mockito.dart';
-import 'package:flutter/material.dart';
 import 'package:itchio/services/oauth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

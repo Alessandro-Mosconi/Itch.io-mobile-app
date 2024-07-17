@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:itchio/providers/theme_notifier.dart';
 import 'package:itchio/widgets/custom_app_bar.dart';

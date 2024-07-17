@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:itchio/providers/user_provider.dart';
-import 'dart:convert';
 import 'dart:math';
 import '../models/User.dart';
 import '../models/game.dart';
 import '../models/purchased_game.dart';
 import '../services/oauth_service.dart';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:logger/logger.dart';
 import 'settings_page.dart';

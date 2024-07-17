@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/game.dart';
-import '../models/jam.dart';
 import '../providers/favorite_provider.dart';
 import '../widgets/custom_app_bar.dart';
-import '../widgets/game_card.dart';
-import '../widgets/jam_card.dart';
 import '../widgets/responsive_grid_list_game.dart';
 import '../widgets/responsive_grid_list_jams.dart';
 import 'package:lottie/lottie.dart';

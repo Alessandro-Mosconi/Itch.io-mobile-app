@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'package:logger/logger.dart';
 
 class ItemType {
   String? name;

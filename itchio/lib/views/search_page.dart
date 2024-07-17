@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:itchio/models/filter.dart';
 import 'package:itchio/models/item_type.dart';
-import 'package:itchio/models/saved_search.dart';
 import 'package:itchio/providers/item_type_provider.dart';
 import 'package:itchio/providers/saved_searches_provider.dart';
 import 'package:logger/logger.dart';
@@ -12,7 +11,6 @@ import '../providers/search_provider.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/responsive_grid_list_game.dart';
 import '../models/game.dart';
-import '../models/User.dart';
 import '../widgets/search_bar.dart' as custom;
 import '../widgets/filter_popup.dart';
 import '../providers/search_bookmark_provider.dart';
