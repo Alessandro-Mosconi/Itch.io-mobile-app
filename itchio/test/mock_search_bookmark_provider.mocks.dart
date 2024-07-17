@@ -114,13 +114,14 @@ class MockSearchBookmarkProvider extends _i1.Mock
       ) as bool);
 
   @override
-  void reloadBookMarkProvider() => super.noSuchMethod(
+  _i4.Future<void> reloadBookMarkProvider() => (super.noSuchMethod(
         Invocation.method(
           #reloadBookMarkProvider,
           [],
         ),
-        returnValueForMissingStub: null,
-      );
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
   _i4.Future<List<String>> fetchBookmarks() => (super.noSuchMethod(
