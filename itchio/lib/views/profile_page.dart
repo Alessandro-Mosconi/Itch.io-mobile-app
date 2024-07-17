@@ -111,7 +111,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
           const SizedBox(height: 20),
           buildUserTags(user),
           const SizedBox(height: 20),
-          Container(
+          SizedBox(
             height: MediaQuery.of(context).size.height * 0.6, // Set a height for the container
             child: isTablet(context) ? buildTabletLayout() : buildTabLayout(),
           ),

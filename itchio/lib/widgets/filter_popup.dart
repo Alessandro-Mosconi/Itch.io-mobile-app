@@ -24,9 +24,9 @@ class FilterPopup extends StatelessWidget {
     final filterRows = selectedFilters.map((filter) => FilterRowWidget(
           filter: filter,
           onFiltersChanged: (selectedOptions) {
-            filter.options.forEach((option) {
+            for (var option in filter.options) {
               option.isSelected = selectedOptions.contains(option.name);
-            });
+            }
             updateFilters(filter);
           }
       )).toList();
