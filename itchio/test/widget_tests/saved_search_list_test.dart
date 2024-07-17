@@ -11,6 +11,7 @@ import 'package:itchio/widgets/carousel_card.dart';
 import 'package:itchio/widgets/game_card.dart';
 import 'package:itchio/widgets/jam_card.dart';
 import 'package:itchio/widgets/saved_search_list.dart';
+import 'package:logger/logger.dart';
 import 'package:mockito/mockito.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 import 'package:provider/provider.dart';
@@ -22,6 +23,7 @@ import '../mock_theme_notifier.mocks.dart';
 void main() {
   group('SavedSearchList Tests', () {
     late MockSavedSearchesProvider mockSavedSearchesProvider;
+    final Logger logger = Logger(printer: PrettyPrinter());
 
     setUp(() {
       mockSavedSearchesProvider = MockSavedSearchesProvider();

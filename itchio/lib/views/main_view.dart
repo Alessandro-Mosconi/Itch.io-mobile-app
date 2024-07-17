@@ -32,8 +32,7 @@ class MainView extends StatelessWidget {
             return true;
           },
           child: Scaffold(
-            body: pageProvider.currentExtraPage ??
-                _widgetOptions[pageProvider.selectedIndex],
+            body: pageProvider.currentExtraPage ?? _widgetOptions[pageProvider.selectedIndex],
             bottomNavigationBar: MyBottomNavigationBar(
               currentIndex: pageProvider.selectedIndex,
               onTap: (index) {

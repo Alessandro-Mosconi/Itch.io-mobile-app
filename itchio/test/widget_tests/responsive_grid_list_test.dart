@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:itchio/models/game.dart';
+import 'package:itchio/models/jam.dart';
 import 'package:itchio/widgets/responsive_grid_list_game.dart';
+import 'package:itchio/widgets/responsive_grid_list_jams.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 
 void main() {
-  testWidgets('ResponsiveGridList widget test', (WidgetTester tester) async {
+  testWidgets('ResponsiveGridList game widget test', (WidgetTester tester) async {
     final games = [getGame('Game 1'), getGame('Game 2')];
 
     // Mock network images for the entire test
@@ -34,6 +36,72 @@ void main() {
       tester.view.resetDevicePixelRatio();
     });
   });
+
+  testWidgets('ResponsiveGridList jam widget test', (WidgetTester tester) async {
+    final jams = [getJam('Jam 1'), getJam('Jam 2')];
+
+    await mockNetworkImagesFor(() async {
+      await tester.pumpWidget(MaterialApp(home: ResponsiveGridListJam(jams: jams)));
+      tester.view.physicalSize = const Size(500, 800);
+      await tester.pumpAndSettle();
+      expect(find.byType(ListView), findsOneWidget);
+
+      tester.view.physicalSize = const Size(800, 600);
+      tester.view.devicePixelRatio = 1.0;
+
+      await tester.pumpWidget(MaterialApp(home: ResponsiveGridListJam(jams: jams)));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(GridView), findsOneWidget);
+    });
+
+    // Reset the physical size after the test
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+  });
+
+}
+
+Jam getJam(String title) {
+
+  Map<String, dynamic> gameData = getGame("game").toMap();
+  Map<String, dynamic> jamGameData = getJamGame(gameData);
+
+  Map<String, dynamic> jamData = {
+    'hue': 120,
+    'start_date': '2023-01-01T00:00:00Z',
+    'end_date': '2023-01-10T00:00:00Z',
+    'voting_end_date': null,
+    'featured': 1,
+    'id': 1,
+    'title': title,
+    'highlight': true,
+    'joined': 3,
+    'url': 'https://sokpop.itch.io/clickyland',
+    'detail': {
+      'generated_on': 1622548800.0,
+      'jam_games': [jamGameData],
+    },
+  };
+
+  Jam sampleJam = Jam(jamData);
+
+  return sampleJam;
+}
+
+Map<String, dynamic> getJamGame(Map<String, dynamic> gameData) {
+  Map<String, dynamic> jamGameData = {
+    'rating_count': 10,
+    'coolness': 5,
+    'id': 1,
+    'game': gameData,
+    'url': 'http://example.com/jam_game/1',
+    'created_at': '2023-01-01T00:00:00Z',
+    'field_responses': ['Good', 'Fun', 'Challenging'],
+  };
+  return jamGameData;
 }
 
 Game getGame(String title) {
