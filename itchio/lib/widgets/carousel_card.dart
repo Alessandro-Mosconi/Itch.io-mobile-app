@@ -17,14 +17,12 @@ class CarouselCard extends StatefulWidget {
   final String subtitle;
   final List<Game> items;
   final bool notify;
-  final Function(bool) onUpdateSavedSearches;
 
   const CarouselCard({super.key, 
     required this.title,
     required this.subtitle,
     required this.items,
     required this.notify,
-    required this.onUpdateSavedSearches,
   });
 
   @override

@@ -62,7 +62,6 @@ class SearchBookmarkProvider with ChangeNotifier {
 
   bool isSearchBookmarked(String tab, String filters) {
     String bookmark = '$tab$filters';
-    logger.i(_searchBookmarks);
     return _searchBookmarks.contains(bookmark);
   }
 

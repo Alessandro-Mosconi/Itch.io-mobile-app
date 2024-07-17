@@ -8,6 +8,7 @@ import 'package:itchio/models/item_type.dart';
 import 'package:itchio/models/jam.dart';
 import 'package:itchio/providers/filter_provider.dart';
 import 'package:itchio/providers/item_type_provider.dart';
+import 'package:itchio/providers/saved_searches_provider.dart';
 import 'package:itchio/providers/search_bookmark_provider.dart';
 import 'package:itchio/providers/search_provider.dart';
 import 'package:itchio/providers/theme_notifier.dart';
@@ -22,6 +23,7 @@ import 'package:badges/badges.dart' as badges;
 
 import '../mock_filter_provider.mocks.dart';
 import '../mock_item_type_provider.mocks.dart';
+import '../mock_saved_searches_provider.mocks.dart';
 import '../mock_search_bookmark_provider.mocks.dart';
 import '../mock_search_provider.mocks.dart';
 import '../mock_theme_notifier.mocks.dart';
@@ -33,6 +35,7 @@ void main() {
     late MockSearchBookmarkProvider mockSearchBookmarkProvider;
     late MockItemTypeProvider mockItemTypeProvider;
     late MockSearchProvider mockSearchProvider;
+    late MockSavedSearchesProvider mockSavedSearchesProvider;
 
     setUp(() {
       mockFilterProvider = MockFilterProvider();
@@ -40,6 +43,7 @@ void main() {
       mockSearchBookmarkProvider = MockSearchBookmarkProvider();
       mockItemTypeProvider = MockItemTypeProvider();
       mockSearchProvider = MockSearchProvider();
+      mockSavedSearchesProvider = MockSavedSearchesProvider();
 
       when(mockThemeNotifier.themeMode).thenReturn(ThemeMode.system);
       when(mockThemeNotifier.currentTheme).thenReturn('standard');
@@ -280,6 +284,7 @@ void main() {
               ChangeNotifierProvider<FilterProvider>(create: (_) => mockFilterProvider),
               ChangeNotifierProvider<SearchBookmarkProvider>(create: (_) => mockSearchBookmarkProvider),
               ChangeNotifierProvider<ItemTypeProvider>(create: (_) => mockItemTypeProvider),
+              ChangeNotifierProvider<SavedSearchesProvider>(create: (_) => mockSavedSearchesProvider),
               ChangeNotifierProvider<SearchProvider>(create: (_) => mockSearchProvider),
               ChangeNotifierProvider<ThemeNotifier>(create: (_) => mockThemeNotifier)
             ],
@@ -306,6 +311,7 @@ void main() {
               ChangeNotifierProvider<FilterProvider>(create: (_) => mockFilterProvider),
               ChangeNotifierProvider<SearchBookmarkProvider>(create: (_) => mockSearchBookmarkProvider),
               ChangeNotifierProvider<ItemTypeProvider>(create: (_) => mockItemTypeProvider),
+              ChangeNotifierProvider<SavedSearchesProvider>(create: (_) => mockSavedSearchesProvider),
               ChangeNotifierProvider<SearchProvider>(create: (_) => mockSearchProvider),
               ChangeNotifierProvider<ThemeNotifier>(create: (_) => mockThemeNotifier)
             ],
@@ -334,7 +340,8 @@ void main() {
               ChangeNotifierProvider<SearchBookmarkProvider>(create: (_) => mockSearchBookmarkProvider),
               ChangeNotifierProvider<ItemTypeProvider>(create: (_) => mockItemTypeProvider),
               ChangeNotifierProvider<SearchProvider>(create: (_) => mockSearchProvider),
-              ChangeNotifierProvider<ThemeNotifier>(create: (_) => mockThemeNotifier)
+              ChangeNotifierProvider<ThemeNotifier>(create: (_) => mockThemeNotifier),
+              ChangeNotifierProvider<SavedSearchesProvider>(create: (_) => mockSavedSearchesProvider)
             ],
             child: const MaterialApp(home: SearchPage()),
           ),

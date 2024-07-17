@@ -7,6 +7,10 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
   ThemeMode _themeMode = ThemeMode.system;
   late SharedPreferences _prefs;
 
+  set prefs(SharedPreferences prefs) {
+    _prefs = prefs;
+
+  }
   ThemeNotifier() {
     WidgetsBinding.instance.addObserver(this);
   }

@@ -38,7 +38,8 @@ void main() {
 
     testWidgets('HomePage shows CircularProgressIndicator then carouse card', (WidgetTester tester) async {
       when(mockSavedSearchesProvider.fetchSavedSearch()).thenAnswer((_) async {
-        await Future.delayed(const Duration(seconds: 1));
+        await Future.delayed(const Duration(seconds: 3));
+        when(mockSavedSearchesProvider.savedSearches).thenReturn([getSavedSearch('filter1'),getSavedSearch('filter2')]);
         return [getSavedSearch('filter1'),getSavedSearch('filter2')];
       });
       when(mockFavoriteProvider.fetchFavoriteGames()).thenAnswer((_) async {
@@ -147,6 +148,9 @@ void main() {
           ),
         );
 
+        for (int i = 0; i < 5; i++) {
+          await tester.pump(Duration(seconds: 1));
+        }
 
         final Finder refreshIndicatorFinder = find.byType(RefreshIndicator);
 

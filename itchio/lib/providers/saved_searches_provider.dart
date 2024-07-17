@@ -94,14 +94,9 @@ class SavedSearchesProvider with ChangeNotifier {
         if (order.isEmpty) {
           _savedSearches = searchMap.values.toList();
         } else {
-          logger.i(order);
-          logger.i(searchMap);
           _savedSearches = order.map((key) => searchMap[key]!).toList();
-          // Add any new searches that aren't in the saved order
           _savedSearches.addAll(searchMap.values.where((search) => !order.contains(SavedSearch.getKeyFromParameters(search.type!, search.filters!))));
         }
-
-        logger.i(_savedSearches);
 
         _saveToCache(prefs, json.encode(_savedSearches.map((s) => s.toJson()).toList()));
         return _savedSearches;

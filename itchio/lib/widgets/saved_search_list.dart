@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import '../models/saved_search.dart';
 import '../providers/saved_searches_provider.dart';
@@ -18,13 +19,30 @@ class SavedSearchList extends StatefulWidget {
   _SavedSearchListState createState() => _SavedSearchListState();
 }
 
-class _SavedSearchListState extends State<SavedSearchList> {
+class _SavedSearchListState extends State<SavedSearchList> with TickerProviderStateMixin {
+
+  late AnimationController _lottieController;
   bool _isReordering = false;
 
   @override
+  void initState() {
+    super.initState();
+    _lottieController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    );
+    _lottieController.repeat(reverse: true);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    logger.i(widget.savedSearches.map((s)=>s.filters).toList());
-    return ReorderableListView.builder(
+    return widget.savedSearches.isEmpty
+        ? ListView(
+      children: [
+        _buildEmptyStateWidget('No saved searches yet', 'Start exploring and save your favorite games!')
+      ],
+    )
+        :ReorderableListView.builder(
       itemCount: widget.savedSearches.length,
       itemBuilder: (context, index) {
         SavedSearch search = widget.savedSearches[index];
@@ -36,13 +54,6 @@ class _SavedSearchListState extends State<SavedSearchList> {
             subtitle: search.filters ?? '',
             items: search.items ?? [],
             notify: search.notify ?? false,
-            onUpdateSavedSearches: (bool hasChanges) {
-              if (hasChanges) {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text("Saved searches updated"),
-                ));
-              }
-            },
           ),
         );
       },
@@ -60,6 +71,44 @@ class _SavedSearchListState extends State<SavedSearchList> {
         Provider.of<SavedSearchesProvider>(context, listen: false)
             .reorderSavedSearches(oldIndex, newIndex);
       },
+    );
+  }
+
+  @override
+  void dispose() {
+    _lottieController.dispose();
+    super.dispose();
+  }
+
+  Widget _buildEmptyStateWidget(String title, String message) {
+    return Center(
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Lottie.network(
+              'https://lottie.host/81ee35fc-7d8f-4356-81fc-801e078d7014/jETcdSHcKj.json',
+              controller: _lottieController,
+              height: 200,
+              width: 200,
+            ),
+            const SizedBox(height: 24),
+            Text(
+              title,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32.0),
+              child: Text(
+                message,
+                style: Theme.of(context).textTheme.bodyLarge,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

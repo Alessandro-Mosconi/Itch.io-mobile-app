@@ -276,7 +276,6 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
             content = Center(child: Text("Error: ${snapshot.error}"));
           } else if (snapshot.hasData && snapshot.data!['items'] != null && snapshot.data!['items'].isNotEmpty) {
             final data = snapshot.data!;
-            logger.i(snapshot.data);
             final items = (data['items'] as List).map((game) => Game(game)).toList();
             final title = data['title'].replaceAll(" - itch.io", "") as String;
             content = _buildContent(items, title);
@@ -288,7 +287,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
             children: [
               content,
               if (snapshot.connectionState == ConnectionState.waiting || snapshot.connectionState == ConnectionState.active)
-                  Center(
+                  const Center(
                     child: CircularProgressIndicator(),
                   )
             ],

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:itchio/providers/theme_notifier.dart';
+import 'package:mockito/mockito.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../mock_shared_preferences.mocks.dart';
 
 void main() {
   group('ThemeNotifier', () {
@@ -10,9 +13,21 @@ void main() {
     setUp(() {
       TestWidgetsFlutterBinding.ensureInitialized();
       SharedPreferences.setMockInitialValues({});
+      // get the mock of shared pref
+
 
       themeNotifier = ThemeNotifier();
+      MockSharedPreferences mockPrefs = MockSharedPreferences();
+
+      when(mockPrefs.getString('theme')).thenReturn('system');
+      when(mockPrefs.setString(any, any)).thenAnswer((_) async => true);
+      when(mockPrefs.setInt(any, any)).thenAnswer((_) async => true);
+      when(mockPrefs.getInt('themeMode')).thenReturn(ThemeMode.dark.index);
+
+      themeNotifier.prefs = mockPrefs;
+
       themeNotifier.init();
+
 
     });
 
@@ -21,6 +36,7 @@ void main() {
     });
 
     test('notifyListeners is called when setting a new theme', () {
+
       bool isNotified = false;
       themeNotifier.addListener(() {
         isNotified = true;

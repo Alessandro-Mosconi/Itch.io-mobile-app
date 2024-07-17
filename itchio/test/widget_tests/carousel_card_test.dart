@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:itchio/models/game.dart';
 import 'package:itchio/providers/page_provider.dart';
 import 'package:itchio/providers/saved_searches_provider.dart';
+import 'package:itchio/providers/search_bookmark_provider.dart';
 import 'package:itchio/services/notification_service.dart';
 import 'package:itchio/widgets/carousel_card.dart';
 import 'package:mockito/mockito.dart';
@@ -15,9 +16,17 @@ import 'package:provider/provider.dart';
 import '../mock_notification_service.mocks.dart';
 import '../mock_page_provider.mocks.dart';
 import '../mock_saved_searches_provider.mocks.dart';
+import '../mock_search_bookmark_provider.mocks.dart';
 
 void main() {
   group('CarouselCard Tests', () {
+
+    final mockSavedSearchesProvider = MockSavedSearchesProvider();
+    final mockNotificationService = MockNotificationService();
+    final mockSearchBookMarkProvider = MockSearchBookmarkProvider();
+    final mockPageProvider = MockPageProvider();
+
+
     testWidgets('Widget Initialization Test', (WidgetTester tester) async {
       await mockNetworkImagesFor(() async {
         await tester.pumpWidget(MaterialApp(
@@ -33,7 +42,6 @@ void main() {
                   getGame("Game 2"),
                 ],
                 notify: true,
-                onUpdateSavedSearches: (bool value) {},
               ),
             ),
           ),
@@ -45,8 +53,6 @@ void main() {
       });
     });
     testWidgets('Widget tap Test', (WidgetTester tester) async {
-      final mockPageProvider = MockPageProvider();
-
       await mockNetworkImagesFor(() async {
         await tester.pumpWidget(MaterialApp(
           home: Directionality(
@@ -67,7 +73,6 @@ void main() {
                   getGame("Game 8")
                 ],
                 notify: true,
-                onUpdateSavedSearches: (bool value) {},
               ),
             ),
           ),
@@ -80,9 +85,6 @@ void main() {
       });
     });
     testWidgets('Dismiss delete test', (WidgetTester tester) async {
-      final mockSavedSearchesProvider = MockSavedSearchesProvider();
-      final mockNotificationService = MockNotificationService();
-
       await mockNetworkImagesFor(() async {
         await tester.pumpWidget(MaterialApp(
           home: Directionality(
@@ -98,6 +100,9 @@ void main() {
                 ChangeNotifierProvider<SavedSearchesProvider>(
                   create: (_) => mockSavedSearchesProvider,
                 ),
+                ChangeNotifierProvider<SearchBookmarkProvider>(
+                  create: (_) => mockSearchBookMarkProvider,
+                ),
               ],
               child: Scaffold(
                 body: CarouselCard(
@@ -108,7 +113,6 @@ void main() {
                     getGame("Game 2"),
                   ],
                   notify: true,
-                  onUpdateSavedSearches: (bool value) {},
                 ),
               ),
             ),
@@ -138,10 +142,6 @@ void main() {
       });
     });
     testWidgets('Dismiss search test', (WidgetTester tester) async {
-      final mockSavedSearchesProvider = MockSavedSearchesProvider();
-      final mockNotificationService = MockNotificationService();
-      final mockPageProvider = MockPageProvider();
-
       await mockNetworkImagesFor(() async {
         await tester.pumpWidget(MaterialApp(
           home: Directionality(
@@ -157,6 +157,9 @@ void main() {
                 ChangeNotifierProvider<SavedSearchesProvider>(
                   create: (_) => mockSavedSearchesProvider,
                 ),
+                ChangeNotifierProvider<SearchBookmarkProvider>(
+                  create: (_) => mockSearchBookMarkProvider,
+                ),
               ],
               child: CarouselCard(
                 title: 'Featured Games',
@@ -166,7 +169,6 @@ void main() {
                   getGame("Game 2"),
                 ],
                 notify: true,
-                onUpdateSavedSearches: (bool value) {},
               ),
             ),
           ),
@@ -206,9 +208,6 @@ void main() {
     });
 
     testWidgets('Notification Toggle Test true', (WidgetTester tester) async {
-      final mockNotificationService = MockNotificationService();
-      final mockSavedSearchesProvider = MockSavedSearchesProvider();
-
       await mockNetworkImagesFor(() async {
         await tester.pumpWidget(
           MultiProvider(
@@ -234,7 +233,6 @@ void main() {
                     getGame("Game 2"),
                   ],
                   notify: false,
-                  onUpdateSavedSearches: (bool value) {},
                 ),
               ),
             ),
@@ -253,9 +251,6 @@ void main() {
     });
 
     testWidgets('Notification Toggle Test false', (WidgetTester tester) async {
-      final mockNotificationService = MockNotificationService();
-      final mockSavedSearchesProvider = MockSavedSearchesProvider();
-
       await mockNetworkImagesFor(() async {
         await tester.pumpWidget(
           MultiProvider(
@@ -281,7 +276,6 @@ void main() {
                     getGame("Game 2"),
                   ],
                   notify: true,
-                  onUpdateSavedSearches: (bool value) {},
                 ),
               ),
             ),
@@ -316,7 +310,6 @@ void main() {
                   getGame("Game 2"),
                 ],
                 notify: true,
-                onUpdateSavedSearches: (bool value) {},
               ),
             ),
           ),
