@@ -259,7 +259,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   Widget _buildTabPage(ItemType tab, List<Filter> filters) {
     final searchFilterProvider = Provider.of<SearchProvider>(context, listen: false);
 
-    Future<void> _reloadData() async {
+    Future<void> reloadData() async {
       await searchFilterProvider.reloadSearchProvider();
       setState(() {
         searchFilterProvider.fetchTabResults(tab, filters);
@@ -267,7 +267,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     }
 
     return RefreshIndicator(
-      onRefresh: _reloadData,
+      onRefresh: reloadData,
       child: FutureBuilder<Map<String, dynamic>>(
         future: searchFilterProvider.fetchTabResults(tab, filters),
         builder: (context, snapshot) {
@@ -303,8 +303,8 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
         if (items.isNotEmpty)
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            key: Key('title')
+            key: Key('title'),
+            child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold))
           ),
         Expanded(
           child: ResponsiveGridListGame(games: items),

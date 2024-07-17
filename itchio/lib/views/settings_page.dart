@@ -15,7 +15,7 @@ class SettingsPage extends StatelessWidget {
     final pageProvider = Provider.of<PageProvider>(context, listen: false);
     final theme = Theme.of(context);
 
-    void _logout() {
+    void logout() {
       authService.logout();
       pageProvider.resetToInitialState();
       Navigator.of(context).pushAndRemoveUntil(
@@ -132,7 +132,7 @@ class SettingsPage extends StatelessWidget {
         ListTile(
           leading: const Icon(Icons.logout, color: Colors.red),
           title: const Text('Logout'),
-          onTap: _logout,
+          onTap: logout,
         ),
 
         ],

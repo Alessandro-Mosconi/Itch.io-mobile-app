@@ -29,7 +29,7 @@ class SavedSearchesProvider with ChangeNotifier {
     final dbInstance = FirebaseDatabase.instanceFor(app: firebaseApp, databaseURL: 'https://itchioclientapp-default-rtdb.europe-west1.firebasedatabase.app');
     String key = SavedSearch.getKeyFromParameters(type, filters);
     logger.i('/user_search/${token!}/$key');
-    final DatabaseReference dbRef = dbInstance.ref('/user_search/${token!}/$key');
+    final DatabaseReference dbRef = dbInstance.ref('/user_search/$token/$key');
     await dbRef.remove();
     logger.i('removed');
     _savedSearches.removeWhere((r) => r.type == type && r.filters == filters);

@@ -230,11 +230,11 @@ class _JamsPageState extends State<JamsPage> {
                     _applyFilters();
                     Navigator.of(context).pop();
                   },
-                  child: Text('Apply Filters'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Theme.of(context).colorScheme.onPrimary,
                   ),
+                  child: Text('Apply Filters'),
                 ),
               ],
             );
