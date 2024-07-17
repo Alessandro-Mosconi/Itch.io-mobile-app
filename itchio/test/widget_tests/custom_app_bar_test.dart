@@ -5,7 +5,8 @@ import 'package:itchio/widgets/custom_app_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:mockito/mockito.dart';
 
-import '../mock_theme_notifier.mocks.dart';
+import '../mocks/mock_theme_notifier.mocks.dart';
+
 
 void main() {
   group('CustomAppBar Tests', () {

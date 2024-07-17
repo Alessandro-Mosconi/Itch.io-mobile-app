@@ -13,10 +13,10 @@ import 'package:mockito/mockito.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 import 'package:provider/provider.dart';
 
-import '../mock_notification_service.mocks.dart';
-import '../mock_page_provider.mocks.dart';
-import '../mock_saved_searches_provider.mocks.dart';
-import '../mock_search_bookmark_provider.mocks.dart';
+import '../mocks/mock_notification_service.mocks.dart';
+import '../mocks/mock_page_provider.mocks.dart';
+import '../mocks/mock_saved_searches_provider.mocks.dart';
+import '../mocks/mock_search_bookmark_provider.mocks.dart';
 
 void main() {
   group('CarouselCard Tests', () {

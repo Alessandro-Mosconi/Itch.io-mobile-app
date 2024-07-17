@@ -24,6 +24,7 @@ class JamGame {
     var data = json.decode(jsonJam);
     coolness = data['coolness'];
     id = data['id'];
+    ratingCount = data['rating_count'];
     game = Game(data['game']);
     url = data['url'];
     createdAt = DateTime.parse(data['created_at']);

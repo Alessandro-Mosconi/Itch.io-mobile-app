@@ -9,9 +9,9 @@ import 'package:itchio/views/settings_page.dart';
 import 'package:itchio/services/oauth_service.dart';
 import 'package:itchio/providers/theme_notifier.dart';
 
-import '../mock_oauth_service.mocks.dart';
-import '../mock_page_provider.mocks.dart';
-import '../mock_theme_notifier.mocks.dart';
+import '../mocks/mock_oauth_service.mocks.dart';
+import '../mocks/mock_page_provider.mocks.dart';
+import '../mocks/mock_theme_notifier.mocks.dart';
 
 void main() {
   final MockThemeNotifier mockThemeNotifier = MockThemeNotifier();

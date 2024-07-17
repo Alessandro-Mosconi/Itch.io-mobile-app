@@ -4,7 +4,7 @@ import 'package:itchio/providers/theme_notifier.dart';
 import 'package:mockito/mockito.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../mock_shared_preferences.mocks.dart';
+import '../mocks/mock_shared_preferences.mocks.dart';
 
 void main() {
   group('ThemeNotifier', () {

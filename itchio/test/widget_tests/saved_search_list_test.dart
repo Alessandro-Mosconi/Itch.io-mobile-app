@@ -16,9 +16,8 @@ import 'package:mockito/mockito.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 import 'package:provider/provider.dart';
 
-import '../mock_favorite_provider.mocks.dart';
-import '../mock_saved_searches_provider.mocks.dart';
-import '../mock_theme_notifier.mocks.dart';
+import '../mocks/mock_saved_searches_provider.mocks.dart';
+
 
 void main() {
   group('SavedSearchList Tests', () {

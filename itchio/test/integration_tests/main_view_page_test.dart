@@ -2,111 +2,126 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:itchio/models/game.dart';
 import 'package:itchio/models/jam.dart';
+import 'package:itchio/models/saved_search.dart';
 import 'package:itchio/providers/favorite_provider.dart';
+import 'package:itchio/providers/jams_provider.dart';
+import 'package:itchio/providers/page_provider.dart';
+import 'package:itchio/providers/saved_searches_provider.dart';
 import 'package:itchio/providers/theme_notifier.dart';
 import 'package:itchio/views/favorite_page.dart';
+import 'package:itchio/views/home_page.dart';
+import 'package:itchio/views/jams_page.dart';
+import 'package:itchio/views/main_view.dart';
+import 'package:itchio/views/profile_page.dart';
+import 'package:itchio/views/search_page.dart';
+import 'package:itchio/widgets/bottom_navigation_bar.dart';
 import 'package:itchio/widgets/game_card.dart';
 import 'package:itchio/widgets/jam_card.dart';
 import 'package:mockito/mockito.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 import 'package:provider/provider.dart';
 
-import '../mock_favorite_provider.mocks.dart';
-import '../mock_theme_notifier.mocks.dart';
+import '../mocks/mock_favorite_provider.mocks.dart';
+import '../mocks/mock_jams_provider.mocks.dart';
+import '../mocks/mock_page_provider.mocks.dart';
+import '../mocks/mock_saved_searches_provider.mocks.dart';
+import '../mocks/mock_theme_notifier.mocks.dart';
 
 void main() {
-  group('FavoritePage Tests', () {
+  group('MainViewPage Tests', () {
+    late MockPageProvider mockPageProvider;
     late MockFavoriteProvider mockFavoriteProvider;
+    late MockSavedSearchesProvider mockSavedSearchesProvider;
     late MockThemeNotifier mockThemeNotifier;
+    late MockJamsProvider mockJamsProvider;
 
     setUp(() {
-      mockFavoriteProvider = MockFavoriteProvider();
+      mockPageProvider = MockPageProvider();
       mockThemeNotifier = MockThemeNotifier();
+      mockFavoriteProvider = MockFavoriteProvider();
+      mockSavedSearchesProvider = MockSavedSearchesProvider();
+      mockJamsProvider = MockJamsProvider();
+
+      when(mockFavoriteProvider.favoriteGames).thenReturn(<Game>[]);
+      when(mockFavoriteProvider.favoriteJams).thenReturn(<Jam>[]);
+
+      when(mockFavoriteProvider.fetchFavoriteJams()).thenAnswer((_) async {
+        return [];
+      });
+
+      when(mockFavoriteProvider.fetchFavoriteGames()).thenAnswer((_) async {
+        return [];
+      });
+
+      when(mockSavedSearchesProvider.fetchSavedSearch()).thenAnswer((_) async {
+        return [];
+      });
+
+      when(mockSavedSearchesProvider.savedSearches).thenReturn(<SavedSearch>[]);
+
+      when(mockJamsProvider.fetchJams(any)).thenAnswer((_) async {
+        return [];
+      });
+
+      when(mockPageProvider.selectedIndex).thenReturn(0);
+      when(mockPageProvider.currentExtraPage).thenReturn(HomePage());
 
       when(mockThemeNotifier.themeMode).thenReturn(ThemeMode.system);
       when(mockThemeNotifier.currentTheme).thenReturn('standard');
     });
 
-    testWidgets('HomePage Empty messages', (WidgetTester tester) async {
-      when(mockFavoriteProvider.favoriteGames).thenReturn([]);
-      when(mockFavoriteProvider.favoriteJams).thenReturn([]);
-
-      when(mockFavoriteProvider.fetchFavoriteGames()).thenAnswer((_) async {
-        return [];
-      });
-      when(mockFavoriteProvider.fetchFavoriteJams()).thenAnswer((_) async {
-        return [];
-      });
+    testWidgets('MainViewPage tap', (WidgetTester tester) async {
 
       await mockNetworkImagesFor(() async {
         await tester.pumpWidget(
           MultiProvider(
             providers: [
+              ChangeNotifierProvider<PageProvider>(create: (_) => mockPageProvider),
               ChangeNotifierProvider<FavoriteProvider>(create: (_) => mockFavoriteProvider),
+              ChangeNotifierProvider<SavedSearchesProvider>(create: (_) => mockSavedSearchesProvider),
+              ChangeNotifierProvider<JamsProvider>(create: (_) => mockJamsProvider),
               ChangeNotifierProvider<ThemeNotifier>(create: (_) => mockThemeNotifier)
             ],
-            child: const MaterialApp(home: FavoritePage()),
+            child: const MaterialApp(home: MainView()),
           ),
         );
 
-        expect(find.text('Games'), findsOne);
-        expect(find.text('Jams'), findsOne);
+        expect(find.byType(HomePage), findsOneWidget);
 
-        expect(find.text('No favorite games yet'), findsOne);
+        expect(find.byType(MyBottomNavigationBar), findsOneWidget);
 
-        final Finder tabBar = find.byType(TabBar);
-        final Finder jamsTab = find.descendant(of: tabBar, matching: find.text('Jams'));
+        await tester.tap(find.byIcon(Icons.emoji_events));
 
-        await tester.tap(jamsTab);
-
-        for (int i = 0; i < 5; i++) {
-          await tester.pump(Duration(seconds: 1));
-        }
-
-        expect(find.text('No favorite jams yet'), findsOne);
+        verify(mockPageProvider.setSelectedIndex(any)).called(1);
 
       });
 
     });
+    testWidgets('MainViewPage go back', (WidgetTester tester) async {
 
-
-    testWidgets('HomePage with cards messages', (WidgetTester tester) async {
-      when(mockFavoriteProvider.favoriteGames).thenReturn([getGame("Title1"),getGame("Title2")]);
-      when(mockFavoriteProvider.favoriteJams).thenReturn([getJam("Jam1"),getJam("Jam2")]);
-
-      when(mockFavoriteProvider.fetchFavoriteGames()).thenAnswer((_) async {
-        return [];
-      });
-      when(mockFavoriteProvider.fetchFavoriteJams()).thenAnswer((_) async {
-        return [];
-      });
+      when(mockPageProvider.selectedIndex).thenReturn(2);
+      when(mockPageProvider.currentExtraPage).thenReturn(JamsPage());
+      when(mockPageProvider.canGoBack()).thenReturn(true);
 
       await mockNetworkImagesFor(() async {
         await tester.pumpWidget(
           MultiProvider(
             providers: [
+              ChangeNotifierProvider<PageProvider>(create: (_) => mockPageProvider),
               ChangeNotifierProvider<FavoriteProvider>(create: (_) => mockFavoriteProvider),
+              ChangeNotifierProvider<SavedSearchesProvider>(create: (_) => mockSavedSearchesProvider),
+              ChangeNotifierProvider<JamsProvider>(create: (_) => mockJamsProvider),
               ChangeNotifierProvider<ThemeNotifier>(create: (_) => mockThemeNotifier)
             ],
-            child: const MaterialApp(home: FavoritePage()),
+            child: const MaterialApp(home: MainView()),
           ),
         );
 
-        expect(find.text('Games'), findsOne);
-        expect(find.text('Jams'), findsOne);
+        final dynamic widgetsAppState = tester.state(find.byType(WidgetsApp));
+        await widgetsAppState.didPopRoute();
+        await tester.pump();
 
-        expect(find.byType(GameCard), findsNWidgets(2));
-
-        final Finder tabBar = find.byType(TabBar);
-        final Finder jamsTab = find.descendant(of: tabBar, matching: find.text('Jams'));
-
-        await tester.tap(jamsTab);
-
-        for (int i = 0; i < 5; i++) {
-          await tester.pump(Duration(seconds: 1));
-        }
-
-        expect(find.byType(JamCard), findsNWidgets(2));
+        verify(mockPageProvider.goBack()).called(1);
 
       });
 

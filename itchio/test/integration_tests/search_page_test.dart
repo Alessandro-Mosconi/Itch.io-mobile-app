@@ -21,12 +21,12 @@ import 'package:network_image_mock/network_image_mock.dart';
 import 'package:provider/provider.dart';
 import 'package:badges/badges.dart' as badges;
 
-import '../mock_filter_provider.mocks.dart';
-import '../mock_item_type_provider.mocks.dart';
-import '../mock_saved_searches_provider.mocks.dart';
-import '../mock_search_bookmark_provider.mocks.dart';
-import '../mock_search_provider.mocks.dart';
-import '../mock_theme_notifier.mocks.dart';
+import '../mocks/mock_filter_provider.mocks.dart';
+import '../mocks/mock_item_type_provider.mocks.dart';
+import '../mocks/mock_saved_searches_provider.mocks.dart';
+import '../mocks/mock_search_bookmark_provider.mocks.dart';
+import '../mocks/mock_search_provider.mocks.dart';
+import '../mocks/mock_theme_notifier.mocks.dart';
 
 void main() {
   group('FavoritePage Tests', () {

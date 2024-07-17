@@ -42,15 +42,15 @@ class Jam {
     hue = data['hue'];
     startDate = DateTime.parse(data['start_date']);
     endDate = DateTime.parse(data['end_date']);
-    votingEndDate = DateTime.parse(data['voting_end_date']);
+    votingEndDate = data['voting_end_date'] != null ? DateTime.parse(data['voting_end_date']) : null;
     featured = data['featured'];
     id = data['id'];
     title = data['title'];
     highlight = data['highlight'];
     joined = data['joined'];
     url = data['url'];
-    generatedOn = data['detail']['generated_on'];
-    jamGames = (data['detail']['jam_games'] as List<dynamic>?)
+    generatedOn = data['detail']?['generated_on'];
+    jamGames = (data['detail']?['jam_games'] as List<dynamic>?)
         ?.map((d) => JamGame(d as Map<String, dynamic>))
         .toList() ?? [];
   }

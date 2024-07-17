@@ -9,10 +9,10 @@ import 'package:itchio/widgets/jam_card.dart';
 import 'package:mockito/mockito.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 import 'package:provider/provider.dart';
-
-import '../mock_jams_provider.mocks.dart';
-import '../mock_theme_notifier.mocks.dart';
 import 'package:badges/badges.dart' as badges;
+
+import '../mocks/mock_jams_provider.mocks.dart';
+import '../mocks/mock_theme_notifier.mocks.dart';
 
 void main() {
   group('JamsPage Tests', () {
