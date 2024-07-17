@@ -1,5 +1,5 @@
 ---
-title: Itch.io mobile app Design Document
+title: Itch.io mobile app
 author: Martino Piaggi, Alessandro Mosconi
 date: 2023-2024
 numbersections: true
@@ -40,7 +40,13 @@ The target audience for the app includes Itch.io users, game developers, and gam
 
 ## Interface Design
 
-The design principles guiding the app's user interface emphasize the importance of a responsive design that mirrors Itch.io’s style. The app aims to keep the user interface minimal while offering customization options. Each game/item page is embedded in a web view to preserve the developers' and publishers' personalized styles, backgrounds, and fonts.
+The design principles guiding the app's user interface emphasize the importance of a responsive design that mirrors Itch.io’s style. The app aims to keep the user interface minimal while offering customization options. 
+
+![\ ](images/home.jpg){width=50%}
+
+Each game/item page is embedded in a web view to preserve the developers' and publishers' personalized styles, backgrounds, and fonts.
+
+![\ ](images/gambetto.png){width=50%}
 
 The app ships with multiple themes that change its aesthetics, and there is an option for a theme that follows the device's overall theme.
 
@@ -65,6 +71,34 @@ Users can customize their homepage by:
 
 - **Pinning Searches and Favorites**: Pin important searches and favorite games for quick access.
 - **Modular Layout**: Rearrange elements on the homepage to prioritize what matters most, creating a tailored and personal experience.
+
+![\ ](images/tablet%20home.png)
+
+Here a sequence diagram showing the user who make a search and pinning it in the homepage which is built modularly. 
+
+```{.mermaid}
+sequenceDiagram
+    participant U as User
+    participant S as SearchPage
+    participant F as FilterPopup
+    participant A as API
+    participant SP as SearchBookmarkProvider
+    U->>S: Enter Search Query
+    S->>A: Request Search Results
+    A->>S: Return Results
+    S->>U: Display Results
+    U->>S: Open Filters
+    S->>F: Show Filter Options
+    U->>F: Apply Filters
+    F->>S: Update Filters
+    S->>A: Request Filtered Results
+    A->>S: Return Filtered Results
+    S->>U: Display Filtered Results
+    U->>S: Save Search
+    S->>SP: Store Search Bookmark
+    SP->>S: Confirm Save
+    S->>U: Show Save Confirmation
+```
 
 ## Receiving Notifications
 
@@ -138,11 +172,71 @@ In this way users can for example:
 
 - **Track discounts**: Users which has saved searches with "on sale" and "last week" filters can see what are the games that are on sale in the current week.
 
-## Implementation Strategy
+
+```{.mermaid}
+sequenceDiagram
+    participant ST as Scheduled Trigger
+    participant HT as HTTP Trigger
+    participant CF as Cloud Functions
+    participant FRD as Firebase Realtime DB
+    participant IR as Itch.io RSS
+    participant FCM as Firebase Cloud Messaging
+    participant UA as User App
+
+    alt Scheduled Trigger
+        ST->>CF: Trigger notifyFeedScheduled
+    else HTTP Trigger
+        HT->>CF: Trigger notifyFeedHttp
+    end
+
+    CF->>FRD: Get topics to notify
+    FRD-->>CF: Return topics
+
+    loop For each topic
+        CF->>FRD: Get old items
+        FRD-->>CF: Return old items
+        CF->>IR: Fetch new items
+        IR-->>CF: Return new items
+        CF->>CF: Compare old and new items
+        CF->>FRD: Update stored items
+        alt New items found
+            CF->>FCM: Send notification
+            FCM->>UA: Deliver notification
+        end
+    end
+```
 
 To implement these features, Firebase Cloud Messaging (FCM) will be integrated with the backend and the Flutter app. Below is an example of the backend implementation using Firebase Functions and Itch.io API:
 
-**DIAGRAM HERE**
+
+```{.mermaid}
+graph TB
+    subgraph Client
+        A[Flutter App]
+        B[State Management]
+    end
+    subgraph Firebase
+        C[Authentication]
+        D[Firestore]
+        E[Cloud Functions]
+        F[Cloud Messaging]
+    end
+    subgraph "Itch.io"
+        G[OAuth API]
+        H[RSS Feeds]
+        I[Web Content]
+    end
+    A <--> B
+    A <--> C
+    A <--> D
+    A <--> F
+    B <--> D
+    C <--> G
+    E <--> D
+    E <--> F
+    E <--> H
+    A <--> I
+```
 
 # Third-Party Integrations
 
@@ -157,6 +251,36 @@ Key functionalities include:
 - **User account management**: Update user account details and preferences.
 - **Game management**: Manage games, including uploading new builds and updating existing ones.
 
+
+```{.mermaid}
+sequenceDiagram
+    participant U as User
+    participant A as App
+    participant OS as OAuthService
+    participant IO as Itch.io OAuth
+    participant SP as SharedPreferences
+    U->>A: Open App
+    A->>OS: Check Auth State
+    OS->>SP: Check for stored token
+    alt Token Exists
+        SP->>OS: Return Token
+        OS->>A: User Authenticated
+        A->>U: Show Main View
+    else No Token
+        A->>U: Show Login Screen
+        U->>A: Click Login
+        A->>OS: Start OAuth
+        OS->>IO: Redirect to Itch.io OAuth
+        IO->>U: Request Permissions
+        U->>IO: Grant Permissions
+        IO->>OS: Return Access Token
+        OS->>SP: Store Token
+        OS->>A: User Authenticated
+        A->>U: Show Main View
+    end
+```
+
+
 **Steps**:
 
 1. **Registering an OAuth Application**: Manage OAuth applications from your user settings.
@@ -164,7 +288,6 @@ Key functionalities include:
 3. **Retrieve Access Token**: After user grants permissions, retrieve the access token from the hash part of the URL using JavaScript.
 4. **Use Access Token**: Use the access token to make API requests as described in the server-side API docs.
 5. **Security Considerations**: Only request necessary scopes, use HTTPS for the OAuth callback page, and use a `state` parameter to prevent attacks.
-
 
 Example of API Endpoints ([Itch.io API Documentation](https://itch.io/docs/api/server)):
 
@@ -174,7 +297,11 @@ Example of API Endpoints ([Itch.io API Documentation](https://itch.io/docs/api/s
 - Download Keys: `GET /api/1/KEY/game/GAME_ID/download_keys`
 - Game Purchases: `GET /api/1/KEY/game/GAME_ID/purchases`
 
-Passing Parameters is possible using GET requests, inserted in the query string.
+Passing parameters is possible using GET requests, inserted in the query string.
+
+![\ ](images/auth%20page.png){width=50%}
+
+![\ ](images/authorize%20app.png){width=50%}
 
 ## RSS Feeds
 
@@ -194,7 +321,6 @@ We used libraries such Axios to make HTTP requests to both our Firebase backend 
 ## Web View and Data Retrieval
 
 Also the web view of game and jams pages are used since each developer customize them with custom background, layouts and fonts. We used web scraping tools like Cheerio to remove the bars of Itch.io web page to make a continuity in the design of our application.
-
 
 
 ## Google Firebase
@@ -218,6 +344,8 @@ Responsive and adaptive design principles are critical for creating a seamless u
 - **Scalability**: The use of responsive design ensures that the app looks and functions well on both small screens (like phones) and larger screens (like tablets). Flutter’s `LayoutBuilder` and `Constraints` widgets help manage different layout requirements based on screen size.
 - **Consistency**: Adaptive design ensures that the app provides a consistent user experience by adjusting its UI elements to fit the device's form factor and user input methods. For example, touch interfaces on phones and tablets are optimized for finger interactions.
 
+
+
 ## Device Compatibility
 
 To ensure compatibility and optimal user experience across various devices and screen sizes, the app will focus on:
@@ -226,6 +354,10 @@ To ensure compatibility and optimal user experience across various devices and s
 - **Adaptive UI Elements**: Implementing adaptive UI components that adjust their size, padding, and alignment based on the device’s dimensions and resolution.
 - **Testing on Multiple Devices**: Regular testing on a range of Android phones and tablets to identify and resolve any compatibility issues.
 - **Optimized Performance**: Ensuring the app performs efficiently across all supported devices, leveraging Flutter’s capabilities to maintain smooth animations and interactions.
+
+![\ ](images/jams%20tablet.png)
+
+![\ ](images/settings%20tablet.png)
 
 # Development Best Practices
 
@@ -239,55 +371,106 @@ To maintain high-quality code and efficient development workflows, the following
 
 
 ```{.mermaid}
-
 classDiagram
-    namespace Views {
-        class MainView
-        class ContentViews
-    }
-    namespace Models {
-        class CoreModels
-    }
-    namespace Providers {
-        class StateManagement
-    }
-    namespace Services {
-        class OAuthService
-        class NotificationService
-        class APIService
+    class Main {
+        main()
     }
 
-    MainView --> ContentViews : Contains
-    ContentViews --> CoreModels : Use
-    StateManagement --> CoreModels : Manage
-    ContentViews --> StateManagement : Consume
-    APIService --> CoreModels : Fetch/Update
-    OAuthService --> APIService : Authenticate
-    NotificationService --> MainView : Notify
-
-    class ContentViews {
-        HomePage
-        SearchPage
-        JamsPage
-        FavoritePage
-        ProfilePage
-        SettingsPage
+    class MainView {
+        BottomNavigationBar
+        PageView
     }
 
-    class CoreModels {
-        Game
-        Jam
-        User
-        SavedSearch
-    }
+    class AuthOrMainView
+    class AuthPage
+    class HomePage
+    class SearchPage
+    class JamsPage
+    class FavoritePage
+    class ProfilePage
+    class SettingsPage
+    class GameWebViewPage
 
-    class StateManagement {
-        FavoriteProvider
-        PageProvider
-        ThemeNotifier
-        SearchBookmarkProvider
-    }
+    class Game
+    class Jam
+    class User
+    class SavedSearch
+    class Filter
+    class ItemType
+    class JamGame
+    class Option
+    class PurchasedGame
+
+    class FavoriteProvider
+    class PageProvider
+    class ThemeNotifier
+    class SearchBookmarkProvider
+    class FilterProvider
+    class ItemTypeProvider
+    class JamsProvider
+    class SavedSearchesProvider
+    class SearchProvider
+    class UserProvider
+
+    class OAuthService
+    class NotificationService
+
+    class BottomNavigationBar
+    class CarouselCard
+    class CustomAppBar
+    class DevelopedGameCard
+    class FilterPopup
+    class FilterRowWidget
+    class GameCard
+    class JamCard
+    class ResponsiveGridListGame
+    class ResponsiveGridListJams
+    class SavedSearchList
+    class SearchBar
+
+    Main --> AuthOrMainView : Starts
+    AuthOrMainView --> MainView : Contains
+    AuthOrMainView --> AuthPage : Contains
+    MainView --> HomePage : Contains
+    MainView --> SearchPage : Contains
+    MainView --> JamsPage : Contains
+    MainView --> FavoritePage : Contains
+    MainView --> ProfilePage : Contains
+    MainView --> SettingsPage : Contains
+
+    HomePage ..> Game : Uses
+    SearchPage ..> Game : Uses
+    JamsPage ..> Jam : Uses
+    FavoritePage ..> Game : Uses
+    FavoritePage ..> Jam : Uses
+    ProfilePage ..> User : Uses
+    ProfilePage ..> Game : Uses
+
+    FavoriteProvider --> Game : Manages
+    FavoriteProvider --> Jam : Manages
+    PageProvider --> MainView : Manages
+    ThemeNotifier --> MainView : Manages
+    SearchBookmarkProvider --> SavedSearch : Manages
+    FilterProvider --> Filter : Manages
+    ItemTypeProvider --> ItemType : Manages
+    JamsProvider --> Jam : Manages
+    SavedSearchesProvider --> SavedSearch : Manages
+    SearchProvider --> Game : Manages
+    UserProvider --> User : Manages
+
+    OAuthService --> AuthPage : Authenticates
+    NotificationService --> MainView : Notifies
+
+    MainView ..> BottomNavigationBar : Uses
+    HomePage ..> CarouselCard : Uses
+    HomePage ..> SavedSearchList : Uses
+    SearchPage ..> FilterPopup : Uses
+    SearchPage ..> ResponsiveGridListGame : Uses
+    JamsPage ..> ResponsiveGridListJams : Uses
+    ProfilePage ..> DevelopedGameCard : Uses
 ```
+
+
 
 ## Version Control and Collaboration
 
@@ -297,16 +480,25 @@ Using version control and collaboration tools is essential for maintaining a coh
 - **Collaboration Tools**: Utilizing tools like GitHub or GitLab for code hosting, pull requests, and code reviews. Integrating these tools with continuous integration (CI) systems to automate testing and deployment.
 - **Documentation**: Keeping comprehensive documentation of the codebase, development processes, and API integrations to facilitate collaboration and onboarding of new team members.
 
+
 # Testing and Quality Assurance
 
 ## Testing Strategy in Flutter
 
 A comprehensive testing strategy is crucial for ensuring the app’s quality and reliability:
 
-- **Unit Testing**: Writing unit tests to validate the behavior of individual functions and classes.
+- **Unit Testing**: Writing unit tests to validate the behavior of individual functions and classes. In our case the models folder.
 - **Widget Testing**: Creating widget tests to verify the correctness of the UI components and their interactions.
-- **Integration Testing**: Implementing integration tests to ensure that different parts of the app work together as expected.
-- **Automated Testing**: Leveraging Flutter’s testing framework and CI tools to automate the execution of tests, providing continuous feedback on code quality.
+- **Integration Testing**: Implementing integration tests to ensure that different parts of the app work together as expected. In our case the views folder.
+
+
+
+| Test Type    | Coverage |
+|--------------|----------|
+| Unit Tests (models folder)   | 90% files, 73% lines |
+| Widget Tests | 100% files, 96 % lines covered   |
+| Integration Tests (views folder) | 90% files, 90% lines covered   |
+
 
 ## Quality Assurance Practices
 
@@ -322,11 +514,11 @@ To maintain high standards of quality, the following practices will be implement
 
 The project will be broken down into the following phases, each with tentative timelines:
 
-1. **Concept Phase**: Define the project scope, objectives, and initial requirements (2 weeks).
-2. **Design Phase**: Create detailed UI/UX designs, wireframes, and prototypes (4 weeks).
-3. **Development Phase**: Implement the app’s features, integrate third-party services, and develop the backend (12 weeks).
-4. **Testing Phase**: Conduct thorough testing, including unit, widget, and integration tests (4 weeks).
-5. **Deployment Phase**: Finalize the app fixing last bugs (2 weeks).
+1. **Concept Phase**: Define the project scope, objectives, and initial requirements (1 week).
+2. **Design Phase**: Create detailed UI/UX designs, wireframes, and prototypes (2 weeks).
+3. **Development Phase**: Implement the app’s features, integrate third-party services, and develop the backend (10 weeks).
+4. **Testing Phase**: Conduct thorough testing, including unit, widget, and integration tests (3 weeks).
+5. **Deployment Phase**: Finalize the app fixing last bugs (3 weeks).
 
 ## 10.2 Key Milestones
 
