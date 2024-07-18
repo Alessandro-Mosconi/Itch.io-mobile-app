@@ -37,7 +37,6 @@ void main() {
       expect(savedSearch.items, isNotNull);
       expect(savedSearch.items!.length, 2);
 
-      // Test specific items
       expect(savedSearch.items![0].id, 1);
       expect(savedSearch.items![0].title, 'Game 1');
       expect(savedSearch.items![0].type, 'action');
@@ -88,7 +87,6 @@ void main() {
       expect(jsonMap['items'], isNotNull);
       expect(jsonMap['items'].length, 2);
 
-      // Test specific items
       expect(jsonMap['items'][0]['id'], 1);
       expect(jsonMap['items'][0]['title'], 'Game 1');
       expect(jsonMap['items'][0]['type'], 'action');

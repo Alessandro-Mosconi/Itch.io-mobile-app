@@ -6,12 +6,15 @@ import 'package:itchio/models/jam.dart';
 import 'package:itchio/providers/page_provider.dart';
 import 'package:itchio/widgets/jam_card.dart';
 import 'package:logger/logger.dart';
+import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
+
+import '../mocks/mock_page_provider.mocks.dart';
 
 void main() {
   final Logger logger = Logger(printer: PrettyPrinter());
+  final mockPageProvider = MockPageProvider();
   testWidgets('Jam card test', (WidgetTester tester) async {
-    // Costruisci il widget da testare.
     Jam jam = getJamExample();
 
     await tester.pumpWidget(
@@ -19,7 +22,7 @@ void main() {
         home: Directionality(
           textDirection: TextDirection.ltr,
           child: ChangeNotifierProvider<PageProvider>(
-            create: (_) => PageProvider(), // Fornisci il provider PageProvider
+            create: (_) => mockPageProvider,
             child: JamCard(jam: jam, isTablet: false),
           ),
         ),
@@ -69,14 +72,12 @@ void main() {
     await tester.tap(find.byKey(const Key('jam_card_gesture_detector')));
 
     await tester.pumpAndSettle();
-    //TODO da verificare davvero
-    //expect(find.byType(GameWebViewPage), findsOneWidget);
+
+    verify(mockPageProvider.setExtraPage(any)).called(1);
 
   });
 
   testWidgets('Jam card tablet test', (WidgetTester tester) async {
-
-    //TEST JAM VIEW
 
     Jam jam = getJamExample();
 
@@ -85,7 +86,7 @@ void main() {
         home: Directionality(
           textDirection: TextDirection.ltr,
           child: ChangeNotifierProvider<PageProvider>(
-            create: (_) => PageProvider(), // Fornisci il provider PageProvider
+            create: (_) => mockPageProvider,
             child: JamCard(jam: jam, isTablet: true),
           ),
         ),
@@ -97,9 +98,6 @@ void main() {
     expect(find.text("Start: ${intl.DateFormat('dd MMM yyyy').format(jam.startDate!)}"), findsOneWidget);
     expect(find.text("End: ${intl.DateFormat('dd MMM yyyy').format(jam.endDate!)}"), findsOneWidget);
     expect(find.text("Voting Ends: ${jam.votingEndDate == null ? 'null' : intl.DateFormat('dd MMM yyyy').format(jam.votingEndDate!)}"), findsOneWidget);
-
-
-    //TEST TAP ON CALENDAR
 
     final Finder buttonFinder = find.byIcon(Icons.calendar_today);
 
@@ -149,18 +147,17 @@ void main() {
 
     expect(cancelButton, findsNothing);
 
-    //TEST TAP ON JAM
+
 
     await tester.tap(find.byKey(const Key('jam_card_gesture_detector')));
 
     await tester.pumpAndSettle();
-    //TODO da verificare davvero
-    //expect(find.byType(GameWebViewPage), findsOneWidget);
+
+    verify(mockPageProvider.setExtraPage(any)).called(1);
 
   });
 
   testWidgets('Jam card test with voting end null', (WidgetTester tester) async {
-    // Costruisci il widget da testare.
     Jam jam = getJamExample();
     jam.votingEndDate = null;
 
@@ -198,11 +195,9 @@ String _formatDate(DateTime? date) {
 Jam getJamExample() {
   Map<String, dynamic> userData = getUser();
 
-  // Dati per il gioco
   Map<String, dynamic> gameData = getGame(userData);
   Map<String, dynamic> jamGameData = getJamGame(gameData);
 
-  // Dati per la Jam
   Map<String, dynamic> jamData = {
     'hue': 120,
     'start_date': '2023-01-01T00:00:00Z',

@@ -68,8 +68,8 @@ void main() {
 
         expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
+        // because pumpAndSettle doesn't work with infinite animations
         for (int i = 0; i < 5; i++) {
-          // because pumpAndSettle doesn't work with infinite animations
           await tester.pump(Duration(seconds: 1));
         }
 
@@ -109,8 +109,8 @@ void main() {
 
         expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
+        // because pumpAndSettle doesn't work with infinite animations
         for (int i = 0; i < 5; i++) {
-          // because pumpAndSettle doesn't work with infinite animations
           await tester.pump(Duration(seconds: 1));
         }
 

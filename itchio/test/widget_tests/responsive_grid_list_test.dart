@@ -10,27 +10,21 @@ void main() {
   testWidgets('ResponsiveGridList game widget test', (WidgetTester tester) async {
     final games = [getGame('Game 1'), getGame('Game 2')];
 
-    // Mock network images for the entire test
     await mockNetworkImagesFor(() async {
-      // Initial pump with a small screen size to expect a ListView
       await tester.pumpWidget(MaterialApp(home: ResponsiveGridListGame(games: games)));
       tester.view.physicalSize = const Size(500, 800);
       await tester.pumpAndSettle();
       expect(find.byType(ListView), findsOneWidget);
 
-      // Change the physical size to simulate a larger screen
       tester.view.physicalSize = const Size(800, 600);
       tester.view.devicePixelRatio = 1.0;
 
-      // Rebuild the widget tree with the new screen size
       await tester.pumpWidget(MaterialApp(home: ResponsiveGridListGame(games: games)));
       await tester.pumpAndSettle();
 
-      // Now we expect a GridView because of the larger screen
       expect(find.byType(GridView), findsOneWidget);
     });
 
-    // Reset the physical size after the test
     addTearDown(() {
       tester.view.resetPhysicalSize();
       tester.view.resetDevicePixelRatio();
@@ -55,7 +49,6 @@ void main() {
       expect(find.byType(GridView), findsOneWidget);
     });
 
-    // Reset the physical size after the test
     addTearDown(() {
       tester.view.resetPhysicalSize();
       tester.view.resetDevicePixelRatio();

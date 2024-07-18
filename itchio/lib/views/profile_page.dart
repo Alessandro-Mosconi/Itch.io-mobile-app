@@ -113,7 +113,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
           buildUserTags(user),
           const SizedBox(height: 20),
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.6, // Set a height for the container
+            height: MediaQuery.of(context).size.height * 0.6,
             child: isTabletAndLandscape(context) ? buildTabletLayout() : buildTabLayout(),
           ),
         ],
@@ -123,7 +123,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
 
   Widget buildTabletLayout() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0), // Adjust the padding as needed
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Row(
         children: [
           Expanded(
@@ -138,13 +138,13 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  const SizedBox(height: 10), // Space between title and content
+                  const SizedBox(height: 10),
                   Expanded(child: buildGamesSection(developedGames)),
                 ],
               ),
             ),
           ),
-          const SizedBox(width: 40), // Increase the gap between the columns
+          const SizedBox(width: 40),
           Expanded(
             flex: 1,
             child: Padding(
@@ -157,7 +157,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  const SizedBox(height: 10), // Space between title and content
+                  const SizedBox(height: 10),
                   Expanded(child: buildPurchasedGamesSection(purchasedGames)),
                 ],
               ),

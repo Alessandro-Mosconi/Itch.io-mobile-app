@@ -3,7 +3,7 @@ import 'package:uni_links/uni_links.dart';
 import 'dart:async';
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:logger/logger.dart';
-import 'package:flutter/foundation.dart'; // needed for ChangeNotifier
+import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 
@@ -20,7 +20,7 @@ class OAuthService extends ChangeNotifier {
   Stream<bool> get onAuthenticationSuccess => _authenticationSuccessController.stream;
 
   StreamSubscription? _sub;
-  String? _accessToken; // Added to store the access token
+  String? _accessToken;
 
   OAuthService({
     SharedPreferences? sharedPreferences,
@@ -32,7 +32,6 @@ class OAuthService extends ChangeNotifier {
     logger = customLogger ?? Logger(printer: PrettyPrinter());
   }
 
-  // Getter for access token to be used by widgets
   String? get accessToken => _accessToken;
 
   Future<void> _initSharedPreferences() async {

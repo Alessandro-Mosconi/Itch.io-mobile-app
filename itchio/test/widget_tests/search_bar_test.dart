@@ -12,11 +12,9 @@ class MockCallbacks extends Mock {
 
 void main() {
   testWidgets('SearchBar widget test', (WidgetTester tester) async {
-    // Create mock callbacks
     final mockCallbacks = MockCallbacks();
     final searchController = TextEditingController();
 
-    // Build the widget
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(

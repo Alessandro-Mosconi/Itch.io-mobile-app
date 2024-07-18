@@ -39,15 +39,12 @@ void main() {
 
     await mockNetworkImagesFor(() => tester.pumpWidget(const MyApp(false)));
 
-    // Verify GameCard is present
     expect(find.byType(GameCard), findsOneWidget);
 
-    // Verify game details
     expect(find.text(game.title!), findsOneWidget);
     expect(find.text(game.getCleanDescription()!), findsOneWidget);
     expect(find.text(game.getFormatPriceWithCurrency()), findsOneWidget);
 
-    // Verify platform icons
     final iconWindowsFinder = find.byWidgetPredicate((Widget widget) => widget is Icon && widget.icon == CustomIcon.windows);
     final iconLinuxFinder = find.byWidgetPredicate((Widget widget) => widget is Icon && widget.icon == CustomIcon.linux);
     final iconMacFinder = find.byWidgetPredicate((Widget widget) => widget is Icon && widget.icon == Icons.apple);
@@ -58,7 +55,6 @@ void main() {
     expect(iconMacFinder, findsOneWidget);
     expect(iconAndroidFinder, findsOneWidget);
 
-    // Verify stat columns
     expect(find.text('Views'), findsOneWidget);
     expect(find.text('100'), findsOneWidget);
     expect(find.text('Downloads'), findsOneWidget);
@@ -66,7 +62,6 @@ void main() {
     expect(find.text('Purchases'), findsOneWidget);
     expect(find.text('50'), findsOneWidget);
 
-    // Verify stat column colors
     expect(find.byWidgetPredicate((widget) =>
     widget is Container &&
         widget.decoration is BoxDecoration &&
@@ -85,11 +80,6 @@ void main() {
         (widget.decoration as BoxDecoration).border is Border &&
         ((widget.decoration as BoxDecoration).border as Border).top.color == Colors.blue
     ), findsOneWidget);
-
-    // Test tap on game card
-    await tester.tap(find.byKey(const Key('game_card_gesture_detector')));
-    await tester.pumpAndSettle();
-    // TODO: Verify navigation to GameWebViewPage if implemented
   });
 
   testWidgets('DevelopedGameCard with invalid URL test', (WidgetTester tester) async {
@@ -97,12 +87,10 @@ void main() {
 
     await mockNetworkImagesFor(() => tester.pumpWidget(const MyApp(true)));
 
-    // Verify game details
     expect(find.text(game.title!), findsOneWidget);
     expect(find.text(game.getCleanDescription()!), findsOneWidget);
     expect(find.text(game.getFormatPriceWithCurrency()), findsOneWidget);
 
-    // Verify platform icons
     final iconWindowsFinder = find.byWidgetPredicate((Widget widget) => widget is Icon && widget.icon == CustomIcon.windows);
     final iconLinuxFinder = find.byWidgetPredicate((Widget widget) => widget is Icon && widget.icon == CustomIcon.linux);
     final iconMacFinder = find.byWidgetPredicate((Widget widget) => widget is Icon && widget.icon == Icons.apple);
@@ -113,11 +101,9 @@ void main() {
     expect(iconMacFinder, findsOneWidget);
     expect(iconAndroidFinder, findsOneWidget);
 
-    // Test tap on game card with invalid URL
     await tester.tap(find.byKey(const Key('game_card_gesture_detector')));
     await tester.pumpAndSettle();
 
-    // Verify that the card is still present and unchanged
     expect(find.text(game.title!), findsOneWidget);
     expect(find.text(game.getCleanDescription()!), findsOneWidget);
     expect(find.text(game.getFormatPriceWithCurrency()), findsOneWidget);

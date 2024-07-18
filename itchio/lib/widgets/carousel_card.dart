@@ -186,7 +186,7 @@ class _CarouselCardState extends State<CarouselCard> {
       },
       child: Container(
         width: 250,
-        margin: const EdgeInsets.symmetric(horizontal: 5), // between items
+        margin: const EdgeInsets.symmetric(horizontal: 5),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -302,7 +302,7 @@ class _CarouselCardState extends State<CarouselCard> {
 
   String _generateTopicHash(String type, String filters) {
     String typeDefault = type;
-    return sha256.convert(utf8.encode(typeDefault + filters)).toString(); // key
+    return sha256.convert(utf8.encode(typeDefault + filters)).toString();
   }
 
   Future<void> _goToSearch() async {

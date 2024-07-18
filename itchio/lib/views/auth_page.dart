@@ -36,7 +36,7 @@ class _AuthPageState extends State<AuthPage> {
 
   void _navigateToMainView() {
     final pageProvider = Provider.of<PageProvider>(context, listen: false);
-    pageProvider.setSelectedIndex(0); // Reset to the first page
+    pageProvider.setSelectedIndex(0);
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (context) => const MainView()),
     );

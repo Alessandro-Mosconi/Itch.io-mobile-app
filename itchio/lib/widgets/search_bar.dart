@@ -77,7 +77,6 @@ class SearchBar extends StatelessWidget {
               ),
               onSubmitted: (value) {
                 onSearch();
-                // set the state to not show the save button once a search is performed
               },
             ),
           ),

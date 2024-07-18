@@ -13,8 +13,6 @@ void main() {
     setUp(() {
       TestWidgetsFlutterBinding.ensureInitialized();
       SharedPreferences.setMockInitialValues({});
-      // get the mock of shared pref
-
 
       themeNotifier = ThemeNotifier();
       MockSharedPreferences mockPrefs = MockSharedPreferences();

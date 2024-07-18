@@ -213,7 +213,7 @@ void main() {
 
     testWidgets('ProfilePage Tablet layout', (WidgetTester tester) async {
 
-      tester.binding.window.physicalSizeTestValue = Size(1600, 1200); // Tablet screen size
+      tester.binding.window.physicalSizeTestValue = Size(1600, 1200);
       tester.binding.window.devicePixelRatioTestValue = 1.0;
 
       await mockNetworkImagesFor(() async {

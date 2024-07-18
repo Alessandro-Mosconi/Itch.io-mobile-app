@@ -176,10 +176,8 @@ void main() {
 
         final dismissibleFinder = find.byType(Dismissible);
 
-        // Check if the Dismissible widget is present
         expect(dismissibleFinder, findsOneWidget);
 
-        // Trigger dismiss in one direction (e.g., right)
         await tester.drag(dismissibleFinder, const Offset(1000, 0));
         await tester.pumpAndSettle();
 
@@ -239,10 +237,8 @@ void main() {
           ),
         );
 
-        // Verifica se la notifica è abilitata di default
         expect(find.byIcon(Icons.notifications_none), findsOneWidget);
 
-        // Tocca l'icona di notifica per disabilitarla
         await tester.tap(find.byIcon(Icons.notifications_none));
         await tester.pumpAndSettle();
 
@@ -282,10 +278,8 @@ void main() {
           ),
         );
 
-        // Verifica se la notifica è abilitata di default
         expect(find.byIcon(Icons.notifications_active), findsOneWidget);
 
-        // Tocca l'icona di notifica per disabilitarla
         await tester.tap(find.byIcon(Icons.notifications_active));
         await tester.pumpAndSettle();
 
@@ -315,7 +309,6 @@ void main() {
           ),
         ));
 
-        // Verifica che la lista dei giochi sia inizialmente visibile
         expect(find.byType(ListView), findsOneWidget);
 
         final initialScrollOffset = tester.getTopLeft(find.byType(ListView)).dx;
@@ -384,5 +377,5 @@ Map<String, dynamic> getUser() {
 
 String _generateTopicHash(String type, String filters) {
   String typeDefault = type;
-  return sha256.convert(utf8.encode(typeDefault + filters)).toString(); // key
+  return sha256.convert(utf8.encode(typeDefault + filters)).toString();
 }

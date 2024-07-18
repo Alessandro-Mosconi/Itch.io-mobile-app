@@ -87,11 +87,6 @@ void main() {
         await tester.tap(clearButtonFinder);
         await tester.pumpAndSettle();
 
-        for (int i = 0; i < 5; i++) {
-          // because pumpAndSettle doesn't work with infinite animations
-          await tester.pump(Duration(seconds: 1));
-        }
-
         expect((find.byType(badges.Badge).evaluate().first.widget as badges.Badge).showBadge, false);
 
         final filterButtonFinder = find.byIcon(Icons.filter_list);

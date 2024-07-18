@@ -16,7 +16,6 @@ class ResponsiveGridListGame extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.maxWidth > 600) {
-          // Tablet layout: grid with dynamic crossAxisCount based on orientation
           return GridView.builder(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: crossAxisCount,
@@ -30,7 +29,6 @@ class ResponsiveGridListGame extends StatelessWidget {
             },
           );
         } else {
-          // Mobile layout: list
           return ListView(
             children: games.map((game) => GameCard(game: game)).toList(),
           );

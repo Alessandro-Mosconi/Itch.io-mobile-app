@@ -58,7 +58,7 @@ void main() {
 
     testWidgets('displays actions and leading widgets', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp( // Removed const from here
+        MaterialApp(
           home: ChangeNotifierProvider<ThemeNotifier>(
             create: (_) => mockThemeNotifier,
             child: const Scaffold(

@@ -25,7 +25,7 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   final themeNotifier = ThemeNotifier();
-  await themeNotifier.init(); // Initialize the ThemeNotifier
+  await themeNotifier.init();
 
   runApp(ProviderApp(themeNotifier: themeNotifier));
 }
