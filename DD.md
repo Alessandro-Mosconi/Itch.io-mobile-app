@@ -44,12 +44,13 @@ The design principles guiding the app's user interface emphasize the importance 
 
 ![\ ](images/home.jpg){width=50%}
 
-Each game/item page is embedded in a web view to preserve the developers' and publishers' personalized styles, backgrounds, and fonts.
+Each game/item page is embedded in a web view to preserve the developers' and publishers' personalized styles, backgrounds, and fonts. With addon such as share and save as favorite buttons.
 
 ![\ ](images/gambetto.png){width=50%}
 
 The app ships with multiple themes that change its aesthetics, and there is an option for a theme that follows the device's overall theme.
 
+![\ ](images/settings_tablet.png)
 
 ## User Interaction Flow
 
@@ -65,7 +66,7 @@ The user journey within the app includes:
 
 The app will offer a seamless browsing experience, allowing users to explore a wide range of games, assets, tools, books, soundtracks, and other content hosted on Itch.io.
 
-## Customization of Homepage
+## Customization of Homepage and Browsing
 
 Users can customize their homepage by:
 
@@ -73,6 +74,7 @@ Users can customize their homepage by:
 - **Modular Layout**: Rearrange elements on the homepage to prioritize what matters most, creating a tailored and personal experience.
 
 ![\ ](images/tablet%20home.png)
+![\ ](images/home.jpg){width=50%}
 
 Here a sequence diagram showing the user who make a search and pinning it in the homepage which is built modularly. 
 
@@ -99,6 +101,34 @@ sequenceDiagram
     SP->>S: Confirm Save
     S->>U: Show Save Confirmation
 ```
+
+## User profile handling
+
+User can consult and check their profiles including developed and purchased games
+
+![\ ](images/user%20profile%20tablet.png)
+
+## Jam browsing
+
+User can browse different jams by searching them with a text query or by filtering them by date:
+
+- **Jams Browsing**: Search different jam with custom filters.
+- **Save jams to calendar**: Save jams duration and voting ends date in device calendar app
+
+Jams browsing            |  Calendar saving
+:-------------------------:|:-------------------------:
+![\ ](images/jam_search.png)  |  ![\ ](images/save_calendar_jam.png)
+
+
+
+## Favorite managing
+
+User can check games and jams marked as favorite during previous searches 
+
+Favorite games          |  Favorite jams
+:-------------------------:|:-------------------------:
+![\ ](images/favorite_games.png)  |  ![\ ](images/no_favorite_jam.png)
+
 
 ## Receiving Notifications
 
@@ -134,19 +164,19 @@ The **presentation layer** is developed using Flutter, which handles the user in
 
 The **back-end** apart from using Itch.io, is based on Firebase. Firebase is a set of backend cloud computing services and application development platforms provided by Google. It hosts databases, services, authentication, and integration for our application.
 
-- **Firebase Authentication**
-- **Firebase Firestore**: Serves as the primary database for storing user data like favorite games, saved searches and notification/alert settings. 
+- **Itchio Authentication**
+- **Firebase Realtime Database**: Serves as the primary database for storing user data like favorite games, saved searches and notification/alert settings. 
 - **Firebase Cloud Messaging (FCM)**: Handles push notifications, ensuring users receive timely updates about game releases and updates.
 - **Cloud Functions**: Used for server-side logic, such as sending notifications, managing complex queries, and performing backend tasks that require server-side processing.
 
 ### Interaction Between Components
 
 1. **User Authentication**:
-   - User both authenticate with Itch.io and with our backend. After successful authentication, a user token is generated and used for subsequent interactions with both Itch.io and Firebase services.
-   - Users authenticate through the Flutter front-end, which interacts with Firebase Authentication.
+   - User both authenticate with Itch.io or directly with our backend if previously logged. After successful authentication, a user token is generated and used for subsequent interactions with both Itch.io and Firebase services.
+   - Users authenticate through the Flutter front-end, which interacts with Itch.io Authentication.
 2. **Data Management**:
-   - The Flutter app fetches and manipulates data stored both in Firebase Firestore and in Itch.io.
-   - Any changes made by the user, such as adding a game to favorites or tracking a game jam, are updated in real-time in Firestore.
+   - The Flutter app fetches and manipulates data stored both in Firebase Realtime Database and in Itch.io.
+   - Any changes made by the user, such as adding a game to favorites or tracking a game jam, are updated in real-time in Firebase.
 3. **Notifications**:
    - The app subscribes to specific topics or events using FCM.
    - Notifications about game updates, new releases, or game jam reminders are sent from Cloud Functions to FCM, which then pushes them to the user's device.
@@ -240,7 +270,7 @@ graph TB
 
 # Third-Party Integrations
 
-The ItchExplorer app will integrate with several third-party services to enhance its functionality and provide a seamless user experience. 
+The Itch.io app will integrate with several third-party services to enhance its functionality and provide a seamless user experience. 
 
 ## OAuth API
 
@@ -299,9 +329,10 @@ Example of API Endpoints ([Itch.io API Documentation](https://itch.io/docs/api/s
 
 Passing parameters is possible using GET requests, inserted in the query string.
 
-![\ ](images/auth%20page.png){width=50%}
+Auth page         |  Authorizing with itch.io
+:-------------------------:|:-------------------------:
+![\ ](images/auth%20page.png)  |  ![\ ](images/authorize%20app.png)
 
-![\ ](images/authorize%20app.png){width=50%}
 
 ## RSS Feeds
 
@@ -327,10 +358,8 @@ Also the web view of game and jams pages are used since each developer customize
 
 Google Firebase will be integral to the ItchExplorer app, providing several backend services to enhance user experience and app functionality.
 
-- **Firebase Authentication**: Manages user login and sessions securely using various authentication providers, including Google, Facebook, and email/password.
-- **Firebase Firestore**: Acts as the primary database for storing user data, game information, favorites, and other app-related data, supporting real-time synchronization and offline access.
+- **Firebase Realtime Databse**: Acts as the primary database for storing user data, game information, favorites, and other app-related data, supporting real-time synchronization and offline access.
 - **Firebase Cloud Messaging (FCM)**: Sends push notifications to users, ensuring they receive timely updates on game releases, updates, and other relevant information.
-- **Firebase Storage**: Stores user-uploaded content such as profile pictures and game assets.
 - **Cloud Functions**: Executes server-side logic for tasks such as sending notifications, managing complex queries, and performing backend processing.
 
 
@@ -477,11 +506,11 @@ classDiagram
 Using version control and collaboration tools is essential for maintaining a coherent and efficient development process:
 
 - **Version Control**: Using Git for source code management, with a clear branching strategy (e.g., feature branches, development branch, and main branch) to manage code changes and releases.
-- **Collaboration Tools**: Utilizing tools like GitHub or GitLab for code hosting, pull requests, and code reviews. Integrating these tools with continuous integration (CI) systems to automate testing and deployment.
+- **Collaboration Tools**: Utilizing tools like GitHub for code hosting, pull requests, and code reviews.
 - **Documentation**: Keeping comprehensive documentation of the codebase, development processes, and API integrations to facilitate collaboration and onboarding of new team members.
 
 
-# Testing and Quality Assurance
+# Testing
 
 ## Testing Strategy in Flutter
 
@@ -495,18 +524,10 @@ A comprehensive testing strategy is crucial for ensuring the app’s quality and
 
 | Test Type    | Coverage |
 |--------------|----------|
-| Unit Tests (models folder)   | 90% files, 73% lines |
+| Unit Tests (models folder)   | 90% files, 97% lines |
 | Widget Tests | 100% files, 96 % lines covered   |
 | Integration Tests (views folder) | 90% files, 90% lines covered   |
 
-
-## Quality Assurance Practices
-
-To maintain high standards of quality, the following practices will be implemented:
-
-- **Code Reviews**: Conducting regular code reviews to ensure code quality, consistency, and adherence to best practices.
-- **Continuous Integration**: Setting up CI pipelines to automatically run tests, build the app, and deploy it to staging environments.
-- **Performance Monitoring**: Using tools to monitor the app’s performance and detect issues such as memory leaks, slow rendering, and high CPU usage.
 
 # 10. Project Timeline and Milestones
 
@@ -532,12 +553,12 @@ Key milestones within each phase will include:
 
 # 11. Conclusion
 
-The primary objectives of this app are to enhance the mobile experience for Itch.io users by providing a feature-rich, responsive, and intuitive application. The app aims to support game developers, gamers, and the Itch.io community by offering seamless navigation, real-time updates, and efficient content management.
+The primary objectives of this app are to enhance the mobile experience for Itch.io users by providing a feature-rich, responsive, and intuitive application. The app aims to support game developers, gamers, and the Itch.io community by offering seamless navigation, real-time updates, and efficient content management (which were not present in orginial Itch.io website).
 
 ## 11.2 Future Prospects
 
 Looking ahead, the app has potential for future enhancements and scalability:
 
 - **User Feedback**: gathering user feedback to identify areas for improvement and new feature requests.
-- **Community Engagement**: Building a strong community around the app, encouraging user engagement and contributions.
+- **Community Engagement**: Building a strong community around the app and leverage the already present itc.io community, encouraging user engagement and contributions.
 - **Feature Expansion**: Adding new features regarding the interaction between users.

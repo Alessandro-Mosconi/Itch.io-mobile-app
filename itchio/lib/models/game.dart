@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
-import 'package:itchio/models/User.dart';
+import 'package:itchio/models/user.dart';
 import 'package:logger/logger.dart';
 
 final Logger logger = Logger(printer: PrettyPrinter());

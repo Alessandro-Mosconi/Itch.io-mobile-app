@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:itchio/models/User.dart';
+import 'package:itchio/models/user.dart';
 import 'package:itchio/models/game.dart';
 import 'package:itchio/models/jam.dart';
 import 'package:itchio/models/purchased_game.dart';

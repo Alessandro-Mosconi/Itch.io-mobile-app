@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:itchio/providers/user_provider.dart';
 import 'dart:math';
-import '../models/User.dart';
+import '../models/user.dart';
 import '../models/game.dart';
 import '../models/purchased_game.dart';
 import '../services/oauth_service.dart';

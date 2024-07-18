@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:crypto/crypto.dart';
-import 'package:itchio/models/User.dart';
+import 'package:itchio/models/user.dart';
 import 'package:itchio/models/jam_game.dart';
 
 void main() {
