@@ -524,11 +524,11 @@ A comprehensive testing strategy is crucial for ensuring the app’s quality and
 
 
 
-| Test Type    | Coverage |
-|--------------|----------|
-| Unit Tests (models folder)   | 90% files, 97% lines |
-| Widget Tests | 100% files, 96 % lines covered   |
-| Integration Tests (views folder) | 90% files, 90% lines covered   |
+| Test Type    | Coverage | Number of tests |
+|--------------|----------|----------|
+| Unit Tests (models folder)   | 90% files, 97% lines | 19 tests |
+| Widget Tests | 100% files, 96 % lines covered   | 30 tests |
+| Integration Tests (views folder) | 90% files, 90% lines covered   | 36 tests |
 
 
 # 10. Project Timeline and Milestones
