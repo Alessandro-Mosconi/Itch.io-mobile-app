@@ -268,6 +268,8 @@ graph TB
     A <--> I
 ```
 
+![\ ](images/notify.jpg){width=50%}
+
 # Third-Party Integrations
 
 The Itch.io app will integrate with several third-party services to enhance its functionality and provide a seamless user experience. 
