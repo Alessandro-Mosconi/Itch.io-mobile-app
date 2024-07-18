@@ -42,15 +42,13 @@ The target audience for the app includes Itch.io users, game developers, and gam
 
 The design principles guiding the app's user interface emphasize the importance of a responsive design that mirrors Itch.io’s style. The app aims to keep the user interface minimal while offering customization options. 
 
-![\ ](images/home.jpg){width=50%}
+![Home example](images/home.jpg){width=50%}
 
 Each game/item page is embedded in a web view to preserve the developers' and publishers' personalized styles, backgrounds, and fonts. With addon such as share and save as favorite buttons.
 
-![\ ](images/gambetto.png){width=50%}
+![Example of game page](images/gambetto.png){width=50%}
 
 The app ships with multiple themes that change its aesthetics, and there is an option for a theme that follows the device's overall theme.
-
-![\ ](images/settings_tablet.png)
 
 ## User Interaction Flow
 
@@ -73,40 +71,15 @@ Users can customize their homepage by:
 - **Pinning Searches and Favorites**: Pin important searches and favorite games for quick access.
 - **Modular Layout**: Rearrange elements on the homepage to prioritize what matters most, creating a tailored and personal experience.
 
-![\ ](images/tablet%20home.png)
-![\ ](images/home.jpg){width=50%}
+![Search page](images/tablet%20home.png) 
 
-Here a sequence diagram showing the user who make a search and pinning it in the homepage which is built modularly. 
-
-```{.mermaid}
-sequenceDiagram
-    participant U as User
-    participant S as SearchPage
-    participant F as FilterPopup
-    participant A as API
-    participant SP as SearchBookmarkProvider
-    U->>S: Enter Search Query
-    S->>A: Request Search Results
-    A->>S: Return Results
-    S->>U: Display Results
-    U->>S: Open Filters
-    S->>F: Show Filter Options
-    U->>F: Apply Filters
-    F->>S: Update Filters
-    S->>A: Request Filtered Results
-    A->>S: Return Filtered Results
-    S->>U: Display Filtered Results
-    U->>S: Save Search
-    S->>SP: Store Search Bookmark
-    SP->>S: Confirm Save
-    S->>U: Show Save Confirmation
-```
+![Save search](images/diagrams/image-2.png)
 
 ## User profile handling
 
 User can consult and check their profiles including developed and purchased games
 
-![\ ](images/user%20profile%20tablet.png)
+![Profile page](images/user%20profile%20tablet.png)
 
 ## Jam browsing
 
@@ -115,9 +88,9 @@ User can browse different jams by searching them with a text query or by filteri
 - **Jams Browsing**: Search different jam with custom filters.
 - **Save jams to calendar**: Save jams duration and voting ends date in device calendar app
 
-Jams browsing            |  Calendar saving
+|         |  | 
 :-------------------------:|:-------------------------:
-![\ ](images/jam_search.png)  |  ![\ ](images/save_calendar_jam.png)
+![Jams browsing](images/jam_search.png){width=50%} |  ![Calendar saving](images/save_calendar_jam.png){width=50%}
 
 
 
@@ -125,9 +98,9 @@ Jams browsing            |  Calendar saving
 
 User can check games and jams marked as favorite during previous searches 
 
-Favorite games          |  Favorite jams
+|         |  | 
 :-------------------------:|:-------------------------:
-![\ ](images/favorite_games.png)  |  ![\ ](images/no_favorite_jam.png)
+![Favorite games ](images/favorite_games.png){width=50%}  |  ![Favorite jams](images/no_favorite_jam.png){width=50%}
 
 
 ## Receiving Notifications
@@ -150,7 +123,9 @@ Users can find and track game jams, which are rapid game development events. The
 
 ## Front-End (Flutter)
 
-The **presentation layer** is developed using Flutter, which handles the user interface and user experience aspects. This layer includes various screens, widgets, and UI components that users interact with.
+The **presentation layer** is developed using Flutter, which handles the user interface and user experience aspects. This layer includes various screens (views), which group widgets and UI components that users interact with.
+
+![Overview Flutter architecture](images/diagrams/image-5.png){width=50%}
 
 **Advantages of Flutter:**
 
@@ -203,72 +178,13 @@ In this way users can for example:
 - **Track discounts**: Users which has saved searches with "on sale" and "last week" filters can see what are the games that are on sale in the current week.
 
 
-```{.mermaid}
-sequenceDiagram
-    participant ST as Scheduled Trigger
-    participant HT as HTTP Trigger
-    participant CF as Cloud Functions
-    participant FRD as Firebase Realtime DB
-    participant IR as Itch.io RSS
-    participant FCM as Firebase Cloud Messaging
-    participant UA as User App
-
-    alt Scheduled Trigger
-        ST->>CF: Trigger notifyFeedScheduled
-    else HTTP Trigger
-        HT->>CF: Trigger notifyFeedHttp
-    end
-
-    CF->>FRD: Get topics to notify
-    FRD-->>CF: Return topics
-
-    loop For each topic
-        CF->>FRD: Get old items
-        FRD-->>CF: Return old items
-        CF->>IR: Fetch new items
-        IR-->>CF: Return new items
-        CF->>CF: Compare old and new items
-        CF->>FRD: Update stored items
-        alt New items found
-            CF->>FCM: Send notification
-            FCM->>UA: Deliver notification
-        end
-    end
-```
+![Notification sequence diagram](images/diagrams/image-1.png)
 
 To implement these features, Firebase Cloud Messaging (FCM) will be integrated with the backend and the Flutter app. Below is an example of the backend implementation using Firebase Functions and Itch.io API:
 
+![Simplified architecture](images/diagrams/image.png)
 
-```{.mermaid}
-graph TB
-    subgraph Client
-        A[Flutter App]
-        B[State Management]
-    end
-    subgraph Firebase
-        C[Authentication]
-        D[Firestore]
-        E[Cloud Functions]
-        F[Cloud Messaging]
-    end
-    subgraph "Itch.io"
-        G[OAuth API]
-        H[RSS Feeds]
-        I[Web Content]
-    end
-    A <--> B
-    A <--> C
-    A <--> D
-    A <--> F
-    B <--> D
-    C <--> G
-    E <--> D
-    E <--> F
-    E <--> H
-    A <--> I
-```
-
-![\ ](images/notify.jpg){width=50%}
+![Push notification example](images/notify.jpg){width=50%}
 
 # Third-Party Integrations
 
@@ -283,35 +199,7 @@ Key functionalities include:
 - **User account management**: Update user account details and preferences.
 - **Game management**: Manage games, including uploading new builds and updating existing ones.
 
-
-```{.mermaid}
-sequenceDiagram
-    participant U as User
-    participant A as App
-    participant OS as OAuthService
-    participant IO as Itch.io OAuth
-    participant SP as SharedPreferences
-    U->>A: Open App
-    A->>OS: Check Auth State
-    OS->>SP: Check for stored token
-    alt Token Exists
-        SP->>OS: Return Token
-        OS->>A: User Authenticated
-        A->>U: Show Main View
-    else No Token
-        A->>U: Show Login Screen
-        U->>A: Click Login
-        A->>OS: Start OAuth
-        OS->>IO: Redirect to Itch.io OAuth
-        IO->>U: Request Permissions
-        U->>IO: Grant Permissions
-        IO->>OS: Return Access Token
-        OS->>SP: Store Token
-        OS->>A: User Authenticated
-        A->>U: Show Main View
-    end
-```
-
+![Oauth itch.io api sequence](images/diagrams/image-3.png)
 
 **Steps**:
 
@@ -329,11 +217,16 @@ Example of API Endpoints ([Itch.io API Documentation](https://itch.io/docs/api/s
 - Download Keys: `GET /api/1/KEY/game/GAME_ID/download_keys`
 - Game Purchases: `GET /api/1/KEY/game/GAME_ID/purchases`
 
+
 Passing parameters is possible using GET requests, inserted in the query string.
 
-Auth page         |  Authorizing with itch.io
-:-------------------------:|:-------------------------:
-![\ ](images/auth%20page.png)  |  ![\ ](images/authorize%20app.png)
+| | |
+:---:|:---:
+| ![Auth page ](images/auth%20page.png){width=50%} | ![Authorizing with itch.io ](images/authorize%20app.png){width=50%} | 
+
+
+
+
 
 
 ## RSS Feeds
@@ -360,7 +253,7 @@ Also the web view of game and jams pages are used since each developer customize
 
 Google Firebase will be integral to the ItchExplorer app, providing several backend services to enhance user experience and app functionality.
 
-- **Firebase Realtime Databse**: Acts as the primary database for storing user data, game information, favorites, and other app-related data, supporting real-time synchronization and offline access.
+- **Firebase Realtime Database**: Acts as the primary database for storing user data, game information, favorites, and other app-related data, supporting real-time synchronization and offline access.
 - **Firebase Cloud Messaging (FCM)**: Sends push notifications to users, ensuring they receive timely updates on game releases, updates, and other relevant information.
 - **Cloud Functions**: Executes server-side logic for tasks such as sending notifications, managing complex queries, and performing backend processing.
 
@@ -386,9 +279,9 @@ To ensure compatibility and optimal user experience across various devices and s
 - **Testing on Multiple Devices**: Regular testing on a range of Android phones and tablets to identify and resolve any compatibility issues.
 - **Optimized Performance**: Ensuring the app performs efficiently across all supported devices, leveraging Flutter’s capabilities to maintain smooth animations and interactions.
 
-![\ ](images/jams%20tablet.png)
+![Jams page on tablet](images/jams%20tablet.png)
 
-![\ ](images/settings%20tablet.png)
+![Settings page on tablet](images/settings_tablet.png)
 
 # Development Best Practices
 
@@ -400,107 +293,7 @@ To maintain high-quality code and efficient development workflows, the following
 - **Widget Composition**: Breaking down the UI into small, reusable widgets to promote code reuse and simplify testing and maintenance.
 - **Adhering to Dart Programming Style**: Following the Dart language style guide, including proper naming conventions, code organization, and documentation practices.
 
-
-```{.mermaid}
-classDiagram
-    class Main {
-        main()
-    }
-
-    class MainView {
-        BottomNavigationBar
-        PageView
-    }
-
-    class AuthOrMainView
-    class AuthPage
-    class HomePage
-    class SearchPage
-    class JamsPage
-    class FavoritePage
-    class ProfilePage
-    class SettingsPage
-    class GameWebViewPage
-
-    class Game
-    class Jam
-    class User
-    class SavedSearch
-    class Filter
-    class ItemType
-    class JamGame
-    class Option
-    class PurchasedGame
-
-    class FavoriteProvider
-    class PageProvider
-    class ThemeNotifier
-    class SearchBookmarkProvider
-    class FilterProvider
-    class ItemTypeProvider
-    class JamsProvider
-    class SavedSearchesProvider
-    class SearchProvider
-    class UserProvider
-
-    class OAuthService
-    class NotificationService
-
-    class BottomNavigationBar
-    class CarouselCard
-    class CustomAppBar
-    class DevelopedGameCard
-    class FilterPopup
-    class FilterRowWidget
-    class GameCard
-    class JamCard
-    class ResponsiveGridListGame
-    class ResponsiveGridListJams
-    class SavedSearchList
-    class SearchBar
-
-    Main --> AuthOrMainView : Starts
-    AuthOrMainView --> MainView : Contains
-    AuthOrMainView --> AuthPage : Contains
-    MainView --> HomePage : Contains
-    MainView --> SearchPage : Contains
-    MainView --> JamsPage : Contains
-    MainView --> FavoritePage : Contains
-    MainView --> ProfilePage : Contains
-    MainView --> SettingsPage : Contains
-
-    HomePage ..> Game : Uses
-    SearchPage ..> Game : Uses
-    JamsPage ..> Jam : Uses
-    FavoritePage ..> Game : Uses
-    FavoritePage ..> Jam : Uses
-    ProfilePage ..> User : Uses
-    ProfilePage ..> Game : Uses
-
-    FavoriteProvider --> Game : Manages
-    FavoriteProvider --> Jam : Manages
-    PageProvider --> MainView : Manages
-    ThemeNotifier --> MainView : Manages
-    SearchBookmarkProvider --> SavedSearch : Manages
-    FilterProvider --> Filter : Manages
-    ItemTypeProvider --> ItemType : Manages
-    JamsProvider --> Jam : Manages
-    SavedSearchesProvider --> SavedSearch : Manages
-    SearchProvider --> Game : Manages
-    UserProvider --> User : Manages
-
-    OAuthService --> AuthPage : Authenticates
-    NotificationService --> MainView : Notifies
-
-    MainView ..> BottomNavigationBar : Uses
-    HomePage ..> CarouselCard : Uses
-    HomePage ..> SavedSearchList : Uses
-    SearchPage ..> FilterPopup : Uses
-    SearchPage ..> ResponsiveGridListGame : Uses
-    JamsPage ..> ResponsiveGridListJams : Uses
-    ProfilePage ..> DevelopedGameCard : Uses
-```
-
+![Overall view of widgets](images/diagrams/image-4.png)
 
 
 ## Version Control and Collaboration
@@ -531,9 +324,9 @@ A comprehensive testing strategy is crucial for ensuring the app’s quality and
 | Integration Tests (views folder) | 90% files, 90% lines covered   | 36 tests |
 
 
-# 10. Project Timeline and Milestones
+# Project Timeline and Milestones
 
-## 10.1 Development Phases
+## Development Phases
 
 The project will be broken down into the following phases, each with tentative timelines:
 
@@ -543,7 +336,7 @@ The project will be broken down into the following phases, each with tentative t
 4. **Testing Phase**: Conduct thorough testing, including unit, widget, and integration tests (3 weeks).
 5. **Deployment Phase**: Finalize the app fixing last bugs (3 weeks).
 
-## 10.2 Key Milestones
+## Key Milestones
 
 Key milestones within each phase will include:
 
@@ -553,14 +346,14 @@ Key milestones within each phase will include:
 - **Testing Phase**: Completion of all tests, bug fixing, and performance optimization.
 - **Deployment Phase**: App submission to app stores, marketing launch, and post-launch support.
 
-# 11. Conclusion
+# Conclusion
 
 The primary objectives of this app are to enhance the mobile experience for Itch.io users by providing a feature-rich, responsive, and intuitive application. The app aims to support game developers, gamers, and the Itch.io community by offering seamless navigation, real-time updates, and efficient content management (which were not present in orginial Itch.io website).
 
-## 11.2 Future Prospects
+## Future Prospects
 
 Looking ahead, the app has potential for future enhancements and scalability:
 
 - **User Feedback**: gathering user feedback to identify areas for improvement and new feature requests.
-- **Community Engagement**: Building a strong community around the app and leverage the already present itc.io community, encouraging user engagement and contributions.
+- **Community Engagement**: Building a strong community around the app and leveraging the already present itch.io community, encouraging user engagement and contributions.
 - **Feature Expansion**: Adding new features regarding the interaction between users.
