@@ -42,8 +42,8 @@ The target audience for the app includes Itch.io users, game developers, and gam
 
 The design principles guiding the app's user interface emphasize the importance of a responsive design that mirrors Itch.io’s style. The app aims to keep the user interface minimal while offering customization options. 
 
-![Home example](images/home.jpg){width=50%}
-
+![Home example](images/home.png){width=50%} 
+![Home example 2](images/home_notify.png){width=50%} 
 Each game/item page is embedded in a web view to preserve the developers' and publishers' personalized styles, backgrounds, and fonts. With addon such as share and save as favorite buttons.
 
 ![Example of game page](images/gambetto.png){width=50%}
@@ -72,14 +72,15 @@ Users can customize their homepage by:
 - **Modular Layout**: Rearrange elements on the homepage to prioritize what matters most, creating a tailored and personal experience.
 
 ![Search page](images/tablet%20home.png) 
-
 ![Save search](images/diagrams/image-2.png)
 
 ## User profile handling
 
-User can consult and check their profiles including developed and purchased games
+User can consult and check their profiles including developed and purchased games:
 
-![Profile page](images/user%20profile%20tablet.png)
+|      |  | 
+:-------------------------:|:-------------------------:
+| ![Profile page on phone](images/profile_mobile.png) | ![Profile page](images/user%20profile%20tablet.png)| 
 
 ## Jam browsing
 
@@ -90,7 +91,7 @@ User can browse different jams by searching them with a text query or by filteri
 
 |         |  | 
 :-------------------------:|:-------------------------:
-![Jams browsing](images/jam_search.png){width=50%} |  ![Calendar saving](images/save_calendar_jam.png){width=50%}
+![Jams browsing](images/jam_search.png){width=50%} | ![Calendar saving](images/save_calendar_jam.png){width=50%}  | 
 
 
 
@@ -100,8 +101,7 @@ User can check games and jams marked as favorite during previous searches
 
 |         |  | 
 :-------------------------:|:-------------------------:
-![Favorite games ](images/favorite_games.png){width=50%}  |  ![Favorite jams](images/no_favorite_jam.png){width=50%}
-
+![Favorite games ](images/favorite_games.png){width=50%}| ![Favorite jams](images/no_favorite_jam.png){width=50%} | 
 
 ## Receiving Notifications
 
@@ -173,18 +173,13 @@ Google Firebase was chosen for handling notifications due to its efficiency, sca
 
 The notification system will cover a variety of user notifications, including new game releases, updates, discounts, and game jam reminders. The implementation strategy using Firebase Cloud Messaging (FCM) is that when a saved search returns a different search results sends the changes to users who have subscribed to notifications for that search.
 
-In this way users can for example:
-
-- **Track discounts**: Users which has saved searches with "on sale" and "last week" filters can see what are the games that are on sale in the current week.
-
+In this way users can for example **track discounts**: Users which has saved searches with "on sale" and "last week" filters can see what are the games that are on sale in the current week.
 
 ![Notification sequence diagram](images/diagrams/image-1.png)
 
-To implement these features, Firebase Cloud Messaging (FCM) will be integrated with the backend and the Flutter app. Below is an example of the backend implementation using Firebase Functions and Itch.io API:
+To implement these features, Firebase Cloud Messaging (FCM) will be integrated with the backend and the Flutter app. 
 
 ![Simplified architecture](images/diagrams/image.png)
-
-![Push notification example](images/notify.jpg){width=50%}
 
 # Third-Party Integrations
 
@@ -270,6 +265,9 @@ Responsive and adaptive design principles are critical for creating a seamless u
 
 
 
+![Jams page on tablet](images/jams%20tablet.png)
+
+
 ## Device Compatibility
 
 To ensure compatibility and optimal user experience across various devices and screen sizes, the app will focus on:
@@ -279,9 +277,11 @@ To ensure compatibility and optimal user experience across various devices and s
 - **Testing on Multiple Devices**: Regular testing on a range of Android phones and tablets to identify and resolve any compatibility issues.
 - **Optimized Performance**: Ensuring the app performs efficiently across all supported devices, leveraging Flutter’s capabilities to maintain smooth animations and interactions.
 
-![Jams page on tablet](images/jams%20tablet.png)
 
 ![Settings page on tablet](images/settings_tablet.png)
+
+
+
 
 # Development Best Practices
 
