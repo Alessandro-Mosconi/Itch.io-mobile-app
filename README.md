@@ -1,6 +1,6 @@
 # ItchExplorer
 
-Itch.io's client in Flutter.
+[Itch.io](https://itch.io/)'s client in Flutter.
 
 [Peep the slides](https://docs.google.com/presentation/d/e/2PACX-1vSTbokh1DvEn2PSKci8gEbKIBtKuzCYcGwvbLk9AzJJeVTTBWrQFPo0bKNj6rBXWU1KWmS5M6af5I_7/pub?start=false&loop=false&delayms=3000)
 
