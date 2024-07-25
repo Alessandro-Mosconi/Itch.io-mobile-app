@@ -1,4 +1,4 @@
-# ItchExplorer
+# Itch.io mobile app
 
 [Itch.io](https://itch.io/)'s client in Flutter.
 
